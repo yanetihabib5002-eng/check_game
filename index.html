@@ -814,6 +814,12 @@ function startGame(g){
     const data=snap.val();if(!data)return;
     gameState=data;
     localHand=(data.hands&&data.hands[myUid])||[];
+    // Force re-render: reset lastMyTurn if turn changed externally (timer, etc.)
+    const newCurUid=data.playerOrder&&data.playerOrder[data.currentPlayerIdx];
+    if(newCurUid!==myUid && lastMyTurn){
+      lastMyTurn=false;
+      stopMyTimer();
+    }
     if(data.status==='finished'){renderWinner();return;}
     if(data.status==='elim_round_end'){
       handleElimRound(data);
@@ -914,6 +920,8 @@ function makeTimerRing(sec){
 function renderGame(){
   if(!gameState)return;
   const gs=gameState;
+  // Re-sync localHand in case it was updated by another path (e.g. timer autoPass)
+  if(gs.hands&&gs.hands[myUid]) localHand=gs.hands[myUid];
   const curUid=gs.playerOrder[gs.currentPlayerIdx];
   const curName=gs.playerNames[curUid];
   const mine=curUid===myUid;
@@ -923,12 +931,15 @@ function renderGame(){
   if(gs.mode&&gs.mode.timer!==undefined) TIMER_SEC=gs.mode.timer||999;
 
   // ── Timer: start when my turn, stop otherwise ──
-  if(mine&&!lastMyTurn){
-    // My turn just started — write turnStartTs to Firebase
-    db.ref('rooms/'+roomId+'/game/turnStartTs').set(Date.now());
+  const gs=gameState;
+  const curUid=gs&&gs.playerOrder?gs.playerOrder[gs.currentPlayerIdx]:'';
+  const turnChanged=curUid!==lastTurnUid;
+  lastTurnUid=curUid;
+
+  if(mine&&(!lastMyTurn||turnChanged)){
     if(TIMER_SEC>0) startMyTimer(); else stopMyTimer();
-  } else if(!mine&&lastMyTurn){
-    stopMyTimer();
+    // Only write turnStartTs if it's actually a new turn (not just a re-render)
+    if(turnChanged) db.ref('rooms/'+roomId+'/game/turnStartTs').set(Date.now());
   } else if(!mine){
     stopMyTimer();
   }
@@ -1034,7 +1045,7 @@ function renderGame(){
   // My hand
   document.getElementById('h-name').textContent=myName;
   document.getElementById('h-pending').textContent=gs.pendingDraws>0&&mine?'⚡ Prends +'+gs.pendingDraws+' ou renvoie':'';
-  renderHand(top,gs.commandedSuit,gs.pendingDraws,mine);
+  renderHand(top,gs.commandedSuit,gs.pendingDraws,mine,gs);
 
   // Buttons
   const canPl=selCard&&mine&&localHand.some(c=>c.id===selCard&&canPlay(c,top,gs.commandedSuit,gs.pendingDraws));
@@ -1044,8 +1055,9 @@ function renderGame(){
   else{bd.textContent='🎴 Piocher';bd.disabled=!mine;}
 }
 
-function renderHand(top,cmdSuit,pending,mine){
-  const hc=document.getElementById('h-cards');hc.innerHTML='';
+function renderHand(top,cmdSuit,pending,mine,gs){
+  if(!gs)return;
+  const hc=document.getElementById('h-cards');if(!hc)return;hc.innerHTML='';
   localHand.forEach(card=>{
     const jfc=(mine&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
     const pl=mine&&canPlay(card,top,cmdSuit,pending,jfc);
