@@ -2,7 +2,11 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d2e14">
 <title>CHECK 🃏</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
 
@@ -36,7 +40,8 @@ body {
   font-family: 'Lato', sans-serif;
   background: var(--felt-dark);
   color: var(--cream);
-  height: 100svh;
+  height: 100dvh;
+  height: -webkit-fill-available;
   overflow: hidden;
   position: relative;
 }
@@ -61,6 +66,11 @@ body::before {
   background: rgba(10,25,12,0.92);
   backdrop-filter: blur(12px);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-top: max(env(safe-area-inset-top, 0px), 20px);
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 20px);
+  justify-content: flex-start;
+  padding-top: 40px;
 }
 
 .logo-wrap { text-align: center; margin-bottom: 24px; }
@@ -118,7 +128,7 @@ body::before {
 input.field {
   width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(212,168,67,0.25);
   border-radius: 10px; color: var(--cream); font-family: 'Lato', sans-serif;
-  font-size: 14px; padding: 11px 14px; outline: none; margin-bottom: 10px;
+  font-size: 16px; padding: 12px 14px; outline: none; margin-bottom: 10px;
   transition: border-color .2s;
 }
 input.field:focus { border-color: var(--gold); }
@@ -192,7 +202,7 @@ input.field::placeholder { color: rgba(245,240,232,0.35); }
 /* Top info bar */
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 14px;
+  padding: max(env(safe-area-inset-top,0px),8px) 14px 8px;
   background: rgba(0,0,0,0.4);
   border-bottom: 1px solid rgba(212,168,67,0.15);
   flex-shrink: 0;
@@ -259,7 +269,7 @@ input.field::placeholder { color: rgba(245,240,232,0.35); }
 
 /* ═══ CARD DESIGN ═══ */
 .card {
-  width: 62px; height: 90px; border-radius: 8px;
+  width: clamp(52px, 14vw, 66px); height: clamp(76px, 20vw, 96px); border-radius: 8px;
   background: var(--card-bg);
   border: 1px solid rgba(0,0,0,0.15);
   box-shadow: 2px 3px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.8);
@@ -304,12 +314,12 @@ input.field::placeholder { color: rgba(245,240,232,0.35); }
 .draw-stack { position: relative; cursor: pointer; }
 .draw-stack .card { transition: transform .15s; }
 .draw-stack .stack-shadow {
-  position: absolute; top: 3px; left: -3px; width: 62px; height: 90px;
+  position: absolute; top: 3px; left: -3px; width: clamp(52px,14vw,66px); height: clamp(76px,20vw,96px);
   border-radius: 8px; background: rgba(0,0,0,0.25);
   border: 2px solid rgba(212,168,67,0.25);
 }
 .draw-stack .stack-shadow2 {
-  position: absolute; top: 6px; left: -6px; width: 62px; height: 90px;
+  position: absolute; top: 6px; left: -6px; width: clamp(52px,14vw,66px); height: clamp(76px,20vw,96px);
   border-radius: 8px; background: rgba(0,0,0,0.15);
   border: 2px solid rgba(212,168,67,0.15);
 }
@@ -356,7 +366,7 @@ input.field::placeholder { color: rgba(245,240,232,0.35); }
   flex-shrink: 0;
   background: rgba(0,0,0,0.5);
   border-top: 1px solid rgba(212,168,67,0.15);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
 }
 .my-hand-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -377,13 +387,14 @@ input.field::placeholder { color: rgba(245,240,232,0.35); }
 
 /* ═══ ACTION BUTTONS ═══ */
 .action-row {
-  display: flex; gap: 8px; padding: 6px 12px 10px; flex-shrink: 0;
+  display: flex; gap: 8px; padding: 6px 12px 6px; flex-shrink: 0;
 }
 .act-btn {
-  flex: 1; padding: 11px 6px; border-radius: 12px; border: none; cursor: pointer;
-  font-family: 'Lato', sans-serif; font-weight: 900; font-size: 12px;
+  flex: 1; padding: 14px 6px; min-height: 52px; border-radius: 14px; border: none; cursor: pointer;
+  font-family: 'Lato', sans-serif; font-weight: 900; font-size: 13px;
   letter-spacing: .5px; text-transform: uppercase;
   transition: transform .15s, opacity .2s;
+  -webkit-tap-highlight-color: transparent;
 }
 .act-btn:active { transform: scale(.94); }
 .act-btn:disabled { opacity: .3; cursor: default; }
@@ -547,6 +558,35 @@ input.field::placeholder { color: rgba(245,240,232,0.35); }
   transition: background .3s;
 }
 #conn-badge.offline { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+
+/* ── PWA / Mobile extra ── */
+button, input { -webkit-appearance: none; appearance: none; }
+button { touch-action: manipulation; }
+* { -webkit-touch-callout: none; }
+input, textarea { -webkit-user-select: text; user-select: text; }
+
+/* Prevent text selection on cards */
+.card { -webkit-user-select: none; user-select: none; }
+
+/* Smoother scrolling in hand */
+.hand-scroll { -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+.hand-cards .card { scroll-snap-align: start; }
+
+/* Larger cards in the center table on bigger phones */
+@media (min-height: 700px) {
+  .card { width: clamp(58px, 15vw, 72px); height: clamp(84px, 22vw, 105px); }
+}
+@media (max-height: 600px) {
+  /* Compact mode for small phones / landscape */
+  .card { width: 48px; height: 70px; }
+  .card-rank-big { font-size: 17px; }
+  .card-suit-big { font-size: 14px; }
+  .card-corner-tl, .card-corner-br { font-size: 9px; }
+  .opponents-row { padding: 4px 10px; }
+  .my-hand-header { padding: 4px 14px 0; }
+  .hand-scroll { padding: 5px 12px; }
+  .act-btn { padding: 10px 6px; min-height: 44px; font-size: 12px; }
+}
 </style>
 </head>
 <body>
