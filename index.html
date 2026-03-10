@@ -813,15 +813,41 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
 // GAME
 // ══════════════════════════════════════════
 function startGame(g){
+  // Normalize arrays
+  if(g.pot&&!Array.isArray(g.pot)) g.pot=Object.values(g.pot);
+  if(g.deck&&!Array.isArray(g.deck)) g.deck=Object.values(g.deck);
+  if(g.playerOrder&&!Array.isArray(g.playerOrder)) g.playerOrder=Object.values(g.playerOrder);
+  if(g.finished&&!Array.isArray(g.finished)) g.finished=Object.values(g.finished);
+  if(g.eliminated&&!Array.isArray(g.eliminated)) g.eliminated=Object.values(g.eliminated);
+  if(g.hands){
+    Object.keys(g.hands).forEach(uid=>{
+      if(g.hands[uid]&&!Array.isArray(g.hands[uid]))
+        g.hands[uid]=Object.values(g.hands[uid]);
+    });
+  }
   gameState=g;
   localHand=(g.hands&&g.hands[myUid])||[];
+  if(!Array.isArray(localHand)) localHand=Object.values(localHand);
   show('s-game');
   if(gameRef){gameRef.off();}
   gameRef=db.ref('rooms/'+roomId+'/game');
   gameRef.on('value',function(snap){
     const data=snap.val();if(!data)return;
+    // Normalize Firebase data (Firebase can turn arrays into objects)
+    if(data.pot&&!Array.isArray(data.pot)) data.pot=Object.values(data.pot);
+    if(data.deck&&!Array.isArray(data.deck)) data.deck=Object.values(data.deck);
+    if(data.playerOrder&&!Array.isArray(data.playerOrder)) data.playerOrder=Object.values(data.playerOrder);
+    if(data.finished&&!Array.isArray(data.finished)) data.finished=Object.values(data.finished);
+    if(data.eliminated&&!Array.isArray(data.eliminated)) data.eliminated=Object.values(data.eliminated);
+    if(data.hands){
+      Object.keys(data.hands).forEach(uid=>{
+        if(data.hands[uid]&&!Array.isArray(data.hands[uid]))
+          data.hands[uid]=Object.values(data.hands[uid]);
+      });
+    }
     gameState=data;
     localHand=(data.hands&&data.hands[myUid])||[];
+    if(!Array.isArray(localHand)) localHand=Object.values(localHand);
     // Force re-render: reset lastMyTurn if turn changed externally (timer, etc.)
     const newCurUid=data.playerOrder&&data.playerOrder[data.currentPlayerIdx];
     if(newCurUid!==myUid && lastMyTurn){
@@ -933,7 +959,10 @@ function renderGame(){
   const curUid=gs.playerOrder[gs.currentPlayerIdx];
   const curName=gs.playerNames[curUid];
   const mine=curUid===myUid;
+  if(!gs.pot||!gs.pot.length){console.warn('pot empty');return;}
   const top=gs.pot[gs.pot.length-1];
+  if(!top){console.warn('top undefined');return;}
+  if(!gs.playerOrder||!gs.playerOrder.length){console.warn('no playerOrder');return;}
 
   // ── Timer: update TIMER_SEC from mode ──
   if(gs.mode&&gs.mode.timer!==undefined) TIMER_SEC=gs.mode.timer||999;
@@ -1118,7 +1147,10 @@ document.getElementById('btn-play').onclick=tryPlay;
 async function tryPlay(){
   if(!myTurn()||!selCard)return;
   const gs=gameState;
+  if(!gs.pot||!gs.pot.length){console.warn('pot empty');return;}
   const top=gs.pot[gs.pot.length-1];
+  if(!top){console.warn('top undefined');return;}
+  if(!gs.playerOrder||!gs.playerOrder.length){console.warn('no playerOrder');return;}
   const card=localHand.find(c=>c.id===selCard);
   const jfcCheck=(gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
   if(!card||!canPlay(card,top,gs.commandedSuit,gs.pendingDraws,jfcCheck))return;
@@ -1143,7 +1175,10 @@ async function doPlay(card,suit,twoPlace){
   let newPot;
   if(card.r==='2'&&twoPlace==='bottom'&&gs.pot.length>0){
     // Insert under the top card: [...pot_minus_top, card, top]
-    const top=gs.pot[gs.pot.length-1];
+    if(!gs.pot||!gs.pot.length){console.warn('pot empty');return;}
+  const top=gs.pot[gs.pot.length-1];
+  if(!top){console.warn('top undefined');return;}
+  if(!gs.playerOrder||!gs.playerOrder.length){console.warn('no playerOrder');return;}
     newPot=[...gs.pot.slice(0,-1),card,top];
     toast('⬇️ 2 glissé en dessous — la carte précédente reste active !','i');
   } else {
