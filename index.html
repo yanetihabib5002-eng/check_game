@@ -638,8 +638,15 @@ document.getElementById('f-name').oninput=checkReady;
 document.getElementById('f-code').oninput=function(){this.value=this.value.toUpperCase();checkReady();};
 function checkReady(){
   const n=(document.getElementById('f-name').value||'').trim();
-  document.getElementById('btn-create').disabled=!n;
-  document.getElementById('btn-join').disabled=!n||document.getElementById('f-code').value.length<4;
+  document.getElementById('btn-create').disabled=!n||!db;
+  const rc=document.getElementById('f-room-code');
+  document.getElementById('btn-join').disabled=!n||!db||!(rc&&rc.value.trim().length===4);
+  // Sauvegarder le nom automatiquement
+  if(n.length>=2){
+    const cfg=loadCfg();
+    if(cfg){cfg.name=n;saveCfg(cfg);}
+    myName=n;
+  }
 }
 
 // Auto-load
@@ -679,9 +686,14 @@ function checkReady(){
       document.getElementById('panel-join').style.display='';
       const cd=document.getElementById('conn-dot');cd.classList.add('show');
       db.ref('.info/connected').on('value',s=>{cd.classList.toggle('off',!s.val());});
+      // Restore name and enable buttons immediately
+      if(cfg.name){
+        const nf=document.getElementById('f-name');
+        if(nf){nf.value=cfg.name;checkReady();}
+      }
+      myName=cfg.name||'';
     }catch(e){
       console.error('[AutoLoad]',e);
-      // NE PAS effacer la config — réessayer silencieusement
       if(badgeTxt)badgeTxt.textContent='⚠️ Connexion impossible — vérifie ta connexion internet';
       // Retry after 3s without clearing config
       setTimeout(async function(){
@@ -745,6 +757,15 @@ document.getElementById('btn-leave').onclick=function(){
   show('s-setup');
 };
 
+async function kickPlayer(uid){
+  if(!db||!roomId)return;
+  // Remove player from room
+  await db.ref('rooms/'+roomId+'/players/'+uid).remove();
+  // Notify via a kicked field so the kicked player knows
+  await db.ref('rooms/'+roomId+'/kicked/'+uid).set(true);
+  toast('Joueur retiré','i');
+}
+
 function enterLobby(){
   show('s-lobby');
   document.getElementById('lb-code').textContent=roomId;
@@ -755,12 +776,23 @@ function enterLobby(){
     const players=Object.values(data.players||{});
     // Render players
     const el=document.getElementById('lb-players');el.innerHTML='';
+    const iamHostNow=players.some(p=>p.uid===myUid&&p.host);
     players.forEach(p=>{
       const d=document.createElement('div');d.className='lobby-player';
-      d.innerHTML='<div class="lobby-av">'+p.name[0].toUpperCase()+'</div><div><div class="lobby-nm">'+p.name+'</div><div class="lobby-role">'+(p.host?'👑 Hôte':'✓ Connecté')+'</div></div>';
+      const kickBtn=(!p.host&&iamHostNow)?'<button onclick="kickPlayer(\''+p.uid+'\')" style="margin-left:auto;background:rgba(255,60,60,.15);border:1px solid rgba(255,60,60,.3);color:#ff8888;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:Lato,sans-serif">✕ Retirer</button>':'';
+      d.innerHTML='<div class="lobby-av">'+p.name[0].toUpperCase()+'</div><div style="flex:1"><div class="lobby-nm">'+p.name+'</div><div class="lobby-role">'+(p.host?'👑 Hôte':'✓ Connecté')+'</div></div>'+kickBtn;
       el.appendChild(d);
     });
     document.getElementById('lb-wait').innerHTML=players.length<2?'En attente d\'un autre joueur <span class="dots"></span>':players.length+' joueurs connectés !';
+    // Check if I was kicked
+    const stillHere=players.some(p=>p.uid===myUid);
+    if(!stillHere&&players.length>0){
+      // I was kicked — go back to setup
+      if(lobbyRef){lobbyRef.off();lobbyRef=null;}
+      toast('Tu as été retiré de la partie par l\'hôte','d');
+      show('s-setup');
+      return;
+    }
     const iamhost=players.find(p=>p.uid===myUid&&p.host);
     document.getElementById('btn-launch').disabled=!(iamhost&&players.length>=2);
     if(data.status==='playing'&&data.game){
@@ -951,12 +983,15 @@ async function autoPass(){
   selCard=null;
   toast('⏱️ Temps écoulé — carte piochée !','d');
   vibrate([100,50,200]);
-  await db.ref('rooms/'+roomId+'/game').update({
-    deck,['hands/'+myUid]:newHand,currentPlayerIdx:nextIdx,
-    jokerFreeColor:null,jokerPendingColor:null,
-    turnStartTs:Date.now(),
-    lastFX:{r:'timeout',s:'',color:null,by:myUid,ts:Date.now()}
-  });
+  const drawUpd={};
+  drawUpd['deck']=deck;
+  drawUpd['hands/'+myUid]=newHand;
+  drawUpd['currentPlayerIdx']=nextIdx;
+  drawUpd['jokerFreeColor']=null;
+  drawUpd['jokerPendingColor']=null;
+  drawUpd['turnStartTs']=Date.now();
+  drawUpd['lastFX']={r:'timeout',s:'',color:null,by:myUid,ts:Date.now()};
+  await db.ref('rooms/'+roomId+'/game').update(drawUpd);
 }
 
 // Timer display on opp chips (uses turnStartTs from Firebase)
@@ -1177,7 +1212,13 @@ document.getElementById('btn-draw').onclick=async function(){
   const newHand=[...localHand,card];
   const nextIdx=advIdx(gs.playerOrder,gs.currentPlayerIdx,gs.finished||[]);
   selCard=null;
-  await db.ref('rooms/'+roomId+'/game').update({deck,['hands/'+myUid]:newHand,currentPlayerIdx:nextIdx,jokerFreeColor:null,jokerPendingColor:null,lastFX:{r:'draw',s:'',color:null,by:myUid,ts:Date.now()}});
+  const bdu2={};
+  bdu2['deck']=deck;bdu2['hands/'+myUid]=newHand;
+  bdu2['currentPlayerIdx']=nextIdx;
+  bdu2['jokerFreeColor']=null;bdu2['jokerPendingColor']=null;
+  bdu2['turnStartTs']=Date.now();
+  bdu2['lastFX']={r:'draw',s:'',color:null,by:myUid,ts:Date.now()};
+  await db.ref('rooms/'+roomId+'/game').update(bdu2);
   stopMyTimer();
   toast('🎴 Pioché — tour passé','i');
 };
@@ -1263,20 +1304,27 @@ async function doPlay(card,suit,twoPlace){
   stopMyTimer();
   const jokerColor=(card.r==='JOKER')?(card.color||null):null;
   // Clear free-color bonus when player uses their turn
-  const upd={pot:newPot,['hands/'+myUid]:newHand,pendingDraws:pending,commandedSuit:cmdSuit,currentPlayerIdx:nextIdx,finished,
-    jokerPendingColor:jokerColor,  // null unless a joker just played
-    jokerFreeColor:null,  // clear free-color when a card is played
-    turnStartTs:Date.now(),
-    lastFX:{r:card.r,s:card.s,color:card.color||null,by:myUid,ts:Date.now()}};
-  if(over) upd.status='finished';
+  // Écriture Firebase : chemins explicites pour éviter les problèmes d'update partiel
+  const gameRef2=db.ref('rooms/'+roomId+'/game');
+  const upd={};
+  upd['pot']=newPot;
+  upd['hands/'+myUid]=newHand;
+  upd['pendingDraws']=pending;
+  upd['commandedSuit']=cmdSuit||null;
+  upd['currentPlayerIdx']=nextIdx;
+  upd['finished']=finished;
+  upd['jokerPendingColor']=jokerColor||null;
+  upd['jokerFreeColor']=null;
+  upd['turnStartTs']=Date.now();
+  upd['lastFX']={r:card.r,s:card.s,color:card.color||null,by:myUid,ts:Date.now()};
+  if(over) upd['status']='finished';
   if(roundOver&&isElim){
-    // Find loser: the one still in with most cards (or last one still in)
-    const loserUid=stillIn.length===1 ? stillIn[0] :
-      stillIn.sort((a,b)=>(gs.hands[b]||[]).length-(gs.hands[a]||[]).length)[0];
-    upd.status='elim_round_end';
-    upd.roundLoser=loserUid;
+    const loserUid=stillIn.length===1?stillIn[0]:
+      [...stillIn].sort((a,b)=>(gs.hands[b]||[]).length-(gs.hands[a]||[]).length)[0];
+    upd['status']='elim_round_end';
+    upd['roundLoser']=loserUid;
   }
-  await db.ref('rooms/'+roomId+'/game').update(upd);
+  await gameRef2.update(upd);
 }
 
 async function takePenalty(){
@@ -1296,16 +1344,16 @@ async function takePenalty(){
   // If the penalty came from a joker, give the FREE COLOR bonus to the NEXT player
   // jokerPendingColor was set when the joker was played
   const wasJoker=n>=4&&gs.jokerPendingColor;
-  await db.ref('rooms/'+roomId+'/game').update({
-    deck,
-    ['hands/'+myUid]:h,
-    pendingDraws:0,
-    currentPlayerIdx:nextIdx,
-    jokerPendingColor:null,
-    // The player who took the joker penalty can now play any same-color card
-    jokerFreeColor: wasJoker ? gs.jokerPendingColor : null,
-    lastFX:{r:'penalty',s:''+penN,color:null,by:myUid,ts:Date.now()}
-  });
+  const pu={};
+  pu['deck']=deck;
+  pu['hands/'+myUid]=h;
+  pu['pendingDraws']=0;
+  pu['currentPlayerIdx']=nextIdx;
+  pu['jokerPendingColor']=null;
+  pu['jokerFreeColor']=wasJoker?gs.jokerPendingColor:null;
+  pu['turnStartTs']=Date.now();
+  pu['lastFX']={r:'penalty',s:''+penN,color:null,by:myUid,ts:Date.now()};
+  await db.ref('rooms/'+roomId+'/game').update(pu);
 }
 
 // ── Suit picker ──
