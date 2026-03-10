@@ -446,31 +446,49 @@ function buildDeck(){
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function canPlay(card,top,cmdSuit,pending,jokerFree){
-  // jokerFree: 'red' or 'black' — after joker penalty, same-color cards play freely
+  // ══════════════════════════════════════════
+  // UNIVERSELS — 2 et J jouent dans TOUS les cas, aucune exception
+  // ══════════════════════════════════════════
+  if(card.r==='2')return true;   // passe-partout absolu
+  if(card.r==='J')return true;   // commande une couleur, joue sur tout
+
+  // ── Joker couleur libre (après avoir pris la pénalité joker) ──
   if(jokerFree){
+    if(card.r==='JOKER')return true;
     const cardIsRed=isRed(card);
     if(jokerFree==='red'&&cardIsRed)return true;
     if(jokerFree==='black'&&!cardIsRed)return true;
+    return false; // dans ce mode seule la couleur du joker est autorisée
   }
-  if(card.r==='2')return true;
-  if(card.r==='J')return true;
+
+  // ── Chaîne de pénalité en cours (+2 ou +4) ──
+  // Seuls 7 et Joker peuvent contrer — tout le reste est bloqué
   if(pending>0){
-    // In a pending chain, only 7 or joker (matching color) can counter
-    if(card.r==='7')return true;
+    if(card.r==='7')return true;   // contre-attaque un 7 ou s'ajoute
     if(card.r==='JOKER'){
-      // Can counter only if joker color matches top's color family
-      if(top.r==='JOKER')return true;
+      // Le joker ne peut contrer que si sa couleur correspond à la couleur active
       const ts=cmdSuit||top.s;
       return isRed(card)?RED.includes(ts):BLK.includes(ts);
     }
+    return false; // bloqué par la chaîne
+  }
+
+  // ── Joker sur le pot ── contraint la couleur (rouge ou noir)
+  if(top.r==='JOKER'){
+    const jokerColor=top.color;
+    if(card.r==='JOKER')return true; // joker sur joker (cumul)
+    if(jokerColor==='red') return RED.includes(card.s);
+    if(jokerColor==='black') return BLK.includes(card.s);
     return false;
   }
-  if(card.r==='JOKER'){
-    if(top.r==='JOKER')return true;
-    const ts=cmdSuit||top.s;
-    return isRed(card)?RED.includes(ts):BLK.includes(ts);
-  }
-  if(cmdSuit)return card.s===cmdSuit;
+
+  // ── Joker qu'on veut jouer ── se pose sur n'importe quoi
+  if(card.r==='JOKER')return true;
+
+  // ── Couleur commandée par un Valet ──
+  if(cmdSuit)return card.s===cmdSuit||card.r===top.r;
+
+  // ── Règle normale : même rang OU même couleur ──
   if(card.r===top.r)return true;
   return card.s===top.s;
 }
@@ -1070,6 +1088,15 @@ function renderGame(){
       const fc=gs.jokerFreeColor;
       html+='<div class="suit-badge" style="color:'+(fc==='red'?'var(--red)':'#aaaaff')+';margin-top:4px;border-color:'+(fc==='red'?'rgba(192,34,42,.5)':'rgba(100,100,255,.5)')+'">'+
         (fc==='red'?'♥♦':'♠♣')+' <span style="font-size:10px">Joue librement ('+fc+')</span></div>';
+    }
+    // ── Joker sur le pot : montrer la contrainte couleur ──
+    if(top.r==='JOKER'){
+      const jcolor=top.color;
+      const suits=jcolor==='red'?'♥ ♦':'♠ ♣';
+      const col=jcolor==='red'?'var(--red)':'#aaaaff';
+      const bdr=jcolor==='red'?'rgba(192,34,42,.5)':'rgba(100,100,255,.5)';
+      html+='<div class="suit-badge" style="color:'+col+';border-color:'+bdr+';margin-top:4px">'+
+        suits+' <span style="font-size:10px">Joker '+(jcolor==='red'?'rouge 🔴':'noir ⚫')+' — couleur obligatoire</span></div>';
     }
     return html;
   })();
