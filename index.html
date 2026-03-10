@@ -446,73 +446,82 @@ function buildDeck(){
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function canPlay(card,top,cmdSuit,pending,jokerFree){
-  // UNIVERSELS — 2 et J jouent dans TOUS les cas, aucune exception
-  if(card.r==='2')return true;
+  // ── J = universel absolu ──
   if(card.r==='J')return true;
 
-  // Chaîne de pénalité (+2 ou +4) — seuls 7 et Joker peuvent contrer
+  // ── 2 = passe-partout MAIS ne contrecarre pas les chaînes (pas de +2/-2 effect) ──
+  // Le 2 joue toujours SAUF pendant une chaîne active (+2/+4) — il joue mais n'annule pas
+  if(card.r==='2')return true;
+
+  // ── Chaîne active (+2 ou +4) : seuls 7 et Joker peuvent contrer ──
   if(pending>0){
-    if(card.r==='7')return true;    // 7 contre toujours
-    if(card.r==='JOKER')return true; // Joker contre toujours
-    return false;
+    if(card.r==='7')return true;     // 7 contre toujours, quelle que soit sa couleur
+    if(card.r==='JOKER')return true; // Joker contre toujours, quelle que soit sa couleur
+    return false; // toute autre carte bloquée
   }
 
-  // Joker sur le pot — seules les cartes normales sont contraintes par la couleur
+  // ── Joker sur le pot (sans chaîne) ──
   if(top.r==='JOKER'){
-    if(card.r==='JOKER')return true; // Joker sur Joker : toujours OK
-    if(card.r==='7')return true;     // 7 passe toujours sur Joker
     const jc=top.color;
-    if(jc==='black')return BLK.includes(card.s); // Joker NOIR : ♠♣ seulement
-    if(jc==='red')return RED.includes(card.s);   // Joker ROUGE : ♥♦ seulement
+    if(card.r==='7')return true;     // 7 passe toujours sur un Joker
+    if(card.r==='JOKER')return true; // Joker sur Joker : toujours OK
+    // Cartes normales : couleur obligatoire
+    if(jc==='black')return BLK.includes(card.s);
+    if(jc==='red')  return RED.includes(card.s);
     return false;
   }
 
-  // Joker couleur libre (après avoir pris la pénalité joker, pot n'est plus un joker)
+  // ── Joker couleur libre (après pénalité joker) ──
   if(jokerFree){
     if(card.r==='JOKER')return true;
+    if(card.r==='7')return true;
     const cr=isRed(card);
     if(jokerFree==='red'&&cr)return true;
     if(jokerFree==='black'&&!cr)return true;
     return false;
   }
 
-  // Joker qu'on veut jouer — se pose sur n'importe quoi
-  if(card.r==='JOKER')return true;
+  // ── Joker qu'on veut jouer ──
+  // Joker rouge : seulement sur cartes rouges, ou si top est Joker, ou même rang
+  // Joker noir  : seulement sur cartes noires, ou si top est Joker, ou même rang
+  if(card.r==='JOKER'){
+    if(card.color==='red') return isRed({r:top.r,s:top.s,color:top.color})||top.r==='JOKER';
+    if(card.color==='black') return !isRed({r:top.r,s:top.s,color:top.color})||top.r==='JOKER';
+    return true;
+  }
 
-  // Couleur commandée par un Valet
+  // ── Couleur commandée par un Valet ──
   if(cmdSuit)return card.s===cmdSuit||card.r===top.r;
 
-  // Règle normale : même rang OU même couleur
+  // ── Règle normale : même rang OU même couleur (suit) ──
   if(card.r===top.r)return true;
   return card.s===top.s;
 }
 function saveCfg(o){
   const str=JSON.stringify(o);
-  // 1. localStorage
   try{localStorage.setItem(LS,str);}catch(e){}
-  // 2. sessionStorage (survit aux rechargements même en mode privé)
   try{sessionStorage.setItem(LS,str);}catch(e){}
-  // 3. URL hash — encode config dans l'URL pour partage facile
-  // On n'encode PAS l'apiKey dans l'URL pour la sécurité — juste dbURL et projectId
+  // Cookie 1 an — survit aux purges localStorage
   try{
-    const safe={databaseURL:o.databaseURL,projectId:o.projectId,name:o.name||''};
-    window.history.replaceState(null,'','#'+btoa(JSON.stringify(safe)));
+    const exp=new Date(Date.now()+365*24*3600*1000).toUTCString();
+    document.cookie=LS+'='+encodeURIComponent(str)+';expires='+exp+';path=/;SameSite=Lax';
   }catch(e){}
 }
 
+
 function loadCfg(){
-  // Essaie localStorage en premier
+  // 1. localStorage
+  try{const v=localStorage.getItem(LS);if(v){const p=JSON.parse(v);if(p&&p.apiKey)return p;}}catch(e){}
+  // 2. sessionStorage
+  try{const v=sessionStorage.getItem(LS);if(v){const p=JSON.parse(v);if(p&&p.apiKey)return p;}}catch(e){}
+  // 3. Cookie (survit aux purges)
   try{
-    const v=localStorage.getItem(LS);
-    if(v){const p=JSON.parse(v);if(p&&p.apiKey)return p;}
-  }catch(e){}
-  // Sinon sessionStorage
-  try{
-    const v=sessionStorage.getItem(LS);
-    if(v){const p=JSON.parse(v);if(p&&p.apiKey)return p;}
+    const m=document.cookie.match('(?:^|;)\s*'+LS+'=([^;]*)');
+    if(m){const p=JSON.parse(decodeURIComponent(m[1]));if(p&&p.apiKey)return p;}
   }catch(e){}
   return null;
 }
+
 
 function clearCfg(){
   try{localStorage.removeItem(LS);}catch(e){}
@@ -672,12 +681,25 @@ function checkReady(){
       db.ref('.info/connected').on('value',s=>{cd.classList.toggle('off',!s.val());});
     }catch(e){
       console.error('[AutoLoad]',e);
-      if(badgeTxt)badgeTxt.textContent='⚠️ Reconnexion échouée — '+e.message;
-      // Show full form again after failure
-      setTimeout(()=>{
-        clearCfg();
-        window.location.reload();
-      },2000);
+      // NE PAS effacer la config — réessayer silencieusement
+      if(badgeTxt)badgeTxt.textContent='⚠️ Connexion impossible — vérifie ta connexion internet';
+      // Retry after 3s without clearing config
+      setTimeout(async function(){
+        try{
+          const apps2=[...firebase.apps];
+          for(const app of apps2){try{await app.delete();}catch(e2){}}
+          firebase.initializeApp({apiKey,databaseURL:dbURL,projectId:pid,authDomain:pid+'.firebaseapp.com'});
+          db=firebase.database();
+          await db.ref('__ping__').set(Date.now());
+          await db.ref('__ping__').remove();
+          if(badgeTxt)badgeTxt.textContent='🔥 Firebase connecté ✓';
+          document.getElementById('panel-join').style.display='';
+          const cd=document.getElementById('conn-dot');cd.classList.add('show');
+          db.ref('.info/connected').on('value',s=>{cd.classList.toggle('off',!s.val());});
+        }catch(e2){
+          if(badgeTxt)badgeTxt.textContent='⚠️ Hors ligne — <span style="text-decoration:underline;cursor:pointer" onclick="clearCfg();location.reload()">Changer la config</span>';
+        }
+      },3000);
     }
   },300);
 })();
@@ -1177,7 +1199,7 @@ async function tryPlay(){
     const s=await pickSuit();
     if(s===null)return; // cancelled
     await doPlay(card,s,null);
-  } else if(card.r==='2'&&mode.two==='place'){
+  } else if(card.r==='2'){
     const placement=await pickTwoPlacement();
     if(placement===null)return; // cancelled
     await doPlay(card,null,placement);
