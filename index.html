@@ -939,14 +939,11 @@ function renderGame(){
   if(gs.mode&&gs.mode.timer!==undefined) TIMER_SEC=gs.mode.timer||999;
 
   // ── Timer: start when my turn, stop otherwise ──
-  const gs=gameState;
-  const curUid=gs&&gs.playerOrder?gs.playerOrder[gs.currentPlayerIdx]:'';
   const turnChanged=curUid!==lastTurnUid;
   lastTurnUid=curUid;
 
   if(mine&&(!lastMyTurn||turnChanged)){
     if(TIMER_SEC>0) startMyTimer(); else stopMyTimer();
-    // Only write turnStartTs if it's actually a new turn (not just a re-render)
     if(turnChanged) db.ref('rooms/'+roomId+'/game/turnStartTs').set(Date.now());
   } else if(!mine){
     stopMyTimer();
