@@ -446,58 +446,46 @@ function buildDeck(){
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function canPlay(card,top,cmdSuit,pending,jokerFree){
-  // ══════════════════════════════════════════
   // UNIVERSELS — 2 et J jouent dans TOUS les cas, aucune exception
-  // ══════════════════════════════════════════
-  if(card.r==='2')return true;   // passe-partout absolu
-  if(card.r==='J')return true;   // commande une couleur, joue sur tout
+  if(card.r==='2')return true;
+  if(card.r==='J')return true;
 
-  // ── Joker couleur libre (après avoir pris la pénalité joker) ──
-  if(jokerFree){
-    if(card.r==='JOKER')return true;
-    const cardIsRed=isRed(card);
-    if(jokerFree==='red'&&cardIsRed)return true;
-    if(jokerFree==='black'&&!cardIsRed)return true;
-    return false; // dans ce mode seule la couleur du joker est autorisée
-  }
-
-  // ── Chaîne de pénalité en cours (+2 ou +4) ──
-  // Seuls 7 et Joker peuvent contrer — tout le reste est bloqué
+  // Chaîne de pénalité (+2 ou +4) — seuls 7 et Joker peuvent contrer
   if(pending>0){
-    if(card.r==='7')return true;   // contre-attaque un 7 ou s'ajoute
-    if(card.r==='JOKER'){
-      // Le joker ne peut contrer que si sa couleur correspond à la couleur active
-      const ts=cmdSuit||top.s;
-      return isRed(card)?RED.includes(ts):BLK.includes(ts);
-    }
-    return false; // bloqué par la chaîne
-  }
-
-  // ── Joker sur le pot ── contraint la couleur (rouge ou noir)
-  if(top.r==='JOKER'){
-    const jokerColor=top.color;
-    if(card.r==='JOKER')return true; // joker sur joker (cumul)
-    if(jokerColor==='red') return RED.includes(card.s);
-    if(jokerColor==='black') return BLK.includes(card.s);
+    if(card.r==='7')return true;    // 7 contre toujours
+    if(card.r==='JOKER')return true; // Joker contre toujours
     return false;
   }
 
-  // ── Joker qu'on veut jouer ── se pose sur n'importe quoi
+  // Joker sur le pot — seules les cartes normales sont contraintes par la couleur
+  if(top.r==='JOKER'){
+    if(card.r==='JOKER')return true; // Joker sur Joker : toujours OK
+    if(card.r==='7')return true;     // 7 passe toujours sur Joker
+    const jc=top.color;
+    if(jc==='black')return BLK.includes(card.s); // Joker NOIR : ♠♣ seulement
+    if(jc==='red')return RED.includes(card.s);   // Joker ROUGE : ♥♦ seulement
+    return false;
+  }
+
+  // Joker couleur libre (après avoir pris la pénalité joker, pot n'est plus un joker)
+  if(jokerFree){
+    if(card.r==='JOKER')return true;
+    const cr=isRed(card);
+    if(jokerFree==='red'&&cr)return true;
+    if(jokerFree==='black'&&!cr)return true;
+    return false;
+  }
+
+  // Joker qu'on veut jouer — se pose sur n'importe quoi
   if(card.r==='JOKER')return true;
 
-  // ── Couleur commandée par un Valet ──
+  // Couleur commandée par un Valet
   if(cmdSuit)return card.s===cmdSuit||card.r===top.r;
 
-  // ── Règle normale : même rang OU même couleur ──
+  // Règle normale : même rang OU même couleur
   if(card.r===top.r)return true;
   return card.s===top.s;
 }
-
-// ══════════════════════════════════════════
-// PERSISTENCE — localStorage + sessionStorage + URL hash (triple backup)
-// ══════════════════════════════════════════
-const LS='check_cfg_v3';
-
 function saveCfg(o){
   const str=JSON.stringify(o);
   // 1. localStorage
@@ -1204,15 +1192,13 @@ async function doPlay(card,suit,twoPlace){
   // 2 placement: 'bottom' = insert under top card, 'top' = normal push
   let newPot;
   if(card.r==='2'&&twoPlace==='bottom'&&gs.pot.length>0){
-    // Insert under the top card: [...pot_minus_top, card, top]
-    if(!gs.pot||!gs.pot.length){console.warn('pot empty');return;}
-  const top=gs.pot[gs.pot.length-1];
-  if(!top){console.warn('top undefined');return;}
-  if(!gs.playerOrder||!gs.playerOrder.length){console.warn('no playerOrder');return;}
-    newPot=[...gs.pot.slice(0,-1),card,top];
+    // Glisser le 2 SOUS la carte du dessus : le pot actif reste inchangé
+    const top=gs.pot[gs.pot.length-1];
+    newPot=[...gs.pot.slice(0,-1), card, top];
     toast('⬇️ 2 glissé en dessous — la carte précédente reste active !','i');
   } else {
-    newPot=[...gs.pot,card];
+    // Pose normale au-dessus du pot
+    newPot=[...gs.pot, card];
   }
   let pending=gs.pendingDraws, cmdSuit=null, skip=false;
 
@@ -1226,9 +1212,11 @@ async function doPlay(card,suit,twoPlace){
   else if(card.r==='J'){cmdSuit=suit;toast('🃏 Valet ! '+suit+' commandé','i');pending=0;}
   else if(card.r==='2'&&twoPlace!=='bottom'){toast('✨ Passe-partout (dessus)','i');pending=0;}
   else if(card.r==='2'&&twoPlace==='bottom'){
-    // Keep current suit/rank logic — top card unchanged
-    pending=gs.pendingDraws; // don't reset pending
-    cmdSuit=gs.commandedSuit; // keep commanded suit
+    // 2 joué en dessous : la carte du dessus reste active
+    // On conserve exactement l'état actuel du pot (pending, cmdSuit inchangés)
+    pending=gs.pendingDraws;
+    cmdSuit=gs.commandedSuit;
+    // Pas d'effet spécial du 2 — il est juste glissé sous le pot
   }
   else if(card.r==='A'){skip=true;toast('🚫 As ! Joueur suivant bloqué','i');pending=0;}
   else{pending=0;}
