@@ -920,19 +920,33 @@ function listenConnected() {}
 (function autoLoad() {
   const cfg = loadConfig();
   if (!cfg) return;
-  // Pre-fill fields
   document.getElementById('cfg-apikey').value = cfg.apiKey || '';
   document.getElementById('cfg-dburl').value = cfg.databaseURL || '';
   document.getElementById('cfg-projectid').value = cfg.projectId || '';
-  if (cfg.name) document.getElementById('my-name').value = cfg.name;
+  if (cfg.name) {
+    document.getElementById('my-name').value = cfg.name;
+    checkJoinReady();
+  }
   // Show saved badge
   const panel = document.querySelector('#setup .panel');
   const badge = document.createElement('div');
   badge.className = 'saved-badge';
-  badge.innerHTML = '✅ Config Firebase mémorisée — connexion automatique...<button onclick="clearConfig();this.parentElement.remove();document.getElementById('join-panel').style.display='none'">Changer</button>';
+  badge.id = 'saved-cfg-badge';
+  badge.innerHTML = '\u2705 Config m\u00e9moris\u00e9e &mdash; connexion auto...';
+  const btnChange = document.createElement('button');
+  btnChange.textContent = 'Changer';
+  btnChange.onclick = function() {
+    clearConfig();
+    document.getElementById('saved-cfg-badge').remove();
+    document.getElementById('join-panel').style.display = 'none';
+    document.getElementById('cfg-apikey').value = '';
+    document.getElementById('cfg-dburl').value = '';
+    document.getElementById('cfg-projectid').value = '';
+  };
+  badge.appendChild(btnChange);
   panel.insertBefore(badge, panel.firstChild);
-  // Auto connect
-  setTimeout(() => connectFirebase(), 300);
+  // Auto connect after a short delay
+  setTimeout(() => connectFirebase(), 400);
 })();
 
 // Enable buttons on name input
