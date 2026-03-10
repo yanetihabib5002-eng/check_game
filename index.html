@@ -550,6 +550,205 @@ input.field::placeholder { color: rgba(245,240,232,0.35); }
   color: rgba(245,240,232,0.4); cursor: pointer; font-size: 11px;
 }
 
+/* ═══ SPECIAL EFFECTS ═══ */
+
+/* Canvas particles overlay */
+#fx-canvas {
+  position: fixed; inset: 0; pointer-events: none;
+  z-index: 400; opacity: 1;
+}
+
+/* Screen flash */
+#screen-flash {
+  position: fixed; inset: 0; pointer-events: none; z-index: 350;
+  opacity: 0; transition: opacity .05s;
+}
+
+/* Combo counter */
+#combo-display {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  z-index: 380; pointer-events: none;
+  font-family: 'Playfair Display', serif;
+  font-size: 52px; font-weight: 900;
+  opacity: 0; text-shadow: 0 0 30px currentColor;
+  transition: none;
+}
+#combo-display.pop {
+  animation: comboPop .7s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+@keyframes comboPop {
+  0%  { opacity:0; transform: translate(-50%,-50%) scale(0.4) rotate(-5deg); }
+  30% { opacity:1; transform: translate(-50%,-60%) scale(1.15) rotate(2deg); }
+  70% { opacity:1; transform: translate(-50%,-65%) scale(1) rotate(0deg); }
+  100%{ opacity:0; transform: translate(-50%,-80%) scale(0.9); }
+}
+
+/* Card play burst */
+@keyframes cardBurst {
+  0%   { transform: translateY(-90px) scale(0.5) rotate(-15deg); opacity:0; }
+  50%  { transform: translateY(8px) scale(1.12) rotate(3deg); opacity:1; }
+  75%  { transform: translateY(-4px) scale(0.97) rotate(-1deg); opacity:1; }
+  100% { transform: translateY(0) scale(1) rotate(0deg); opacity:1; }
+}
+.card-fly { animation: cardBurst 0.5s cubic-bezier(.34,1.4,.64,1) forwards; }
+
+/* Joker fire glow */
+.card.joker-r, .card.joker-b {
+  transition: box-shadow .3s;
+}
+.card.joker-r.playable {
+  animation: jokerFireRed 1.5s infinite !important;
+}
+.card.joker-b.playable {
+  animation: jokerFireBlack 1.5s infinite !important;
+}
+@keyframes jokerFireRed {
+  0%,100% { box-shadow: 0 0 0 2px #ff4040, 0 0 20px #ff4040, 0 0 40px #ff000066; }
+  50%     { box-shadow: 0 0 0 3px #ff8800, 0 0 30px #ff4400, 0 0 60px #ff220088; }
+}
+@keyframes jokerFireBlack {
+  0%,100% { box-shadow: 0 0 0 2px #aaaaff, 0 0 20px #5555ff, 0 0 40px #2200ff66; }
+  50%     { box-shadow: 0 0 0 3px #ccccff, 0 0 30px #8888ff, 0 0 60px #4400ff88; }
+}
+
+/* 7 card danger pulse */
+.card.playable[data-rank="7"] {
+  animation: sevenDanger 1s infinite !important;
+}
+@keyframes sevenDanger {
+  0%,100% { box-shadow: 0 0 0 2px #ff4444, 0 0 15px #ff222266; }
+  50%     { box-shadow: 0 0 0 3px #ff6666, 0 0 28px #ff444488, 0 0 50px #ff000044; }
+}
+
+/* Ace freeze effect */
+.card.playable[data-rank="A"] {
+  animation: aceFreeze 1.2s infinite !important;
+}
+@keyframes aceFreeze {
+  0%,100% { box-shadow: 0 0 0 2px #44ccff, 0 0 15px #44ccff66; filter: hue-rotate(0deg); }
+  50%     { box-shadow: 0 0 0 3px #88eeff, 0 0 28px #44ccffaa; filter: hue-rotate(15deg); }
+}
+
+/* Last card warning */
+@keyframes lastCardWarning {
+  0%,100% { transform: scale(1); }
+  50%     { transform: scale(1.08); box-shadow: 0 0 0 3px #ffdd00, 0 0 20px #ffdd0088; }
+}
+.card.last-card { animation: lastCardWarning 0.6s infinite !important; }
+
+/* Turn arrival animation */
+@keyframes myTurnFlash {
+  0%   { background: rgba(212,168,67,0.3); }
+  100% { background: transparent; }
+}
+.my-turn-flash { animation: myTurnFlash .8s ease-out forwards; }
+
+/* Pile shake on penalty */
+@keyframes shakeX {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-8px) rotate(-2deg); }
+  40%     { transform: translateX(8px) rotate(2deg); }
+  60%     { transform: translateX(-5px) rotate(-1deg); }
+  80%     { transform: translateX(5px) rotate(1deg); }
+}
+.shake { animation: shakeX .5s ease-in-out; }
+
+/* Floating emoji effect */
+.float-emoji {
+  position: fixed; pointer-events: none; z-index: 390;
+  font-size: 32px; user-select: none;
+  animation: floatUp 1.4s ease-out forwards;
+}
+@keyframes floatUp {
+  0%   { opacity:1; transform: translateY(0) scale(1); }
+  100% { opacity:0; transform: translateY(-120px) scale(1.4); }
+}
+
+/* Ripple on card tap */
+.ripple {
+  position: absolute; border-radius: 50%;
+  background: rgba(212,168,67,0.4);
+  transform: scale(0); animation: rippleAnim .5s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes rippleAnim {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* ═══ SPECIAL EFFECTS ═══ */
+#fx-canvas { position:fixed;inset:0;pointer-events:none;z-index:400; }
+#screen-flash { position:fixed;inset:0;pointer-events:none;z-index:350;opacity:0; }
+#combo-display {
+  position:fixed;top:42%;left:50%;transform:translate(-50%,-50%);
+  z-index:380;pointer-events:none;font-family:'Playfair Display',serif;
+  font-size:48px;font-weight:900;opacity:0;text-shadow:0 0 30px currentColor;
+}
+#combo-display.pop { animation:comboPop .75s cubic-bezier(.34,1.56,.64,1) forwards; }
+@keyframes comboPop {
+  0%  { opacity:0;transform:translate(-50%,-50%) scale(0.3) rotate(-6deg); }
+  35% { opacity:1;transform:translate(-50%,-60%) scale(1.2) rotate(2deg); }
+  70% { opacity:1;transform:translate(-50%,-65%) scale(1) rotate(0); }
+  100%{ opacity:0;transform:translate(-50%,-80%) scale(0.85); }
+}
+@keyframes cardBurst {
+  0%  { transform:translateY(-90px) scale(0.5) rotate(-15deg);opacity:0; }
+  50% { transform:translateY(8px) scale(1.12) rotate(3deg);opacity:1; }
+  75% { transform:translateY(-4px) scale(0.97) rotate(-1deg);opacity:1; }
+  100%{ transform:translateY(0) scale(1) rotate(0);opacity:1; }
+}
+.card-fly { animation:cardBurst 0.5s cubic-bezier(.34,1.4,.64,1) forwards; }
+.card.joker-r.playable { animation:jokerFireRed 1.5s infinite !important; }
+.card.joker-b.playable { animation:jokerFireBlack 1.5s infinite !important; }
+@keyframes jokerFireRed {
+  0%,100%{ box-shadow:0 0 0 2px #ff4040,0 0 20px #ff4040,0 0 40px #ff000066; }
+  50%    { box-shadow:0 0 0 3px #ff8800,0 0 30px #ff4400,0 0 60px #ff220088; }
+}
+@keyframes jokerFireBlack {
+  0%,100%{ box-shadow:0 0 0 2px #aaaaff,0 0 20px #5555ff,0 0 40px #2200ff66; }
+  50%    { box-shadow:0 0 0 3px #ccccff,0 0 30px #8888ff,0 0 60px #4400ff88; }
+}
+.card.playable[data-rank="7"] { animation:sevenDanger 1s infinite !important; }
+@keyframes sevenDanger {
+  0%,100%{ box-shadow:0 0 0 2px #ff4444,0 0 15px #ff222266; }
+  50%    { box-shadow:0 0 0 3px #ff6666,0 0 28px #ff444488,0 0 50px #ff000044; }
+}
+.card.playable[data-rank="A"] { animation:aceFreeze 1.2s infinite !important; }
+@keyframes aceFreeze {
+  0%,100%{ box-shadow:0 0 0 2px #44ccff,0 0 15px #44ccff66; }
+  50%    { box-shadow:0 0 0 3px #88eeff,0 0 28px #44ccffaa; }
+}
+.card.last-card { animation:lastCardWarn 0.6s infinite !important; }
+@keyframes lastCardWarn {
+  0%,100%{ transform:scale(1); }
+  50%    { transform:scale(1.1);box-shadow:0 0 0 3px #ffdd00,0 0 20px #ffdd0088; }
+}
+.float-emoji {
+  position:fixed;pointer-events:none;z-index:390;font-size:34px;user-select:none;
+  animation:floatUp 1.4s ease-out forwards;
+}
+@keyframes floatUp {
+  0%  { opacity:1;transform:translateY(0) scale(1); }
+  100%{ opacity:0;transform:translateY(-130px) scale(1.5); }
+}
+.ripple {
+  position:absolute;border-radius:50%;background:rgba(212,168,67,0.4);
+  transform:scale(0);animation:rippleAnim .5s ease-out forwards;pointer-events:none;
+}
+@keyframes rippleAnim { to { transform:scale(4);opacity:0; } }
+@keyframes myTurnFlash {
+  0%  { background:rgba(212,168,67,0.25); }
+  100%{ background:transparent; }
+}
+.my-turn-flash { animation:myTurnFlash .9s ease-out forwards; }
+@keyframes shakeX {
+  0%,100%{ transform:translateX(0); }
+  20%    { transform:translateX(-8px) rotate(-2deg); }
+  40%    { transform:translateX(8px) rotate(2deg); }
+  60%    { transform:translateX(-5px); }
+  80%    { transform:translateX(5px); }
+}
+.shake { animation:shakeX .5s ease-in-out; }
+
 /* connection badge */
 #conn-badge {
   position: fixed; top: 8px; right: 8px; z-index: 500;
@@ -592,6 +791,9 @@ input, textarea { -webkit-user-select: text; user-select: text; }
 <body>
 
 <div id="conn-badge" class="hidden"></div>
+<canvas id="fx-canvas"></canvas>
+<div id="screen-flash"></div>
+<div id="combo-display"></div>
 
 <!-- ══════════════════════════════ SETUP SCREEN ══════════════════════════════ -->
 <div class="screen" id="setup">
@@ -789,6 +991,7 @@ function isRed(c) { return c.r==='JOKER' ? c.color==='red' : RED.includes(c.s); 
 function cardCanPlay(card, topCard, commandedSuit, pendingDraws) {
   if (card.r === '2') return true;
   if (card.r === 'J') return true;
+  // Pendant une chaîne de pénalité, seuls 7 et Joker peuvent répondre
   if (pendingDraws > 0) {
     if (card.r === '7') return true;
     if (card.r === 'JOKER') return isRed(card) === isRed(topCard) || topCard.r === 'JOKER';
@@ -799,8 +1002,12 @@ function cardCanPlay(card, topCard, commandedSuit, pendingDraws) {
     const targetSuit = commandedSuit || topCard.s;
     return isRed(card) ? RED.includes(targetSuit) : BLACK.includes(targetSuit);
   }
-  const target = commandedSuit || topCard.s;
-  return card.s === target;
+  // Si valet a commandé une couleur → uniquement cette couleur (sauf exceptions déjà traitées)
+  if (commandedSuit) return card.s === commandedSuit;
+  // Même rang → toujours jouable (ex: 3♠ sur 3♥) et change la couleur active
+  if (card.r === topCard.r) return true;
+  // Même couleur (suit)
+  return card.s === topCard.s;
 }
 
 // ════════════════════════════════════════════
@@ -1133,8 +1340,11 @@ function renderGame() {
   const oppAction = document.getElementById('opponent-action');
   if (!isMyTurn) {
     document.getElementById('opp-banner-name').textContent = currentName;
+    // Détecter si ce joueur est bloqué par un As
+    const lastAct = gs.lastAction;
+    const blockedByAce = lastAct && lastAct.skip && gs.playerOrder[gs.currentPlayerIdx] === currentUid;
     document.getElementById('opp-banner-action').textContent = gs.pendingDraws > 0
-      ? `⚡ doit prendre +${gs.pendingDraws} ou renvoyer`
+      ? '⚡ doit prendre +' + gs.pendingDraws + ' ou renvoyer'
       : 'réfléchit à son coup...';
     oppAction.classList.add('show');
   } else {
@@ -1143,8 +1353,18 @@ function renderGame() {
   }
 
   // Topbar
-  document.getElementById('topbar-turn').textContent = isMyTurn ? '🟢 C\'est ton tour !' : `⏳ Tour de ${currentName}`;
-  document.getElementById('topbar-sub').textContent = gs.pendingDraws > 0 ? `⚡ +${gs.pendingDraws} en chaîne` : '';
+  // Détection As qui me bloque
+  const lastAct = gs.lastAction;
+  const iWasSkipped = lastAct && lastAct.skip &&
+    gs.playerOrder[gs.currentPlayerIdx] !== myUid &&
+    gs.playerOrder.indexOf(myUid) === (gs.playerOrder.indexOf(gs.playerOrder[gs.currentPlayerIdx]) - 1 + gs.playerOrder.length) % gs.playerOrder.length;
+
+  checkTurnChange(isMyTurn);
+  checkTurnChange(isMyTurn);
+  document.getElementById('topbar-turn').textContent = isMyTurn ? '🟢 C\'est ton tour !' : '⏳ Tour de ' + currentName;
+  document.getElementById('topbar-sub').textContent = gs.pendingDraws > 0
+    ? '⚡ +' + gs.pendingDraws + ' en chaîne'
+    : (iWasSkipped ? '🚫 Tu as été bloqué par un As !' : '');
   document.getElementById('topbar-room').textContent = `#${roomId}`;
 
   // Opponents
@@ -1218,10 +1438,8 @@ function renderGame() {
     btnDraw.disabled = !isMyTurn || hasDrawnThisTurn;
   }
 
-  // Pass button
-  const hasPlayable = localHand.some(c => cardCanPlay(c, topCard, gs.commandedSuit, gs.pendingDraws));
-  const btnPass = document.getElementById('btn-pass');
-  btnPass.style.display = (isMyTurn && hasDrawnThisTurn && !hasPlayable && gs.pendingDraws === 0) ? '' : 'none';
+  // Pass button — plus nécessaire (piocher = fin de tour automatique)
+  document.getElementById('btn-pass').style.display = 'none';
 }
 
 function renderHand(topCard, commandedSuit, pendingDraws, isMyTurn) {
@@ -1234,8 +1452,14 @@ function renderHand(topCard, commandedSuit, pendingDraws, isMyTurn) {
     else if (!isMyTurn) el.classList.add('not-your-turn');
     else el.classList.add('disabled');
     if (card.id === selectedCardId) el.classList.add('selected');
+    // Set data-rank for CSS special effects
+    el.dataset.rank = card.r;
+    // Last card warning
+    if (localHand.length === 1) el.classList.add('last-card');
     if (isMyTurn) el.addEventListener('click', () => {
+      if (selectedCardId !== card.id) addRipple(el);
       selectedCardId = (selectedCardId === card.id) ? null : card.id;
+      vibrate(20);
       renderGame();
     });
     hc.appendChild(el);
@@ -1273,17 +1497,22 @@ document.getElementById('btn-draw').addEventListener('click', async () => {
     await takePendingDraws(); return;
   }
   if (hasDrawnThisTurn) return;
-  // Draw 1 card
-  const deck = [...gs.deck];
-  if (!deck.length) await reshufflePotIntoDeck(gs);
+  // Piocher 1 carte et passer le tour immédiatement
+  let deck = [...(gs.deck || [])];
+  if (!deck.length) deck = reshufflePotLocal(gs.pot);
+  if (!deck.length) { showToast('Plus de cartes !', 'danger'); return; }
   const card = deck.pop();
   const newHand = [...localHand, card];
-  hasDrawnThisTurn = true;
-  await db.ref(`rooms/${roomId}/game`).update({
+  const nextIdx = advanceIdx(gs.playerOrder, gs.currentPlayerIdx, gs.finished || []);
+  hasDrawnThisTurn = false; // reset pour le prochain tour
+  selectedCardId = null;
+  await db.ref('rooms/' + roomId + '/game').update({
     deck,
-    [`hands/${myUid}`]: newHand,
+    ['hands/' + myUid]: newHand,
+    currentPlayerIdx: nextIdx,
+    lastAction: { player: myName, card: 'draw', ts: Date.now() },
   });
-  showToast('🎴 Carte piochée', 'info');
+  showToast('🎴 Carte piochée — tour passé', 'info');
 });
 
 document.getElementById('btn-play').addEventListener('click', tryPlay);
@@ -1309,19 +1538,27 @@ async function doPlayCard(card, chosenSuit) {
   const newPot = [...gs.pot, card];
   let newPending = gs.pendingDraws;
   let newCommandedSuit = null;
+  let skipNext = false; // As bloque le suivant
 
   if (card.r === '7') {
     newPending += 2;
-    showToast(`⚡ +2 → chaîne ${newPending}`, 'danger');
+    showToast('⚡ +2 → chaîne ' + newPending, 'danger');
   } else if (card.r === 'JOKER') {
     newPending += 4;
-    showToast(`💥 Joker +4 → chaîne ${newPending}`, 'danger');
+    showToast('💥 Joker +4 → chaîne ' + newPending, 'danger');
   } else if (card.r === 'J') {
     newCommandedSuit = chosenSuit;
-    showToast(`🃏 Valet ! ${chosenSuit} commandé`, 'info');
+    showToast('🃏 Valet ! ' + chosenSuit + ' commandé', 'info');
   } else if (card.r === '2') {
     showToast('✨ Passe-partout joué', 'info');
+    newPending = 0;
+  } else if (card.r === 'A') {
+    skipNext = true;
+    showToast('🚫 As ! Le joueur suivant est bloqué', 'info');
+    newPending = 0;
   } else {
+    // Même rang joué → la nouvelle couleur active devient la couleur de la carte jouée
+    // (pas de commandedSuit explicite, le pot suffit — la suit de la carte posée fait foi)
     newPending = 0;
   }
 
@@ -1329,12 +1566,16 @@ async function doPlayCard(card, chosenSuit) {
   let newFinished = [...(gs.finished || [])];
   if (newHand.length === 0) {
     newFinished.push(myUid);
-    showToast(`🏆 ${myName} a fini !`, 'good');
+    showToast('🏆 ' + myName + ' a fini !', 'good');
   }
 
-  // Next player
-  const alive = gs.playerOrder.filter(u => !newFinished.includes(u) || u === myUid);
-  const nextIdx = advanceIdx(gs.playerOrder, gs.currentPlayerIdx, newFinished);
+  // Advance turn — si As, on saute 2 joueurs (le bloqué + on arrive au suivant)
+  let nextIdx = advanceIdx(gs.playerOrder, gs.currentPlayerIdx, newFinished);
+  if (skipNext) {
+    // Sauter le joueur directement suivant
+    nextIdx = advanceIdx(gs.playerOrder, nextIdx, newFinished);
+    // Notifier le joueur bloqué dans le state
+  }
 
   // Check game over
   const stillPlaying = gs.playerOrder.filter(u => !newFinished.includes(u));
@@ -1342,17 +1583,20 @@ async function doPlayCard(card, chosenSuit) {
 
   const updates = {
     pot: newPot,
-    [`hands/${myUid}`]: newHand,
+    ['hands/' + myUid]: newHand,
     pendingDraws: newPending,
     commandedSuit: newCommandedSuit,
     currentPlayerIdx: nextIdx,
     finished: newFinished,
+    lastAction: { player: myName, card: card.r + card.s, skip: skipNext, ts: Date.now() },
   };
   if (isOver) updates.status = 'finished';
 
+  triggerCardEffect(card);
+  triggerCardEffect(card);
   selectedCardId = null;
   hasDrawnThisTurn = false;
-  await db.ref(`rooms/${roomId}/game`).update(updates);
+  await db.ref('rooms/' + roomId + '/game').update(updates);
 }
 
 async function takePendingDraws() {
@@ -1365,7 +1609,8 @@ async function takePendingDraws() {
     if (!deck.length) break;
     newHand.push(deck.pop());
   }
-  showToast(`😬 Tu prends ${n} cartes !`, 'danger');
+  showToast('😬 Tu prends ' + n + ' cartes !', 'danger');
+  triggerPenaltyEffect(n);
   const nextIdx = advanceIdx(gs.playerOrder, gs.currentPlayerIdx, gs.finished || []);
   hasDrawnThisTurn = false;
   await db.ref(`rooms/${roomId}/game`).update({
@@ -1426,6 +1671,8 @@ function renderWinner() {
   const notFinished = allUids.filter(u => !order.includes(u)).sort((a,b) => (gs.hands[a]||[]).length - (gs.hands[b]||[]).length);
   const fullOrder = [...order, ...notFinished];
 
+  triggerWin();
+  triggerWin();
   const firstName = gs.playerNames[fullOrder[0]] || '?';
   document.getElementById('winner-name-display').textContent = firstName;
 
@@ -1454,6 +1701,362 @@ function showToast(msg, type='') {
   t.className = `toast show${type ? ' t-'+type : ''}`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ════════════════════════════════════════════
+//  SPECIAL EFFECTS ENGINE
+// ════════════════════════════════════════════
+
+// ── Canvas particle system ──
+const fxCanvas = document.getElementById('fx-canvas');
+const fxCtx = fxCanvas.getContext('2d');
+let particles = [];
+let fxRAF = null;
+
+function resizeFx() {
+  fxCanvas.width = window.innerWidth;
+  fxCanvas.height = window.innerHeight;
+}
+resizeFx();
+window.addEventListener('resize', resizeFx);
+
+function spawnParticles(x, y, count, colors, spread=80, gravity=0.15) {
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.random() * Math.PI * 2);
+    const speed = 2 + Math.random() * 5;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed * (spread/80),
+      vy: Math.sin(angle) * speed * (spread/80) - 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      size: 4 + Math.random() * 6,
+      life: 1, decay: 0.018 + Math.random() * 0.02,
+      gravity, spin: (Math.random() - 0.5) * 0.3,
+      shape: Math.random() > 0.5 ? 'rect' : 'circle',
+    });
+  }
+  if (!fxRAF) runFx();
+}
+
+function runFx() {
+  fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    p.vy += p.gravity; p.vx *= 0.98;
+    p.life -= p.decay;
+    fxCtx.save();
+    fxCtx.globalAlpha = Math.max(0, p.life);
+    fxCtx.fillStyle = p.color;
+    fxCtx.translate(p.x, p.y);
+    fxCtx.rotate(p.spin * Date.now() * 0.02);
+    if (p.shape === 'rect') {
+      fxCtx.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.6);
+    } else {
+      fxCtx.beginPath();
+      fxCtx.arc(0, 0, p.size/2, 0, Math.PI*2);
+      fxCtx.fill();
+    }
+    fxCtx.restore();
+  });
+  if (particles.length > 0) {
+    fxRAF = requestAnimationFrame(runFx);
+  } else {
+    fxRAF = null;
+    fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+  }
+}
+
+// ── Screen flash ──
+function screenFlash(color, duration=200) {
+  const el = document.getElementById('screen-flash');
+  el.style.background = color;
+  el.style.opacity = '1';
+  setTimeout(() => { el.style.transition = 'opacity ' + duration + 'ms'; el.style.opacity = '0'; }, 50);
+  setTimeout(() => { el.style.transition = ''; }, duration + 100);
+}
+
+// ── Combo display ──
+let comboCount = 0;
+let comboTimer = null;
+function showCombo(text, color='#f0c040') {
+  const el = document.getElementById('combo-display');
+  el.textContent = text;
+  el.style.color = color;
+  el.classList.remove('pop');
+  void el.offsetWidth; // reflow
+  el.classList.add('pop');
+}
+
+// ── Floating emoji ──
+function floatEmoji(emoji, x, y) {
+  const el = document.createElement('div');
+  el.className = 'float-emoji';
+  el.textContent = emoji;
+  el.style.left = (x - 16) + 'px';
+  el.style.top = (y - 16) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1500);
+}
+
+// ── Shake element ──
+function shakeEl(selector) {
+  const el = document.querySelector(selector);
+  if (!el) return;
+  el.classList.remove('shake');
+  void el.offsetWidth;
+  el.classList.add('shake');
+  setTimeout(() => el.classList.remove('shake'), 600);
+}
+
+// ── Vibrate ──
+function vibrate(ms) {
+  if (navigator.vibrate) navigator.vibrate(ms);
+}
+
+// ── Ripple on card ──
+function addRipple(el) {
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  r.style.width = r.style.height = Math.max(el.offsetWidth, el.offsetHeight) + 'px';
+  r.style.left = '0px'; r.style.top = '0px';
+  el.style.overflow = 'hidden';
+  el.appendChild(r);
+  setTimeout(() => r.remove(), 600);
+}
+
+// ── My turn entrance ──
+let lastMyTurn = false;
+function checkTurnChange(isMyTurn) {
+  if (isMyTurn && !lastMyTurn) {
+    // My turn just started!
+    vibrate([30, 50, 80]);
+    screenFlash('rgba(212,168,67,0.15)', 400);
+    document.querySelector('.my-hand-section').classList.remove('my-turn-flash');
+    void document.querySelector('.my-hand-section').offsetWidth;
+    document.querySelector('.my-hand-section').classList.add('my-turn-flash');
+    // Spawn subtle gold particles at bottom
+    spawnParticles(
+      window.innerWidth/2, window.innerHeight - 80,
+      18, ['#f0c040','#d4a843','#fff8dc','#e8b84b'],
+      60, 0.2
+    );
+  }
+  lastMyTurn = isMyTurn;
+}
+
+// ── Card play effects (called from doPlayCard) ──
+function triggerCardEffect(card) {
+  const potEl = document.getElementById('pot-display');
+  const rect = potEl.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+
+  if (card.r === 'JOKER') {
+    // Joker = massive explosion
+    vibrate([80, 40, 120, 40, 200]);
+    screenFlash(card.color === 'red' ? 'rgba(255,50,50,0.25)' : 'rgba(100,100,255,0.2)', 300);
+    spawnParticles(cx, cy, 60,
+      card.color === 'red'
+        ? ['#ff4040','#ff8800','#ffcc00','#ff2200','#fff']
+        : ['#6666ff','#aaaaff','#ffffff','#4444dd','#ccccff'],
+      120, 0.25
+    );
+    showCombo('💥 JOKER!', card.color === 'red' ? '#ff5533' : '#8888ff');
+    shakeEl('.table-center');
+    floatEmoji(card.color === 'red' ? '🔥' : '⚡', cx, cy);
+  } else if (card.r === '7') {
+    vibrate([60, 30, 60]);
+    screenFlash('rgba(255,80,80,0.18)', 250);
+    spawnParticles(cx, cy, 30, ['#ff4444','#ff8800','#ffcc00','#fff'], 80, 0.2);
+    showCombo('⚡ +2!', '#ff6644');
+    shakeEl('.table-center');
+    floatEmoji('⚡', cx, cy - 20);
+  } else if (card.r === 'A') {
+    vibrate([40, 20, 40, 20, 80]);
+    screenFlash('rgba(80,200,255,0.2)', 300);
+    spawnParticles(cx, cy, 25, ['#44ccff','#aaeeff','#ffffff','#0088ff'], 70, 0.15);
+    showCombo('🚫 BLOQUÉ!', '#44ccff');
+    floatEmoji('❄️', cx, cy);
+  } else if (card.r === 'J') {
+    vibrate(50);
+    spawnParticles(cx, cy, 20, ['#f0c040','#fff8dc','#d4a843','#ffffff'], 60, 0.18);
+    showCombo('🃏 VALET', '#f0c040');
+    floatEmoji('🎯', cx, cy);
+  } else if (card.r === '2') {
+    vibrate(30);
+    spawnParticles(cx, cy, 15, ['#88ff88','#44cc66','#ffffff'], 50, 0.15);
+    showCombo('✨ JOKER!', '#66ff88');
+  } else {
+    // Normal card
+    vibrate(15);
+    const colors = isRed(card)
+      ? ['#ff8888','#ffcccc','#ff4444']
+      : ['#888888','#cccccc','#444444'];
+    spawnParticles(cx, cy, 10, colors, 40, 0.2);
+  }
+}
+
+// ── Draw penalty effect ──
+function triggerPenaltyEffect(n) {
+  vibrate([100, 50, 100, 50, 150]);
+  screenFlash('rgba(220,50,50,0.3)', 350);
+  shakeEl('.my-hand-section');
+  const hc = document.getElementById('hand-cards');
+  const rect = hc.getBoundingClientRect();
+  spawnParticles(
+    rect.left + rect.width/2, rect.top + rect.height/2,
+    n * 5, ['#ff3333','#ff8800','#ffcc00','#ff5555'], 100, 0.3
+  );
+  showCombo('-' + n + ' cartes 😬', '#ff4444');
+  floatEmoji('😱', window.innerWidth/2, window.innerHeight/2);
+}
+
+// ── Win confetti ──
+function triggerWin() {
+  vibrate([100,50,100,50,100,50,300]);
+  const colors = ['#f0c040','#ff4040','#4040ff','#40cc60','#ff8800','#ff44cc','#ffffff'];
+  function burst() {
+    spawnParticles(window.innerWidth * Math.random(), -10, 12, colors, 100, 0.3);
+  }
+  burst();
+  for (let i = 1; i <= 8; i++) setTimeout(burst, i * 180);
+}
+
+// ════════════════════════════════════════════
+//  SPECIAL EFFECTS ENGINE
+// ════════════════════════════════════════════
+const fxCanvas = document.getElementById('fx-canvas');
+const fxCtx = fxCanvas && fxCanvas.getContext('2d');
+let particles = [];
+let fxRAF = null;
+function resizeFx() { if(fxCanvas){fxCanvas.width=window.innerWidth;fxCanvas.height=window.innerHeight;} }
+resizeFx(); window.addEventListener('resize', resizeFx);
+
+function spawnParticles(x, y, count, colors, spread, gravity) {
+  spread = spread||80; gravity = gravity||0.18;
+  for (let i=0;i<count;i++) {
+    const angle = Math.random()*Math.PI*2;
+    const speed = 2 + Math.random()*5;
+    particles.push({
+      x,y, vx:Math.cos(angle)*speed*(spread/80), vy:Math.sin(angle)*speed*(spread/80)-3,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      size:4+Math.random()*6, life:1, decay:0.018+Math.random()*0.02,
+      gravity, shape:Math.random()>.5?'rect':'circle'
+    });
+  }
+  if (!fxRAF) runFx();
+}
+function runFx() {
+  if (!fxCtx) return;
+  fxCtx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+  particles = particles.filter(p=>p.life>0);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=p.gravity; p.vx*=0.98; p.life-=p.decay;
+    fxCtx.save(); fxCtx.globalAlpha=Math.max(0,p.life); fxCtx.fillStyle=p.color;
+    fxCtx.translate(p.x,p.y);
+    if(p.shape==='rect'){fxCtx.fillRect(-p.size/2,-p.size/3,p.size,p.size*.6);}
+    else{fxCtx.beginPath();fxCtx.arc(0,0,p.size/2,0,Math.PI*2);fxCtx.fill();}
+    fxCtx.restore();
+  });
+  fxRAF = particles.length>0 ? requestAnimationFrame(runFx) : null;
+  if(!fxRAF && fxCtx) fxCtx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+}
+
+function screenFlash(color, dur) {
+  dur = dur||200;
+  const el = document.getElementById('screen-flash');
+  if(!el) return;
+  el.style.background = color; el.style.opacity = '1'; el.style.transition = '';
+  setTimeout(()=>{ el.style.transition='opacity '+dur+'ms'; el.style.opacity='0'; }, 60);
+}
+
+function showCombo(text, color) {
+  const el = document.getElementById('combo-display');
+  if(!el) return;
+  el.textContent = text; el.style.color = color||'#f0c040';
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+}
+
+function floatEmoji(emoji, x, y) {
+  const el = document.createElement('div');
+  el.className = 'float-emoji'; el.textContent = emoji;
+  el.style.left=(x-17)+'px'; el.style.top=(y-17)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 1500);
+}
+
+function shakeEl(sel) {
+  const el = document.querySelector(sel); if(!el) return;
+  el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+  setTimeout(()=>el.classList.remove('shake'),600);
+}
+
+function vibrate(ms) { try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
+
+function addRipple(el) {
+  const r = document.createElement('div'); r.className='ripple';
+  r.style.width = r.style.height = Math.max(el.offsetWidth,el.offsetHeight)+'px';
+  r.style.left='0'; r.style.top='0'; el.style.overflow='hidden';
+  el.appendChild(r); setTimeout(()=>r.remove(),600);
+}
+
+let lastMyTurn = false;
+function checkTurnChange(isMyTurn) {
+  if (isMyTurn && !lastMyTurn) {
+    vibrate([30,50,80]);
+    screenFlash('rgba(212,168,67,0.15)', 400);
+    const hs = document.querySelector('.my-hand-section');
+    if(hs){ hs.classList.remove('my-turn-flash'); void hs.offsetWidth; hs.classList.add('my-turn-flash'); }
+    spawnParticles(window.innerWidth/2, window.innerHeight-80, 16, ['#f0c040','#d4a843','#fff8dc'], 60, 0.2);
+  }
+  lastMyTurn = isMyTurn;
+}
+
+function triggerCardEffect(card) {
+  const potEl = document.getElementById('pot-display');
+  if(!potEl) return;
+  const rect = potEl.getBoundingClientRect();
+  const cx = rect.left+rect.width/2, cy = rect.top+rect.height/2;
+  if (card.r==='JOKER') {
+    vibrate([80,40,120,40,200]);
+    screenFlash(card.color==='red'?'rgba(255,50,50,0.25)':'rgba(100,100,255,0.2)', 300);
+    spawnParticles(cx,cy,60, card.color==='red'
+      ?['#ff4040','#ff8800','#ffcc00','#ff2200','#fff']
+      :['#6666ff','#aaaaff','#ffffff','#4444dd','#ccccff'], 120, 0.25);
+    showCombo('💥 JOKER!', card.color==='red'?'#ff5533':'#8888ff');
+    shakeEl('.table-center');
+    floatEmoji(card.color==='red'?'🔥':'⚡', cx, cy);
+  } else if (card.r==='7') {
+    vibrate([60,30,60]);
+    screenFlash('rgba(255,80,80,0.18)',250);
+    spawnParticles(cx,cy,30,['#ff4444','#ff8800','#ffcc00','#fff'],80,0.2);
+    showCombo('⚡ +2!','#ff6644'); shakeEl('.table-center');
+    floatEmoji('⚡',cx,cy-20);
+  } else if (card.r==='A') {
+    vibrate([40,20,40,20,80]);
+    screenFlash('rgba(80,200,255,0.2)',300);
+    spawnParticles(cx,cy,25,['#44ccff','#aaeeff','#ffffff','#0088ff'],70,0.15);
+    showCombo('🚫 BLOQUÉ!','#44ccff'); floatEmoji('❄️',cx,cy);
+  } else if (card.r==='J') {
+    vibrate(50);
+    spawnParticles(cx,cy,20,['#f0c040','#fff8dc','#d4a843','#ffffff'],60,0.18);
+    showCombo('🃏 VALET','#f0c040'); floatEmoji('🎯',cx,cy);
+  } else if (card.r==='2') {
+    vibrate(30);
+    spawnParticles(cx,cy,15,['#88ff88','#44cc66','#ffffff'],50,0.15);
+    showCombo('✨ PASSE!','#66ff88');
+  } else {
+    vibrate(12);
+    spawnParticles(cx,cy,8, isRed(card)?['#ff8888','#ffcccc']:['#aaaaaa','#cccccc'], 35, 0.22);
+  }
+}
+
+function triggerWin() {
+  vibrate([100,50,100,50,100,50,300]);
+  const colors=['#f0c040','#ff4040','#4040ff','#40cc60','#ff8800','#ff44cc','#ffffff'];
+  function burst(){ spawnParticles(window.innerWidth*Math.random(),-10,14,colors,110,0.32); }
+  for(let i=0;i<=9;i++) setTimeout(burst, i*170);
 }
 
 // ════════════════════════════════════════════
