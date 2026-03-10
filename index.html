@@ -93,6 +93,18 @@ body::before{
 .opp-chip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 10px;border-radius:12px;background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.08);transition:all .3s;min-width:58px;}
 .opp-chip.active{border-color:var(--gold);background:rgba(212,168,67,.1);}
 .opp-chip.done{border-color:var(--ok);}
+/* Timer ring */
+.timer-ring{position:relative;width:28px;height:28px;flex-shrink:0;}
+.timer-ring svg{transform:rotate(-90deg);}
+.timer-ring-bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:3;}
+.timer-ring-fg{fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;stroke-dasharray:75.4;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .3s;}
+.timer-ring-fg.urgent{stroke:#ff4444;animation:urgentPulse .5s infinite alternate;}
+@keyframes urgentPulse{from{stroke:#ff4444;}to{stroke:#ff8800;}}
+.timer-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:var(--gold);}
+.timer-ring-num.urgent{color:#ff4444;}
+/* My turn timer bar */
+#my-timer-bar{height:3px;background:linear-gradient(90deg,#ff4444,#ff8800,var(--gold));transform-origin:left;transition:transform 1s linear;position:relative;z-index:1;}
+#my-timer-wrap{background:rgba(0,0,0,.3);overflow:hidden;flex-shrink:0;}
 .opp-name{font-size:10px;font-weight:700;color:rgba(245,240,232,.65);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .opp-count{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--gold);line-height:1;}
 .opp-minis{display:flex;gap:2px;}
@@ -174,9 +186,13 @@ body::before{
 .suit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .suit-opt{padding:18px 10px;border-radius:14px;border:2px solid transparent;cursor:pointer;font-family:'Playfair Display',serif;font-size:13px;font-weight:700;text-align:center;transition:transform .15s;display:flex;flex-direction:column;align-items:center;gap:4px;-webkit-appearance:none;}
 .suit-opt:active{transform:scale(.9);}
-.mode-opt{background:rgba(255,255,255,.06);border:2px solid rgba(212,168,67,.2);border-radius:12px;padding:12px 8px;color:var(--cream);font-family:'Lato',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all .15s;text-align:center;-webkit-appearance:none;}
-.mode-opt span{font-size:10px;color:rgba(245,240,232,.45);font-weight:400;display:block;margin-top:3px;}
-.mode-opt.sel{border-color:var(--gold);background:rgba(212,168,67,.15);color:var(--gold);}
+.mode-section{font-size:11px;color:rgba(212,168,67,.55);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 6px;font-weight:700;}
+.mode-section:first-of-type{margin-top:0;}
+.mode-row{display:flex;gap:8px;margin-bottom:4px;}
+.mode-opt{flex:1;background:rgba(255,255,255,.06);border:2px solid rgba(212,168,67,.18);border-radius:12px;padding:11px 6px;color:rgba(245,240,232,.7);font-family:'Lato',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .18s;text-align:center;-webkit-appearance:none;line-height:1.3;}
+.mode-opt span{font-size:10px;color:rgba(245,240,232,.35);font-weight:400;display:block;margin-top:3px;}
+.mode-opt.sel{border-color:var(--gold);background:rgba(212,168,67,.18);color:var(--gold-l);box-shadow:0 0 12px rgba(212,168,67,.2);}
+.mode-opt.sel span{color:rgba(212,168,67,.6);}
 .mode-opt:active{transform:scale(.93);}
 .suit-opt .si{font-size:30px;}
 .suit-opt.r{background:rgba(192,34,42,.15);border-color:rgba(192,34,42,.5);color:var(--red);}
@@ -294,6 +310,7 @@ body::before{
       <div><div class="tb-turn" id="tb-turn">—</div><div class="tb-sub" id="tb-sub"></div></div>
       <div class="tb-room" id="tb-room"></div>
     </div>
+    <div id="my-timer-wrap" style="display:none"><div id="my-timer-bar"></div></div>
     <div class="opp-row" id="opp-row"></div>
     <div class="table-center">
       <div class="pile-zone">
@@ -353,28 +370,50 @@ body::before{
 
 <!-- ══ GAME MODE MODAL ══ -->
 <div class="overlay" id="mode-modal">
-  <div class="modal" style="max-width:360px">
-    <div class="modal-t">⚙️ Mode de jeu</div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;color:rgba(245,240,232,.45);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Cartes par joueur au départ</div>
-      <div style="display:flex;gap:8px">
-        <button class="mode-opt" data-field="cards" data-val="5" style="flex:1">5 🃏<br><span>Classique</span></button>
-        <button class="mode-opt" data-field="cards" data-val="7" style="flex:1">7 🃏<br><span>Standard</span></button>
-        <button class="mode-opt" data-field="cards" data-val="10" style="flex:1">10 🃏<br><span>Long</span></button>
-      </div>
-      <div style="font-size:12px;color:rgba(245,240,232,.45);letter-spacing:1px;text-transform:uppercase;margin-top:6px;margin-bottom:2px">Nombre de jeux de cartes</div>
-      <div style="display:flex;gap:8px">
-        <button class="mode-opt" data-field="decks" data-val="1" style="flex:1">1 jeu<br><span>Normal</span></button>
-        <button class="mode-opt" data-field="decks" data-val="2" style="flex:1">2 jeux<br><span>Double</span></button>
-      </div>
-      <div style="font-size:12px;color:rgba(245,240,232,.45);letter-spacing:1px;text-transform:uppercase;margin-top:6px;margin-bottom:2px">Règle du 2</div>
-      <div style="display:flex;gap:8px">
-        <button class="mode-opt" data-field="two" data-val="any" style="flex:1">Sur tout<br><span>Classique</span></button>
-        <button class="mode-opt" data-field="two" data-val="place" style="flex:1">Dessus/Dessous<br><span>Stratégique</span></button>
-      </div>
-      <button class="btn btn-gold" id="btn-confirm-mode" style="margin-top:8px">▶ Lancer la partie</button>
-      <button class="btn btn-outline" id="btn-cancel-mode" style="padding:10px">Annuler</button>
+  <div class="modal" style="max-width:380px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
+    <div class="modal-t" style="font-size:20px">⚙️ Paramètres</div>
+
+    <div class="mode-section">Mode de partie</div>
+    <div class="mode-row" id="mode-gametype">
+      <button class="mode-opt sel" data-field="gametype" data-val="classic" style="flex:1.2">
+        🏆 Classique<span>Le premier à finir gagne</span>
+      </button>
+      <button class="mode-opt" data-field="gametype" data-val="elim" style="flex:1.2">
+        💀 Élimination<span>Le dernier perd — plusieurs manches</span>
+      </button>
     </div>
+    <div id="elim-info" style="display:none;background:rgba(255,60,60,.08);border:1px solid rgba(255,60,60,.2);border-radius:10px;padding:10px 12px;font-size:12px;color:rgba(245,240,232,.7);line-height:1.6;margin-top:-2px">
+      💀 <strong style="color:#ff8888">Mode Élimination :</strong> Celui qui a encore des cartes quand un joueur a tout posé est éliminé. Les cartes sont redistribuées et on continue — jusqu'au duel final !
+    </div>
+
+    <div class="mode-section">Cartes distribuées par joueur</div>
+    <div class="mode-row" id="mode-cards">
+      <button class="mode-opt sel" data-field="cards" data-val="5">5 cartes<span>Rapide</span></button>
+      <button class="mode-opt" data-field="cards" data-val="7">7 cartes<span>Standard</span></button>
+      <button class="mode-opt" data-field="cards" data-val="10">10 cartes<span>Long</span></button>
+    </div>
+
+    <div class="mode-section">Jeux de cartes utilisés</div>
+    <div class="mode-row" id="mode-decks">
+      <button class="mode-opt sel" data-field="decks" data-val="1">1 jeu<span>54 cartes</span></button>
+      <button class="mode-opt" data-field="decks" data-val="2">2 jeux<span>108 cartes</span></button>
+    </div>
+
+    <div class="mode-section">Minuteur par tour</div>
+    <div class="mode-row" id="mode-timer">
+      <button class="mode-opt sel" data-field="timer" data-val="15">15 sec<span>Rapide</span></button>
+      <button class="mode-opt" data-field="timer" data-val="30">30 sec<span>Normal</span></button>
+      <button class="mode-opt" data-field="timer" data-val="0">Sans limite<span>Relax</span></button>
+    </div>
+    <div style="font-size:11px;color:rgba(245,240,232,.35);margin-top:-2px;padding:0 2px">
+      ✅ Le 2 (passe-partout) peut être joué dessus ou dessous le pot dans tous les modes.
+    </div>
+
+    <div style="margin-top:14px;padding:12px;background:rgba(212,168,67,.08);border:1px solid rgba(212,168,67,.2);border-radius:12px;font-size:12px;color:rgba(245,240,232,.6);line-height:1.6" id="mode-summary">
+    </div>
+
+    <button class="btn btn-gold" id="btn-confirm-mode" style="margin-top:14px">▶ Lancer la partie</button>
+    <button class="btn btn-outline" id="btn-cancel-mode" style="padding:10px;margin-top:8px">Annuler</button>
   </div>
 </div>
 
@@ -696,23 +735,38 @@ function enterLobby(){
 }
 
 // Game mode settings
-const gameMode={cards:5,decks:1,two:'any'};
+const gameMode={cards:5,decks:1,two:'place',timer:15,gametype:'classic'};
+
+function updateModeSummary(){
+  const el=document.getElementById('mode-summary');
+  if(!el)return;
+  const timerTxt=gameMode.timer===0?'Sans minuteur':'⏱ '+gameMode.timer+'s par tour';
+  const modeTxt=gameMode.gametype==='elim'?'💀 Élimination':'🏆 Classique';
+  el.innerHTML='<strong style="color:var(--gold)">Récap :</strong> '+modeTxt+' · '+
+    gameMode.cards+' cartes · '+gameMode.decks+' jeu'+(gameMode.decks>1?'x':'')+' · '+timerTxt+'<br>'+
+    '<span style="color:rgba(245,240,232,.45);font-size:11px">✅ Règle du 2 : Dessus/Dessous toujours actif</span>';
+  // Show/hide elim info
+  const ei=document.getElementById('elim-info');
+  if(ei)ei.style.display=gameMode.gametype==='elim'?'':'none';
+}
 
 function initModeModal(){
-  // Set defaults as selected
   document.querySelectorAll('.mode-opt').forEach(btn=>{
     const f=btn.dataset.field, v=btn.dataset.val;
-    if(String(gameMode[f])===String(v))btn.classList.add('sel');
+    // Sync sel state from gameMode
+    btn.classList.toggle('sel', String(gameMode[f])===String(v));
     btn.onclick=function(){
       gameMode[f]=isNaN(v)?v:parseInt(v);
       document.querySelectorAll('.mode-opt[data-field="'+f+'"]').forEach(b=>b.classList.remove('sel'));
       this.classList.add('sel');
+      updateModeSummary();
     };
   });
+  updateModeSummary();
 }
-initModeModal();
 
 document.getElementById('btn-launch').onclick=function(){
+  initModeModal(); // re-init every time modal opens
   document.getElementById('mode-modal').classList.add('show');
 };
 document.getElementById('btn-cancel-mode').onclick=function(){
@@ -738,8 +792,10 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
     playerNames:Object.fromEntries(players.map(p=>[p.uid,p.name])),
     deck:fullDeck,pot:[pot],hands,
     currentPlayerIdx:0,commandedSuit:null,pendingDraws:0,finished:[],
-    status:'playing',lastFX:null,
-    mode:{cards:gameMode.cards,decks:gameMode.decks,two:gameMode.two}
+    status:'playing',lastFX:null,turnStartTs:Date.now(),
+    mode:{cards:gameMode.cards,decks:gameMode.decks,two:'place',timer:gameMode.timer,gametype:gameMode.gametype},
+    eliminated:[],
+    round:1
   };
   await db.ref('rooms/'+roomId+'/game').set(game);
   await db.ref('rooms/'+roomId+'/status').set('playing');
@@ -759,8 +815,100 @@ function startGame(g){
     gameState=data;
     localHand=(data.hands&&data.hands[myUid])||[];
     if(data.status==='finished'){renderWinner();return;}
+    if(data.status==='elim_round_end'){
+      handleElimRound(data);
+      return;
+    }
     renderGame();
   });
+}
+
+// ══════════════════════════════════════════
+// TURN TIMER (15s, visible by all via Firebase)
+// ══════════════════════════════════════════
+let timerInterval=null, timerLeft=15;
+let TIMER_SEC=15; // updated from game mode
+
+function startMyTimer(){
+  clearInterval(timerInterval);
+  timerLeft=TIMER_SEC;
+  updateMyTimerBar(TIMER_SEC);
+  const wrap=document.getElementById('my-timer-wrap');
+  if(wrap)wrap.style.display='';
+  timerInterval=setInterval(async function(){
+    timerLeft--;
+    updateMyTimerBar(timerLeft);
+    if(timerLeft<=0){
+      clearInterval(timerInterval);
+      timerInterval=null;
+      // Auto-draw and pass
+      await autoPass();
+    }
+  },1000);
+}
+
+function stopMyTimer(){
+  clearInterval(timerInterval);
+  timerInterval=null;
+  const wrap=document.getElementById('my-timer-wrap');
+  if(wrap)wrap.style.display='none';
+  updateMyTimerBar(TIMER_SEC);
+}
+
+function updateMyTimerBar(sec){
+  const bar=document.getElementById('my-timer-bar');
+  if(!bar)return;
+  const pct=sec/TIMER_SEC;
+  bar.style.transform='scaleX('+pct+')';
+  // Color shift: green→yellow→red
+  if(sec<=5)bar.style.background='#ff3333';
+  else if(sec<=8)bar.style.background='linear-gradient(90deg,#ff4444,#ff8800)';
+  else bar.style.background='linear-gradient(90deg,#ff4444,#ff8800,var(--gold))';
+}
+
+async function autoPass(){
+  if(!myTurn())return;
+  const gs=gameState;
+  if(gs.pendingDraws>0){
+    // Must take penalty
+    await takePenalty();
+    return;
+  }
+  let deck=ensureDeck(gs);
+  if(!deck){return;}
+  const card=deck.pop();
+  const newHand=[...localHand,card];
+  const nextIdx=advIdx(gs.playerOrder,gs.currentPlayerIdx,gs.finished||[]);
+  selCard=null;
+  toast('⏱️ Temps écoulé — carte piochée !','d');
+  vibrate([100,50,200]);
+  await db.ref('rooms/'+roomId+'/game').update({
+    deck,['hands/'+myUid]:newHand,currentPlayerIdx:nextIdx,
+    jokerFreeColor:null,jokerPendingColor:null,
+    turnStartTs:Date.now(),
+    lastFX:{r:'timeout',s:'',color:null,by:myUid,ts:Date.now()}
+  });
+}
+
+// Timer display on opp chips (uses turnStartTs from Firebase)
+function getTimerLeft(gs){
+  if(!gs.turnStartTs)return TIMER_SEC;
+  const elapsed=Math.floor((Date.now()-gs.turnStartTs)/1000);
+  return Math.max(0,TIMER_SEC-elapsed);
+}
+
+function makeTimerRing(sec){
+  const pct=sec/TIMER_SEC;
+  const circ=75.4;
+  const offset=circ*(1-pct);
+  const urgent=sec<=5;
+  return '<div class="timer-ring">'+
+    '<svg width="28" height="28" viewBox="0 0 28 28">'+
+    '<circle class="timer-ring-bg" cx="14" cy="14" r="12"/>'+
+    '<circle class="timer-ring-fg'+(urgent?' urgent':'')+'" cx="14" cy="14" r="12" style="stroke-dashoffset:'+offset+'"/>'+
+    '</svg>'+
+    '<div class="timer-ring-num'+(urgent?' urgent':'')+'">'+sec+'</div>'+
+    '</div>';
 }
 
 function renderGame(){
@@ -770,6 +918,20 @@ function renderGame(){
   const curName=gs.playerNames[curUid];
   const mine=curUid===myUid;
   const top=gs.pot[gs.pot.length-1];
+
+  // ── Timer: update TIMER_SEC from mode ──
+  if(gs.mode&&gs.mode.timer!==undefined) TIMER_SEC=gs.mode.timer||999;
+
+  // ── Timer: start when my turn, stop otherwise ──
+  if(mine&&!lastMyTurn){
+    // My turn just started — write turnStartTs to Firebase
+    db.ref('rooms/'+roomId+'/game/turnStartTs').set(Date.now());
+    if(TIMER_SEC>0) startMyTimer(); else stopMyTimer();
+  } else if(!mine&&lastMyTurn){
+    stopMyTimer();
+  } else if(!mine){
+    stopMyTimer();
+  }
 
   // ── Sync FX for ALL players ──
   if(gs.lastFX){
@@ -791,9 +953,13 @@ function renderGame(){
   checkTurnFX(mine);
 
   // Topbar
-  document.getElementById('tb-turn').textContent=mine?'🟢 Ton tour !':'⏳ Tour de '+curName;
+  const myTimerSec=mine?getTimerLeft(gs):null;
+  document.getElementById('tb-turn').textContent=mine?'🟢 Ton tour ! ('+( myTimerSec!==null?myTimerSec:TIMER_SEC)+'s)':'⏳ Tour de '+curName;
   document.getElementById('tb-sub').textContent=gs.pendingDraws>0?'⚡ +'+gs.pendingDraws+' en chaîne':'';
-  document.getElementById('tb-room').textContent='#'+roomId;
+  const roundTxt=(gs.mode&&gs.mode.gametype==='elim')?(' · Manche '+(gs.round||1)):'';
+  const elimCount=(gs.eliminated||[]).length;
+  const elimTxt=elimCount>0?' · 💀'+elimCount:'';
+  document.getElementById('tb-room').textContent='#'+roomId+roundTxt+elimTxt;
 
   // Opponent action overlay
   const oa=document.getElementById('opp-action');
@@ -816,7 +982,13 @@ function renderGame(){
     const d=document.createElement('div');
     d.className='opp-chip'+(active?' active':'')+(done?' done':'');
     const minis=Array.from({length:Math.min(hand.length,6)},()=>'<div class="mini-card"></div>').join('');
-    d.innerHTML='<div class="opp-name">'+gs.playerNames[uid]+'</div><div class="opp-count">'+(done?'🏆':hand.length)+'</div><div class="opp-minis">'+minis+'</div>';
+    const tsec=active&&!done?getTimerLeft(gs):null;
+    const timerHtml=tsec!==null?makeTimerRing(tsec):'';
+    d.innerHTML='<div style="display:flex;align-items:center;gap:5px;width:100%">'+
+      '<div style="flex:1;min-width:0"><div class="opp-name">'+gs.playerNames[uid]+'</div>'+
+      '<div class="opp-count">'+(done?'🏆':hand.length)+'</div></div>'+
+      timerHtml+'</div>'+
+      '<div class="opp-minis">'+minis+'</div>';
     or.appendChild(d);
   });
 
@@ -920,6 +1092,7 @@ document.getElementById('btn-draw').onclick=async function(){
   const nextIdx=advIdx(gs.playerOrder,gs.currentPlayerIdx,gs.finished||[]);
   selCard=null;
   await db.ref('rooms/'+roomId+'/game').update({deck,['hands/'+myUid]:newHand,currentPlayerIdx:nextIdx,jokerFreeColor:null,jokerPendingColor:null,lastFX:{r:'draw',s:'',color:null,by:myUid,ts:Date.now()}});
+  stopMyTimer();
   toast('🎴 Pioché — tour passé','i');
 };
 document.getElementById('draw-stack').onclick=function(){document.getElementById('btn-draw').click();};
@@ -979,24 +1152,38 @@ async function doPlay(card,suit,twoPlace){
   else{pending=0;}
 
   let finished=[...(gs.finished||[])];
-  if(newHand.length===0){finished.push(myUid);toast('🏆 '+myName+' a fini !','g');}
+  if(newHand.length===0){finished.push(myUid);toast('🏆 '+myName+' a posé sa dernière carte !','g');}
 
   let nextIdx=advIdx(gs.playerOrder,gs.currentPlayerIdx,finished);
   if(skip)nextIdx=advIdx(gs.playerOrder,nextIdx,finished);
 
   const stillIn=gs.playerOrder.filter(u=>!finished.includes(u));
-  const over=stillIn.length<=1||(newHand.length===0&&stillIn.length===1);
+  const isElim=gs.mode&&gs.mode.gametype==='elim';
+
+  // ELIMINATION MODE: when someone finishes a round, eliminate the loser(s)
+  // "over" in elim mode = the round is done, not the whole game
+  const roundOver=stillIn.length<=1||(newHand.length===0&&stillIn.length===1);
+  const over=roundOver&&!isElim; // classic: game over
 
   selCard=null;
 
   // Track joker color for the free-play rule after penalty
+  stopMyTimer();
   const jokerColor=(card.r==='JOKER')?(card.color||null):null;
   // Clear free-color bonus when player uses their turn
   const upd={pot:newPot,['hands/'+myUid]:newHand,pendingDraws:pending,commandedSuit:cmdSuit,currentPlayerIdx:nextIdx,finished,
     jokerPendingColor:jokerColor,  // null unless a joker just played
     jokerFreeColor:null,  // clear free-color when a card is played
+    turnStartTs:Date.now(),
     lastFX:{r:card.r,s:card.s,color:card.color||null,by:myUid,ts:Date.now()}};
-  if(over)upd.status='finished';
+  if(over) upd.status='finished';
+  if(roundOver&&isElim){
+    // Find loser: the one still in with most cards (or last one still in)
+    const loserUid=stillIn.length===1 ? stillIn[0] :
+      stillIn.sort((a,b)=>(gs.hands[b]||[]).length-(gs.hands[a]||[]).length)[0];
+    upd.status='elim_round_end';
+    upd.roundLoser=loserUid;
+  }
   await db.ref('rooms/'+roomId+'/game').update(upd);
 }
 
@@ -1010,6 +1197,7 @@ async function takePenalty(){
     if(!deck.length){deck=reshuf(gs.pot);if(!deck.length)break;}
     h.push(deck.pop());
   }
+  stopMyTimer();
   toast('😬 Tu prends '+n+' cartes — mais tu peux jouer librement !','d');
   const nextIdx=advIdx(gs.playerOrder,gs.currentPlayerIdx,gs.finished||[]);
   const penN=n;
@@ -1064,16 +1252,140 @@ document.getElementById('suit-close').onclick=cancelSuit;
 document.getElementById('suit-cancel').onclick=cancelSuit;
 
 // ── Winner ──
+// ══════════════════════════════════════════
+// ELIMINATION MODE — round end handler
+// ══════════════════════════════════════════
+let elimHandled = ''; // track last handled round to avoid double-trigger
+
+async function handleElimRound(gs){
+  const roundKey = (gs.round||1)+'_'+(gs.roundLoser||'');
+  if(elimHandled === roundKey) return;
+  elimHandled = roundKey;
+
+  const loserUid = gs.roundLoser;
+  const loserName = gs.playerNames[loserUid] || '?';
+  const eliminated = [...(gs.eliminated||[]), loserUid];
+  const stillActive = gs.playerOrder.filter(u => !eliminated.includes(u));
+
+  // Show elimination overlay to everyone
+  showElimOverlay(loserName, stillActive.length);
+
+  // Only host redistributes cards (to avoid race condition)
+  if(!isHost) return;
+
+  await new Promise(r => setTimeout(r, 4000)); // wait for overlay
+
+  if(stillActive.length <= 1){
+    // Final! The last one standing wins
+    await db.ref('rooms/'+roomId+'/game').update({
+      status: 'finished',
+      eliminated,
+      finished: stillActive // winner
+    });
+    return;
+  }
+
+  // Redistribute cards for next round
+  let fullDeck = [];
+  for(let d=0; d<(gs.mode.decks||1); d++)
+    fullDeck = fullDeck.concat(buildDeck().map((c,i)=>({...c,id:c.id+'_d'+d+'_r'+(gs.round||1)+1})));
+  shuffle(fullDeck);
+
+  const newOrder = shuffle([...stillActive]);
+  const hands = {};
+  newOrder.forEach(u => { hands[u] = []; });
+  for(let i=0; i<(gs.mode.cards||5); i++)
+    newOrder.forEach(u => { if(fullDeck.length) hands[u].push(fullDeck.pop()); });
+
+  let pot;
+  do { pot = fullDeck.pop(); } while(['JOKER','7','2','J'].includes(pot.r));
+
+  await db.ref('rooms/'+roomId+'/game').set({
+    playerOrder: newOrder,
+    playerNames: gs.playerNames,
+    deck: fullDeck,
+    pot: [pot],
+    hands,
+    currentPlayerIdx: 0,
+    commandedSuit: null,
+    pendingDraws: 0,
+    finished: [],
+    eliminated,
+    status: 'playing',
+    lastFX: null,
+    turnStartTs: Date.now(),
+    round: (gs.round||1) + 1,
+    mode: gs.mode,
+    jokerFreeColor: null,
+    jokerPendingColor: null
+  });
+}
+
+function showElimOverlay(loserName, remaining){
+  // Remove existing
+  const old = document.getElementById('elim-overlay');
+  if(old) old.remove();
+
+  const el = document.createElement('div');
+  el.id = 'elim-overlay';
+  el.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;backdrop-filter:blur(8px);animation:fadeIn .4s ease';
+  el.innerHTML =
+    '<div style="font-size:72px;animation:trophyBounce 1s infinite alternate">💀</div>'+
+    '<div style="font-family:Playfair Display,serif;font-size:36px;font-weight:900;color:#ff6666;text-shadow:0 0 30px rgba(255,100,100,.5);text-align:center">'+loserName+'<br><span style="font-size:18px;color:rgba(255,255,255,.5)">est éliminé !</span></div>'+
+    '<div style="font-size:14px;color:rgba(245,240,232,.5)">'+remaining+' joueur'+(remaining>1?'s':'')+' restant'+(remaining>1?'s':'')+'</div>'+
+    (remaining>1?'<div style="font-size:13px;color:rgba(212,168,67,.6);margin-top:8px">🔄 Redistribution des cartes...</div>':
+    '<div style="font-size:16px;color:var(--gold);font-weight:700;margin-top:8px">🏆 Finale !</div>');
+
+  document.body.appendChild(el);
+  // Particles
+  fxElim();
+  setTimeout(()=>{
+    el.style.transition='opacity .5s';
+    el.style.opacity='0';
+    setTimeout(()=>el.remove(), 500);
+  }, 3500);
+}
+
+function fxElim(){
+  vibrate([200,100,200,100,400]);
+  flash('rgba(255,50,50,.35)', 500);
+  const cx=window.innerWidth/2, cy=window.innerHeight/2;
+  spawn(cx,cy,50,['#ff3333','#ff6600','#ff9900','#ffffff'],130,0.28);
+  floatE('💀', cx-20, cy-60);
+  floatE('💀', cx+40, cy-40);
+}
+
 function renderWinner(){
   if(!gameState)return;
   fxWin();
   const gs=gameState;
-  const ord=gs.finished||[];
-  const rest=gs.playerOrder.filter(u=>!ord.includes(u)).sort((a,b)=>(gs.hands[a]||[]).length-(gs.hands[b]||[]).length);
-  const full=[...ord,...rest];
-  document.getElementById('w-name').textContent=gs.playerNames[full[0]]||'?';
-  const m=['🥇','🥈','🥉'];
-  document.getElementById('w-scores').innerHTML=full.map((u,i)=>'<div class="score-row"><span>'+( m[i]||'#'+(i+1))+' '+gs.playerNames[u]+'</span><span class="score-dim">'+((gs.hands[u]||[]).length)+' carte'+((gs.hands[u]||[]).length!==1?'s':'')+' rest.</span></div>').join('');
+  const isElim=gs.mode&&gs.mode.gametype==='elim';
+
+  if(isElim){
+    // Elimination: winner = last one standing, then list of eliminated in reverse order
+    const winner=(gs.finished&&gs.finished[0])||
+      gs.playerOrder.find(u=>!(gs.eliminated||[]).includes(u))||gs.playerOrder[0];
+    const elim=[...(gs.eliminated||[])].reverse(); // last eliminated first = 2nd place
+    const full=[winner,...elim];
+    document.getElementById('w-name').textContent=gs.playerNames[winner]||'?';
+    const medals=['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];
+    document.getElementById('w-scores').innerHTML=
+      '<div class="score-row" style="background:rgba(212,168,67,.1)"><span>🏆 Champion</span><span style="color:var(--gold);font-weight:900">'+gs.playerNames[winner]+'</span></div>'+
+      elim.map((u,i)=>'<div class="score-row"><span>'+(medals[i+1]||'#'+(i+2))+' '+gs.playerNames[u]+'</span><span class="score-dim">Éliminé en manche '+(gs.round-elim.length+i)+'</span></div>').join('');
+    document.getElementById('w-scores').insertAdjacentHTML('beforeend',
+      '<div style="font-size:11px;color:rgba(245,240,232,.3);text-align:center;padding:8px">'+
+      (gs.round-1)+' manche'+(gs.round>2?'s':'')+' jouée'+(gs.round>2?'s':'')+
+      '</div>');
+  } else {
+    const ord=gs.finished||[];
+    const rest=gs.playerOrder.filter(u=>!ord.includes(u)).sort((a,b)=>(gs.hands[a]||[]).length-(gs.hands[b]||[]).length);
+    const full=[...ord,...rest];
+    document.getElementById('w-name').textContent=gs.playerNames[full[0]]||'?';
+    const m=['🥇','🥈','🥉'];
+    document.getElementById('w-scores').innerHTML=full.map((u,i)=>
+      '<div class="score-row"><span>'+(m[i]||'#'+(i+1))+' '+gs.playerNames[u]+'</span>'+
+      '<span class="score-dim">'+((gs.hands[u]||[]).length)+' carte'+((gs.hands[u]||[]).length!==1?'s':'')+' rest.</span></div>').join('');
+  }
   show('s-winner');
 }
 document.getElementById('btn-replay').onclick=function(){
