@@ -805,8 +805,8 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
     eliminated:[],
     round:1
   };
-  await db.ref('rooms/'+roomId+'/game').set(game);
-  await db.ref('rooms/'+roomId+'/status').set('playing');
+  game.status = 'playing';
+  await db.ref('rooms/'+roomId).update({game: game, status: 'playing'});
 };
 
 // ══════════════════════════════════════════
@@ -828,7 +828,9 @@ function startGame(g){
   gameState=g;
   localHand=(g.hands&&g.hands[myUid])||[];
   if(!Array.isArray(localHand)) localHand=Object.values(localHand);
+  selCard=null; lastMyTurn=false; lastTurnUid='';
   show('s-game');
+  renderGame(); // immediate render before Firebase listener
   if(gameRef){gameRef.off();}
   gameRef=db.ref('rooms/'+roomId+'/game');
   gameRef.on('value',function(snap){
@@ -846,8 +848,7 @@ function startGame(g){
       });
     }
     gameState=data;
-    localHand=(data.hands&&data.hands[myUid])||[];
-    if(!Array.isArray(localHand)) localHand=Object.values(localHand);
+    localHand=(data.hands&&data.hands[myUid]) ? (Array.isArray(data.hands[myUid]) ? data.hands[myUid] : Object.values(data.hands[myUid])) : [];
     // Force re-render: reset lastMyTurn if turn changed externally (timer, etc.)
     const newCurUid=data.playerOrder&&data.playerOrder[data.currentPlayerIdx];
     if(newCurUid!==myUid && lastMyTurn){
@@ -954,15 +955,17 @@ function makeTimerRing(sec){
 function renderGame(){
   if(!gameState)return;
   const gs=gameState;
-  // Re-sync localHand in case it was updated by another path (e.g. timer autoPass)
-  if(gs.hands&&gs.hands[myUid]) localHand=gs.hands[myUid];
-  const curUid=gs.playerOrder[gs.currentPlayerIdx];
-  const curName=gs.playerNames[curUid];
+  // Guards
+  if(!gs.playerOrder||!Array.isArray(gs.playerOrder)||!gs.playerOrder.length) return;
+  if(!gs.pot||!Array.isArray(gs.pot)||!gs.pot.length) return;
+  if(!gs.hands) return;
+  // Re-sync localHand
+  localHand = gs.hands[myUid] ? (Array.isArray(gs.hands[myUid]) ? gs.hands[myUid] : Object.values(gs.hands[myUid])) : [];
+  const curUid=gs.playerOrder[gs.currentPlayerIdx]||gs.playerOrder[0];
+  const curName=(gs.playerNames&&gs.playerNames[curUid])||'?';
   const mine=curUid===myUid;
-  if(!gs.pot||!gs.pot.length){console.warn('pot empty');return;}
   const top=gs.pot[gs.pot.length-1];
-  if(!top){console.warn('top undefined');return;}
-  if(!gs.playerOrder||!gs.playerOrder.length){console.warn('no playerOrder');return;}
+  if(!top) return;
 
   // ── Timer: update TIMER_SEC from mode ──
   if(gs.mode&&gs.mode.timer!==undefined) TIMER_SEC=gs.mode.timer||999;
