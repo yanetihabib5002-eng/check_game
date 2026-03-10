@@ -174,6 +174,10 @@ body::before{
 .suit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .suit-opt{padding:18px 10px;border-radius:14px;border:2px solid transparent;cursor:pointer;font-family:'Playfair Display',serif;font-size:13px;font-weight:700;text-align:center;transition:transform .15s;display:flex;flex-direction:column;align-items:center;gap:4px;-webkit-appearance:none;}
 .suit-opt:active{transform:scale(.9);}
+.mode-opt{background:rgba(255,255,255,.06);border:2px solid rgba(212,168,67,.2);border-radius:12px;padding:12px 8px;color:var(--cream);font-family:'Lato',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all .15s;text-align:center;-webkit-appearance:none;}
+.mode-opt span{font-size:10px;color:rgba(245,240,232,.45);font-weight:400;display:block;margin-top:3px;}
+.mode-opt.sel{border-color:var(--gold);background:rgba(212,168,67,.15);color:var(--gold);}
+.mode-opt:active{transform:scale(.93);}
 .suit-opt .si{font-size:30px;}
 .suit-opt.r{background:rgba(192,34,42,.15);border-color:rgba(192,34,42,.5);color:var(--red);}
 .suit-opt.k{background:rgba(30,30,30,.6);border-color:rgba(200,200,200,.3);color:#ddd;}
@@ -211,6 +215,8 @@ body::before{
 .card-fly{animation:cardBurst .5s cubic-bezier(.34,1.4,.64,1) forwards;}
 @keyframes shakeX{0%,100%{transform:translateX(0);}20%{transform:translateX(-8px) rotate(-2deg);}40%{transform:translateX(8px) rotate(2deg);}60%{transform:translateX(-5px);}80%{transform:translateX(5px);}}
 .shake{animation:shakeX .5s ease-in-out;}
+@keyframes shakeY{0%,100%{transform:translateY(0);}25%{transform:translateY(-6px);}75%{transform:translateY(6px);}}
+.shakeY{animation:shakeY .4s ease-in-out;}
 @keyframes myTurnGlow{0%{background:rgba(212,168,67,.22);}100%{background:transparent;}}
 .my-turn-fx{animation:myTurnGlow .9s ease-out forwards;}
 
@@ -330,7 +336,8 @@ body::before{
 
 <!-- ══ SUIT MODAL ══ -->
 <div class="overlay" id="suit-modal">
-  <div class="modal">
+  <div class="modal" style="position:relative">
+    <button id="suit-close" style="position:absolute;top:10px;right:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50%;width:30px;height:30px;color:rgba(245,240,232,.6);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:Lato,sans-serif;-webkit-appearance:none">✕</button>
     <div class="modal-t">Choisir la couleur</div>
     <div class="suit-grid">
       <button class="suit-opt r" data-s="♥"><div class="si">♥</div>Cœur</button>
@@ -338,10 +345,50 @@ body::before{
       <button class="suit-opt k" data-s="♠"><div class="si">♠</div>Pique</button>
       <button class="suit-opt k" data-s="♣"><div class="si">♣</div>Trèfle</button>
     </div>
+    <button class="btn btn-outline" id="suit-cancel" style="margin-top:12px;padding:10px;font-size:12px">Annuler — ne pas jouer</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ══ GAME MODE MODAL ══ -->
+<div class="overlay" id="mode-modal">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-t">⚙️ Mode de jeu</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;color:rgba(245,240,232,.45);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Cartes par joueur au départ</div>
+      <div style="display:flex;gap:8px">
+        <button class="mode-opt" data-field="cards" data-val="5" style="flex:1">5 🃏<br><span>Classique</span></button>
+        <button class="mode-opt" data-field="cards" data-val="7" style="flex:1">7 🃏<br><span>Standard</span></button>
+        <button class="mode-opt" data-field="cards" data-val="10" style="flex:1">10 🃏<br><span>Long</span></button>
+      </div>
+      <div style="font-size:12px;color:rgba(245,240,232,.45);letter-spacing:1px;text-transform:uppercase;margin-top:6px;margin-bottom:2px">Nombre de jeux de cartes</div>
+      <div style="display:flex;gap:8px">
+        <button class="mode-opt" data-field="decks" data-val="1" style="flex:1">1 jeu<br><span>Normal</span></button>
+        <button class="mode-opt" data-field="decks" data-val="2" style="flex:1">2 jeux<br><span>Double</span></button>
+      </div>
+      <div style="font-size:12px;color:rgba(245,240,232,.45);letter-spacing:1px;text-transform:uppercase;margin-top:6px;margin-bottom:2px">Règle du 2</div>
+      <div style="display:flex;gap:8px">
+        <button class="mode-opt" data-field="two" data-val="any" style="flex:1">Sur tout<br><span>Classique</span></button>
+        <button class="mode-opt" data-field="two" data-val="place" style="flex:1">Dessus/Dessous<br><span>Stratégique</span></button>
+      </div>
+      <button class="btn btn-gold" id="btn-confirm-mode" style="margin-top:8px">▶ Lancer la partie</button>
+      <button class="btn btn-outline" id="btn-cancel-mode" style="padding:10px">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TWO PLACEMENT MODAL ══ -->
+<div class="overlay" id="two-modal">
+  <div class="modal" style="max-width:340px">
+    <div class="modal-t">🃏 Où jouer le 2 ?</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-gold" id="two-top" style="flex:1;padding:22px 10px;font-size:16px">⬆️ Dessus<br><span style="font-size:11px;opacity:.7;text-transform:none">Prochain joueur joue dessus</span></button>
+      <button class="btn btn-outline" id="two-bottom" style="flex:1;padding:22px 10px;font-size:16px">⬇️ Dessous<br><span style="font-size:11px;opacity:.7;text-transform:none">Carte précédente reste active</span></button>
+    </div>
+    <button class="btn btn-outline" id="two-cancel" style="margin-top:8px;padding:10px;font-size:12px">Annuler</button>
+  </div>
+</div>
 
 <script>
 // ══════════════════════════════════════════
@@ -359,12 +406,24 @@ function buildDeck(){
 }
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-function canPlay(card,top,cmdSuit,pending){
+function canPlay(card,top,cmdSuit,pending,jokerFree){
+  // jokerFree: 'red' or 'black' — after joker penalty, same-color cards play freely
+  if(jokerFree){
+    const cardIsRed=isRed(card);
+    if(jokerFree==='red'&&cardIsRed)return true;
+    if(jokerFree==='black'&&!cardIsRed)return true;
+  }
   if(card.r==='2')return true;
   if(card.r==='J')return true;
   if(pending>0){
+    // In a pending chain, only 7 or joker (matching color) can counter
     if(card.r==='7')return true;
-    if(card.r==='JOKER')return isRed(card)===isRed(top)||top.r==='JOKER';
+    if(card.r==='JOKER'){
+      // Can counter only if joker color matches top's color family
+      if(top.r==='JOKER')return true;
+      const ts=cmdSuit||top.s;
+      return isRed(card)?RED.includes(ts):BLK.includes(ts);
+    }
     return false;
   }
   if(card.r==='JOKER'){
@@ -378,12 +437,43 @@ function canPlay(card,top,cmdSuit,pending){
 }
 
 // ══════════════════════════════════════════
-// PERSISTENCE
+// PERSISTENCE — localStorage + sessionStorage + URL hash (triple backup)
 // ══════════════════════════════════════════
-const LS='check_cfg_v2';
-function saveCfg(o){try{localStorage.setItem(LS,JSON.stringify(o));}catch(e){}}
-function loadCfg(){try{return JSON.parse(localStorage.getItem(LS));}catch(e){return null;}}
-function clearCfg(){try{localStorage.removeItem(LS);}catch(e){}}
+const LS='check_cfg_v3';
+
+function saveCfg(o){
+  const str=JSON.stringify(o);
+  // 1. localStorage
+  try{localStorage.setItem(LS,str);}catch(e){}
+  // 2. sessionStorage (survit aux rechargements même en mode privé)
+  try{sessionStorage.setItem(LS,str);}catch(e){}
+  // 3. URL hash — encode config dans l'URL pour partage facile
+  // On n'encode PAS l'apiKey dans l'URL pour la sécurité — juste dbURL et projectId
+  try{
+    const safe={databaseURL:o.databaseURL,projectId:o.projectId,name:o.name||''};
+    window.history.replaceState(null,'','#'+btoa(JSON.stringify(safe)));
+  }catch(e){}
+}
+
+function loadCfg(){
+  // Essaie localStorage en premier
+  try{
+    const v=localStorage.getItem(LS);
+    if(v){const p=JSON.parse(v);if(p&&p.apiKey)return p;}
+  }catch(e){}
+  // Sinon sessionStorage
+  try{
+    const v=sessionStorage.getItem(LS);
+    if(v){const p=JSON.parse(v);if(p&&p.apiKey)return p;}
+  }catch(e){}
+  return null;
+}
+
+function clearCfg(){
+  try{localStorage.removeItem(LS);}catch(e){}
+  try{sessionStorage.removeItem(LS);}catch(e){}
+  try{window.history.replaceState(null,'','#');}catch(e){}
+}
 
 // ══════════════════════════════════════════
 // STATE
@@ -411,7 +501,22 @@ function advIdx(order,cur,finished){
   while(finished.includes(order[n])&&loops<order.length){n=(n+1)%order.length;loops++;}
   return n;
 }
-function reshuf(pot){if(pot.length<=1)return[];return shuffle(pot.slice(0,pot.length-1));}
+function reshuf(pot){
+  // Keep top card, reshuffle the rest back into deck
+  if(pot.length<=1)return[];
+  const restock=pot.slice(0,pot.length-1);
+  toast('🔄 Banque rechargée depuis le pot !','i');
+  return shuffle(restock);
+}
+function ensureDeck(gs){
+  // Returns a fresh deck if empty, reshuffling pot
+  let deck=[...(gs.deck||[])];
+  if(!deck.length){
+    deck=reshuf(gs.pot);
+    if(!deck.length){toast('⚠️ Plus de cartes du tout !','d');return null;}
+  }
+  return deck;
+}
 
 // ══════════════════════════════════════════
 // FIREBASE CONNECTION
@@ -447,8 +552,13 @@ async function connectFirebase(){
     setStatus('✅ Connecté !',true);
     document.getElementById('fb-ok').style.display='';
     document.getElementById('panel-join').style.display='';
+    // Hide Firebase config panel — no need to show it again
+    document.getElementById('panel-firebase').style.display='none';
     const cd=document.getElementById('conn-dot');cd.classList.add('show');
-    db.ref('.info/connected').on('value',s=>{cd.classList.toggle('off',!s.val());});
+    db.ref('.info/connected').on('value',s=>{
+      cd.classList.toggle('off',!s.val());
+      // If disconnected and reconnected, restore db silently
+    });
   }catch(e){
     let msg=String(e.message||e);
     console.error('[FB]',msg);
@@ -486,26 +596,37 @@ function checkReady(){
   document.getElementById('f-dburl').value=cfg.databaseURL||'';
   document.getElementById('f-pid').value=cfg.projectId||'';
   if(cfg.name){document.getElementById('f-name').value=cfg.name;checkReady();}
-  // Badge
+
+  // Show a tiny reconnect indicator instead of the full form
   const panel=document.getElementById('panel-firebase');
+  panel.innerHTML=''; // clear the big form
+  panel.style.padding='14px 20px';
   const badge=document.createElement('div');
   badge.className='saved-badge';
   badge.id='saved-badge';
+  badge.style.marginBottom='0';
   const span=document.createElement('span');
-  span.textContent='✅ Config mémorisée — reconnexion auto...';
+  span.textContent='🔥 Firebase mémorisé — connexion...';
+  span.id='badge-txt';
   const btn=document.createElement('button');
-  btn.textContent='Changer';
+  btn.textContent='Changer config';
   btn.onclick=function(){
     clearCfg();
-    document.getElementById('saved-badge').remove();
-    document.getElementById('panel-join').style.display='none';
-    document.getElementById('f-apikey').value='';
-    document.getElementById('f-dburl').value='';
-    document.getElementById('f-pid').value='';
+    // Reload page to show full form again
+    window.location.reload();
   };
   badge.appendChild(span);badge.appendChild(btn);
-  panel.insertBefore(badge,panel.firstChild);
-  setTimeout(connectFirebase,600);
+  panel.appendChild(badge);
+
+  setTimeout(function(){
+    connectFirebase().then(()=>{
+      const t=document.getElementById('badge-txt');
+      if(t)t.textContent='🔥 Firebase connecté ✓';
+    }).catch(()=>{
+      // If auto-connect fails, show full form again
+      window.location.reload();
+    });
+  },400);
 })();
 
 // ══════════════════════════════════════════
@@ -574,23 +695,51 @@ function enterLobby(){
   });
 }
 
-document.getElementById('btn-launch').onclick=async function(){
+// Game mode settings
+const gameMode={cards:5,decks:1,two:'any'};
+
+function initModeModal(){
+  // Set defaults as selected
+  document.querySelectorAll('.mode-opt').forEach(btn=>{
+    const f=btn.dataset.field, v=btn.dataset.val;
+    if(String(gameMode[f])===String(v))btn.classList.add('sel');
+    btn.onclick=function(){
+      gameMode[f]=isNaN(v)?v:parseInt(v);
+      document.querySelectorAll('.mode-opt[data-field="'+f+'"]').forEach(b=>b.classList.remove('sel'));
+      this.classList.add('sel');
+    };
+  });
+}
+initModeModal();
+
+document.getElementById('btn-launch').onclick=function(){
+  document.getElementById('mode-modal').classList.add('show');
+};
+document.getElementById('btn-cancel-mode').onclick=function(){
+  document.getElementById('mode-modal').classList.remove('show');
+};
+document.getElementById('btn-confirm-mode').onclick=async function(){
+  document.getElementById('mode-modal').classList.remove('show');
   const snap=await db.ref('rooms/'+roomId+'/players').once('value');
   const players=Object.values(snap.val()||{});
   if(players.length<2)return;
-  const deck=shuffle(buildDeck());
+  // Build deck(s)
+  let fullDeck=[];
+  for(let d=0;d<gameMode.decks;d++)fullDeck=fullDeck.concat(buildDeck().map((c,i)=>({...c,id:c.id+'_d'+d})));
+  shuffle(fullDeck);
   const order=shuffle(players.map(p=>p.uid));
   const hands={};
   order.forEach(u=>{hands[u]=[];});
-  for(let i=0;i<5;i++)order.forEach(u=>{if(deck.length)hands[u].push(deck.pop());});
+  for(let i=0;i<gameMode.cards;i++)order.forEach(u=>{if(fullDeck.length)hands[u].push(fullDeck.pop());});
   let pot;
-  do{pot=deck.pop();}while(['JOKER','7','2','J'].includes(pot.r));
+  do{pot=fullDeck.pop();}while(['JOKER','7','2','J'].includes(pot.r));
   const game={
     playerOrder:order,
     playerNames:Object.fromEntries(players.map(p=>[p.uid,p.name])),
-    deck,pot:[pot],hands,
+    deck:fullDeck,pot:[pot],hands,
     currentPlayerIdx:0,commandedSuit:null,pendingDraws:0,finished:[],
-    status:'playing',lastCard:null
+    status:'playing',lastFX:null,
+    mode:{cards:gameMode.cards,decks:gameMode.decks,two:gameMode.two}
   };
   await db.ref('rooms/'+roomId+'/game').set(game);
   await db.ref('rooms/'+roomId+'/status').set('playing');
@@ -621,6 +770,22 @@ function renderGame(){
   const curName=gs.playerNames[curUid];
   const mine=curUid===myUid;
   const top=gs.pot[gs.pot.length-1];
+
+  // ── Sync FX for ALL players ──
+  if(gs.lastFX){
+    const fx=gs.lastFX;
+    const fxKey=fx.ts+'_'+fx.r+'_'+fx.s;
+    if(fxKey!==window._lastFXKey){
+      window._lastFXKey=fxKey;
+      const isMine=fx.by===myUid;
+      if(fx.r==='penalty'){
+        // Celui qui prend voit ses cartes trembler, les autres voient l'adversaire souffrir
+        fxPenalty(parseInt(fx.s)||2, isMine);
+      } else {
+        triggerFX({r:fx.r,s:fx.s,color:fx.color||null});
+      }
+    }
+  }
 
   // Turn FX
   checkTurnFX(mine);
@@ -676,8 +841,18 @@ function renderGame(){
   pz.appendChild(potEl);
 
   // Commanded suit
-  document.getElementById('suit-zone').innerHTML=gs.commandedSuit?'<div class="suit-badge" style="color:'+(RED.includes(gs.commandedSuit)?'var(--red)':'#ddd')+'">'+gs.commandedSuit+' <span style="font-size:10px;color:rgba(245,240,232,.45)">commandé</span></div>':'';
-
+  document.getElementById('suit-zone').innerHTML=(()=>{
+    let html='';
+    if(gs.commandedSuit){
+      html+='<div class="suit-badge" style="color:'+(RED.includes(gs.commandedSuit)?'var(--red)':'#ddd')+'">'+gs.commandedSuit+' <span style="font-size:10px;color:rgba(245,240,232,.45)">commandé</span></div>';
+    }
+    if(gs.jokerFreeColor&&mine){
+      const fc=gs.jokerFreeColor;
+      html+='<div class="suit-badge" style="color:'+(fc==='red'?'var(--red)':'#aaaaff')+';margin-top:4px;border-color:'+(fc==='red'?'rgba(192,34,42,.5)':'rgba(100,100,255,.5)')+'">'+
+        (fc==='red'?'♥♦':'♠♣')+' <span style="font-size:10px">Joue librement ('+fc+')</span></div>';
+    }
+    return html;
+  })();
   // Pending
   document.getElementById('pend-zone').innerHTML=gs.pendingDraws>0?'<div class="pending-badge">⚡ +'+gs.pendingDraws+' à renvoyer ou prendre</div>':'';
 
@@ -700,7 +875,8 @@ function renderGame(){
 function renderHand(top,cmdSuit,pending,mine){
   const hc=document.getElementById('h-cards');hc.innerHTML='';
   localHand.forEach(card=>{
-    const pl=mine&&canPlay(card,top,cmdSuit,pending);
+    const jfc=(mine&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
+    const pl=mine&&canPlay(card,top,cmdSuit,pending,jfc);
     const el=makeCard(card);
     el.dataset.r=card.r;
     if(pl)el.classList.add('playable');
@@ -737,15 +913,13 @@ document.getElementById('btn-draw').onclick=async function(){
   if(!myTurn())return;
   const gs=gameState;
   if(gs.pendingDraws>0){await takePenalty();return;}
-  let deck=[...(gs.deck||[])];
-  if(!deck.length)deck=reshuf(gs.pot);
-  if(!deck.length){toast('Plus de cartes !','d');return;}
+  let deck=ensureDeck(gs);
+  if(!deck){return;}
   const card=deck.pop();
   const newHand=[...localHand,card];
   const nextIdx=advIdx(gs.playerOrder,gs.currentPlayerIdx,gs.finished||[]);
   selCard=null;
-  triggerFX({r:'draw'});
-  await db.ref('rooms/'+roomId+'/game').update({deck,['hands/'+myUid]:newHand,currentPlayerIdx:nextIdx,lastCard:'draw'});
+  await db.ref('rooms/'+roomId+'/game').update({deck,['hands/'+myUid]:newHand,currentPlayerIdx:nextIdx,jokerFreeColor:null,jokerPendingColor:null,lastFX:{r:'draw',s:'',color:null,by:myUid,ts:Date.now()}});
   toast('🎴 Pioché — tour passé','i');
 };
 document.getElementById('draw-stack').onclick=function(){document.getElementById('btn-draw').click();};
@@ -756,21 +930,51 @@ async function tryPlay(){
   const gs=gameState;
   const top=gs.pot[gs.pot.length-1];
   const card=localHand.find(c=>c.id===selCard);
-  if(!card||!canPlay(card,top,gs.commandedSuit,gs.pendingDraws))return;
-  if(card.r==='J'){const s=await pickSuit();await doPlay(card,s);}
-  else await doPlay(card,null);
+  const jfcCheck=(gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
+  if(!card||!canPlay(card,top,gs.commandedSuit,gs.pendingDraws,jfcCheck))return;
+  const mode=gs.mode||{two:'any'};
+  if(card.r==='J'){
+    const s=await pickSuit();
+    if(s===null)return; // cancelled
+    await doPlay(card,s,null);
+  } else if(card.r==='2'&&mode.two==='place'){
+    const placement=await pickTwoPlacement();
+    if(placement===null)return; // cancelled
+    await doPlay(card,null,placement);
+  } else {
+    await doPlay(card,null,null);
+  }
 }
 
-async function doPlay(card,suit){
+async function doPlay(card,suit,twoPlace){
   const gs=gameState;
   const newHand=localHand.filter(c=>c.id!==card.id);
-  const newPot=[...gs.pot,card];
+  // 2 placement: 'bottom' = insert under top card, 'top' = normal push
+  let newPot;
+  if(card.r==='2'&&twoPlace==='bottom'&&gs.pot.length>0){
+    // Insert under the top card: [...pot_minus_top, card, top]
+    const top=gs.pot[gs.pot.length-1];
+    newPot=[...gs.pot.slice(0,-1),card,top];
+    toast('⬇️ 2 glissé en dessous — la carte précédente reste active !','i');
+  } else {
+    newPot=[...gs.pot,card];
+  }
   let pending=gs.pendingDraws, cmdSuit=null, skip=false;
 
   if(card.r==='7'){pending+=2;toast('⚡ +2 → chaîne '+pending,'d');}
-  else if(card.r==='JOKER'){pending+=4;toast('💥 Joker +4 → chaîne '+pending,'d');}
+  else if(card.r==='JOKER'){
+    pending+=4;
+    toast('💥 Joker +4 — le suivant pioche ou renvoie avec un Joker !','d');
+    // Store joker color so the player AFTER penalty gets the free-color bonus
+    // jokerPendingColor will be read by takePenalty and set as jokerFreeColor
+  }
   else if(card.r==='J'){cmdSuit=suit;toast('🃏 Valet ! '+suit+' commandé','i');pending=0;}
-  else if(card.r==='2'){toast('✨ Passe-partout','i');pending=0;}
+  else if(card.r==='2'&&twoPlace!=='bottom'){toast('✨ Passe-partout (dessus)','i');pending=0;}
+  else if(card.r==='2'&&twoPlace==='bottom'){
+    // Keep current suit/rank logic — top card unchanged
+    pending=gs.pendingDraws; // don't reset pending
+    cmdSuit=gs.commandedSuit; // keep commanded suit
+  }
   else if(card.r==='A'){skip=true;toast('🚫 As ! Joueur suivant bloqué','i');pending=0;}
   else{pending=0;}
 
@@ -783,10 +987,15 @@ async function doPlay(card,suit){
   const stillIn=gs.playerOrder.filter(u=>!finished.includes(u));
   const over=stillIn.length<=1||(newHand.length===0&&stillIn.length===1);
 
-  triggerFX(card);
   selCard=null;
 
-  const upd={pot:newPot,['hands/'+myUid]:newHand,pendingDraws:pending,commandedSuit:cmdSuit,currentPlayerIdx:nextIdx,finished,lastCard:card.r+card.s};
+  // Track joker color for the free-play rule after penalty
+  const jokerColor=(card.r==='JOKER')?(card.color||null):null;
+  // Clear free-color bonus when player uses their turn
+  const upd={pot:newPot,['hands/'+myUid]:newHand,pendingDraws:pending,commandedSuit:cmdSuit,currentPlayerIdx:nextIdx,finished,
+    jokerPendingColor:jokerColor,  // null unless a joker just played
+    jokerFreeColor:null,  // clear free-color when a card is played
+    lastFX:{r:card.r,s:card.s,color:card.color||null,by:myUid,ts:Date.now()}};
   if(over)upd.status='finished';
   await db.ref('rooms/'+roomId+'/game').update(upd);
 }
@@ -794,23 +1003,65 @@ async function doPlay(card,suit){
 async function takePenalty(){
   const gs=gameState;
   let deck=[...(gs.deck||[])];
+  if(!deck.length)deck=reshuf(gs.pot);
   const n=gs.pendingDraws;
   const h=[...localHand];
-  for(let i=0;i<n;i++){if(!deck.length)deck=reshuf(gs.pot);if(!deck.length)break;h.push(deck.pop());}
-  toast('😬 Tu prends '+n+' cartes !','d');
-  fxPenalty(n);
+  for(let i=0;i<n;i++){
+    if(!deck.length){deck=reshuf(gs.pot);if(!deck.length)break;}
+    h.push(deck.pop());
+  }
+  toast('😬 Tu prends '+n+' cartes — mais tu peux jouer librement !','d');
   const nextIdx=advIdx(gs.playerOrder,gs.currentPlayerIdx,gs.finished||[]);
-  await db.ref('rooms/'+roomId+'/game').update({deck,['hands/'+myUid]:h,pendingDraws:0,currentPlayerIdx:nextIdx});
+  const penN=n;
+  // If the penalty came from a joker, give the FREE COLOR bonus to the NEXT player
+  // jokerPendingColor was set when the joker was played
+  const wasJoker=n>=4&&gs.jokerPendingColor;
+  await db.ref('rooms/'+roomId+'/game').update({
+    deck,
+    ['hands/'+myUid]:h,
+    pendingDraws:0,
+    currentPlayerIdx:nextIdx,
+    jokerPendingColor:null,
+    // The player who took the joker penalty can now play any same-color card
+    jokerFreeColor: wasJoker ? gs.jokerPendingColor : null,
+    lastFX:{r:'penalty',s:''+penN,color:null,by:myUid,ts:Date.now()}
+  });
 }
 
 // ── Suit picker ──
 function pickSuit(){return new Promise(res=>{suitResolve=res;document.getElementById('suit-modal').classList.add('show');});}
+
+let twoResolve=null;
+function pickTwoPlacement(){
+  return new Promise(res=>{
+    twoResolve=res;
+    document.getElementById('two-modal').classList.add('show');
+  });
+}
+document.getElementById('two-top').onclick=function(){
+  document.getElementById('two-modal').classList.remove('show');
+  if(twoResolve){twoResolve('top');twoResolve=null;}
+};
+document.getElementById('two-bottom').onclick=function(){
+  document.getElementById('two-modal').classList.remove('show');
+  if(twoResolve){twoResolve('bottom');twoResolve=null;}
+};
+document.getElementById('two-cancel').onclick=function(){
+  document.getElementById('two-modal').classList.remove('show');
+  if(twoResolve){twoResolve(null);twoResolve=null;}
+};
 document.querySelectorAll('.suit-opt').forEach(btn=>{
   btn.onclick=function(){
     document.getElementById('suit-modal').classList.remove('show');
     if(suitResolve){suitResolve(this.dataset.s);suitResolve=null;}
   };
 });
+function cancelSuit(){
+  document.getElementById('suit-modal').classList.remove('show');
+  if(suitResolve){suitResolve(null);suitResolve=null;}
+}
+document.getElementById('suit-close').onclick=cancelSuit;
+document.getElementById('suit-cancel').onclick=cancelSuit;
 
 // ── Winner ──
 function renderWinner(){
@@ -945,12 +1196,25 @@ function triggerFX(card){
   }
 }
 
-function fxPenalty(n){
-  vibrate([100,50,100,50,150]);
-  flash('rgba(220,50,50,.3)',350);shakeEl('.hand-section');
-  const hc=document.getElementById('h-cards');
-  if(hc){const r=hc.getBoundingClientRect();spawn(r.left+r.width/2,r.top+r.height/2,n*5,['#ff3333','#ff8800','#ffcc00','#ff5555'],100,0.3);}
-  combo('-'+n+' 😬','#ff4444');floatE('😱',window.innerWidth/2,window.innerHeight/2);
+function fxPenalty(n, isMine){
+  if(isMine){
+    // Toi : ton téléphone vibre fort, ta main tremble
+    vibrate([100,50,100,50,150]);
+    flash('rgba(220,50,50,.35)',350);
+    shakeEl('.hand-section');
+    const hc=document.getElementById('h-cards');
+    if(hc){const r=hc.getBoundingClientRect();spawn(r.left+r.width/2,r.top+r.height/2,n*5,['#ff3333','#ff8800','#ffcc00','#ff5555'],100,0.3);}
+    combo('-'+n+' 😬','#ff4444');
+    floatE('😱',window.innerWidth/2,window.innerHeight/2);
+  } else {
+    // Adversaire : explosion sur le pot, leur chip tremble
+    const {x,y}=getPotXY();
+    flash('rgba(255,100,0,.2)',250);
+    spawn(x,y,n*6,['#ff4444','#ff8800','#ffdd00','#ff5555','#fff'],110,0.28);
+    combo('😬 +'+n+' cartes!','#ff8844');
+    floatE('😱',x,y-30);
+    shakeEl('.opp-row');
+  }
 }
 
 function fxWin(){
