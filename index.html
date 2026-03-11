@@ -804,7 +804,9 @@ let db=null;
 let myUid='u_'+Math.random().toString(36).slice(2,10);
 let myName='', roomId='', isHost=false;
 let localHand=[], gameState=null;
-let selCard=null, suitResolve=null, toastTmr=null;
+let selCard=null, selCards=[], suitResolve=null, toastTmr=null;
+// selCards = tableau de card.id sélectionnées (même rang+couleur = combo)
+function getSelCardObj(){return selCards.length?localHand.find(c=>c.id===selCards[0]):null;}
 // Session score (in-memory only)
 let sessionWins=0, sessionGames=0;
 let lastMyTurn=false, lobbyRef=null, gameRef=null;
@@ -822,12 +824,12 @@ function toast(msg,t=''){
     clearTimeout(toastTmr);
     setTimeout(()=>{
       el.textContent=msg;el.className='toast show'+(t?' t'+t:'');
-      toastTmr=setTimeout(()=>el.classList.remove('show'),2600);
+      toastTmr=setTimeout(()=>el.classList.remove('show'),3000);
     },120);
   } else {
     el.textContent=msg;el.className='toast show'+(t?' t'+t:'');
     clearTimeout(toastTmr);
-    toastTmr=setTimeout(()=>el.classList.remove('show'),2600);
+    toastTmr=setTimeout(()=>el.classList.remove('show'),3000);
   }
 }
 function myTurn(){return gameState&&gameState.playerOrder[gameState.currentPlayerIdx]===myUid;}
@@ -1654,8 +1656,9 @@ function renderGame(){
 
   // Buttons
   const jfcBtn=(mine&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
-  const canPl=selCard&&mine&&localHand.some(c=>c.id===selCard&&canPlay(c,top,gs.commandedSuit,gs.pendingDraws,jfcBtn));
+  const canPl=selCards.length>0&&mine&&selCards.every(id=>localHand.some(c=>c.id===id&&canPlay(c,top,gs.commandedSuit,gs.pendingDraws,jfcBtn)));
   document.getElementById('btn-play').disabled=!canPl;
+  if(!canPl){document.getElementById('btn-play').textContent='▶ Jouer';}
   const bd=document.getElementById('btn-draw');
   if(gs.pendingDraws>0&&mine){bd.textContent='😬 Prendre +'+gs.pendingDraws;bd.disabled=false;}
   else{bd.textContent='🎴 Piocher';bd.disabled=!mine;}
@@ -1664,26 +1667,68 @@ function renderGame(){
 function renderHand(top,cmdSuit,pending,mine,gs){
   if(!gs)return;
   const hc=document.getElementById('h-cards');if(!hc)return;hc.innerHTML='';
+  const jfc=(mine&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
   localHand.forEach(card=>{
-    const jfc=(mine&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
     const pl=mine&&canPlay(card,top,cmdSuit,pending,jfc);
     const el=makeCard(card);
-    el.dataset.r=card.r;
+    el.dataset.r=card.r;el.dataset.id=card.id;
     if(pl)el.classList.add('playable');
     else if(!mine)el.classList.add('noturn');
     else el.classList.add('dim');
-    if(card.id===selCard)el.classList.add('selected');
+    const selIdx=selCards.indexOf(card.id);
+    if(selIdx>=0){
+      el.classList.add('selected');
+      // Badge de position dans le combo (1er, 2e, 3e…)
+      if(selCards.length>1){
+        const badge=document.createElement('div');
+        badge.style.cssText='position:absolute;top:-8px;left:50%;transform:translateX(-50%);'+
+          'background:var(--gold);color:#1a0f00;border-radius:50%;width:16px;height:16px;'+
+          'font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;z-index:20;';
+        badge.textContent=selIdx+1;
+        el.style.position='relative';
+        el.appendChild(badge);
+      }
+    }
     if(localHand.length===1)el.classList.add('lastcard');
     if(mine){
       el.addEventListener('click',function(){
-        if(selCard!==card.id)addRipple(el);
-        selCard=(selCard===card.id)?null:card.id;
-        vibrate(18);
+        if(!pl&&selCards.indexOf(card.id)<0){vibrate(10);return;}
+        const idx=selCards.indexOf(card.id);
+        if(idx>=0){
+          // Déselectionner
+          selCards.splice(idx,1);
+          selCard=selCards.length?selCards[0]:null;
+        } else {
+          // Vérifier si compatible avec sélection existante
+          if(selCards.length===0){
+            // Premier choix
+            selCards=[card.id];
+            selCard=card.id;
+          } else {
+            // Doit être même rang ET même couleur (ou même joker)
+            const first=localHand.find(c=>c.id===selCards[0]);
+            if(first&&first.r===card.r&&(first.r==='JOKER'?first.color===card.color:first.s===card.s)){
+              selCards.push(card.id);
+            } else {
+              // Différente carte — remplacer la sélection
+              selCards=[card.id];
+              selCard=card.id;
+            }
+          }
+        }
+        addRipple(el);vibrate(18);
         renderGame();
       });
     }
     hc.appendChild(el);
   });
+  // Bouton Jouer: afficher nombre de cartes sélectionnées
+  const playBtn=document.getElementById('btn-play');
+  if(mine&&selCards.length>1){
+    playBtn.textContent='▶ Jouer x'+selCards.length;
+  } else if(mine&&selCards.length===1){
+    playBtn.textContent='▶ Jouer';
+  }
   // Apply persistent hand effect if any
   applyHandEffect();
 }
@@ -1710,7 +1755,7 @@ document.getElementById('btn-draw').onclick=async function(){
   const card=deck.pop();
   const newHand=[...localHand,card];
   const nextIdx=advIdx(gs.playerOrder,gs.currentPlayerIdx,gs.finished||[]);
-  selCard=null;
+  selCard=null;selCards=[];
   const bdu2={};
   bdu2['deck']=deck;bdu2['hands/'+myUid]=newHand;
   bdu2['currentPlayerIdx']=nextIdx;
@@ -1742,32 +1787,129 @@ document.addEventListener('click',function(e){
 document.getElementById('btn-play').onclick=tryPlay;
 
 async function tryPlay(){
-  if(!myTurn()||!selCard)return;
+  if(!myTurn()||!selCards.length)return;
   const gs=gameState;
-  if(!gs.pot||!gs.pot.length){console.warn('pot empty');return;}
-  const top=gs.pot[gs.pot.length-1];
-  if(!top){console.warn('top undefined');return;}
-  if(!gs.playerOrder||!gs.playerOrder.length){console.warn('no playerOrder');return;}
-  const card=localHand.find(c=>c.id===selCard);
+  if(!gs.pot||!gs.pot.length)return;
+  const top=gs.pot[gs.pot.length-1];if(!top)return;
+  if(!gs.playerOrder||!gs.playerOrder.length)return;
   const jfcCheck=(gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
+
+  // Multi-card combo: jouer plusieurs cartes identiques en ordre
+  if(selCards.length>1){
+    await doPlayCombo(selCards,jfcCheck);
+    return;
+  }
+
+  const card=localHand.find(c=>c.id===selCards[0]);
   if(!card||!canPlay(card,top,gs.commandedSuit,gs.pendingDraws,jfcCheck))return;
-  const mode=gs.mode||{two:'any'};
   if(card.r==='J'){
-    // Dans une chaîne : pas de picker, le suivant joue librement
     if(gs.pendingDraws>0){
       await doPlay(card,null,null);
     } else {
       const s=await pickSuit();
-      if(s===null)return; // cancelled
+      if(s===null)return;
       await doPlay(card,s,null);
     }
   } else if(card.r==='2'){
     const placement=await pickTwoPlacement();
-    if(placement===null)return; // cancelled
+    if(placement===null)return;
     await doPlay(card,null,placement);
   } else {
     await doPlay(card,null,null);
   }
+}
+
+// Jouer plusieurs cartes identiques en une seule action
+async function doPlayCombo(cardIds, jfcCheck){
+  const gs=gameState;
+  const cards=cardIds.map(id=>localHand.find(c=>c.id===id)).filter(Boolean);
+  if(!cards.length)return;
+  const first=cards[0];
+
+  // Vérifier que toutes jouables
+  let top=gs.pot[gs.pot.length-1];
+  let simPending=gs.pendingDraws;
+  for(const c of cards){
+    if(!canPlay(c,top,gs.commandedSuit,simPending,jfcCheck))return;
+    // Simuler l'effet de chaque carte pour la validation
+    if(c.r==='7')simPending+=2;
+    else if(c.r==='JOKER')simPending+=4;
+    top=c;
+  }
+
+  // Cas spéciaux pour la dernière carte du combo
+  const last=cards[cards.length-1];
+  let suit=null, twoPlace=null;
+  if(last.r==='J'&&gs.pendingDraws===0){
+    suit=await pickSuit();
+    if(suit===null)return;
+  } else if(last.r==='2'){
+    twoPlace=await pickTwoPlacement();
+    if(twoPlace===null)return;
+  }
+
+  // Jouer toutes les cartes en calculant l'effet cumulatif
+  let newHand=localHand.filter(c=>!cardIds.includes(c.id));
+  let newPot=[...gs.pot];
+  let pending=gs.pendingDraws;
+  let cmdSuit=null, skip=false;
+
+  for(let i=0;i<cards.length;i++){
+    const c=cards[i];
+    const isLast=i===cards.length-1;
+    const thisTwoPlace=isLast?twoPlace:null;
+    if(c.r==='2'&&thisTwoPlace==='bottom'&&newPot.length>0){
+      const topCard=newPot[newPot.length-1];
+      newPot=[...newPot.slice(0,-1),c,topCard];
+    } else {
+      newPot=[...newPot,c];
+    }
+    if(c.r==='7'){pending+=2;}
+    else if(c.r==='JOKER'){pending+=4;}
+    else if(c.r==='J'){
+      if(gs.pendingDraws>0){pending=0;cmdSuit=null;}
+      else{cmdSuit=isLast?suit:null;}
+    }
+    else if(c.r==='2'){pending=gs.pendingDraws;if(thisTwoPlace==='bottom')cmdSuit=gs.commandedSuit;}
+    else if(c.r==='A'){skip=true;pending=0;}
+    else{pending=0;}
+  }
+
+  // Sons
+  if(first.r==='JOKER')sfxJoker();
+  else if(first.r==='7')sfxSeven();
+  else if(first.r==='A')sfxAce();
+  else sfxCard();
+
+  let finished=[...(gs.finished||[])];
+  if(newHand.length===0){finished.push(myUid);}
+  let nextIdx=advIdx(gs.playerOrder,gs.currentPlayerIdx,finished);
+  if(skip)nextIdx=advIdx(gs.playerOrder,nextIdx,finished);
+
+  const stillIn=gs.playerOrder.filter(u=>!finished.includes(u));
+  const isElim=gs.mode&&gs.mode.gametype==='elim';
+  const roundOver=stillIn.length<=1;
+  const over=roundOver&&!isElim;
+
+  selCards=[];selCard=null;
+  stopMyTimer();
+  if(db&&roomId)db.ref('rooms/'+roomId+'/afk/'+myUid).remove();
+
+  const jokerColor=(first.r==='JOKER')?(first.color||null):null;
+  const upd={};
+  upd['pot']=newPot;upd['hands/'+myUid]=newHand;
+  upd['pendingDraws']=pending;upd['commandedSuit']=cmdSuit||null;
+  upd['currentPlayerIdx']=nextIdx;upd['finished']=finished;
+  upd['jokerPendingColor']=jokerColor||null;upd['jokerFreeColor']=null;
+  upd['turnStartTs']=Date.now();
+  upd['lastFX']={r:first.r,s:first.s+(cards.length>1?' x'+cards.length:''),color:first.color||null,by:myUid,ts:Date.now()};
+  if(over)upd['status']='finished';
+  if(roundOver&&isElim){
+    const loserUid=stillIn.length===1?stillIn[0]:[...stillIn].sort((a,b)=>(gs.hands[b]||[]).length-(gs.hands[a]||[]).length)[0];
+    upd['status']='elim_round_end';upd['roundLoser']=loserUid;
+  }
+  await db.ref('rooms/'+roomId+'/game').update(upd);
+  toast('✅ x'+cards.length+' '+first.r+' joués !','g');
 }
 
 async function doPlay(card,suit,twoPlace){
