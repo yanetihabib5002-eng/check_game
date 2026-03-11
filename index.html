@@ -787,24 +787,22 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
 
 /* ══ MOBILE PERF — désactive les box-shadow animés qui clignotent ══ */
 @media (hover: none) and (pointer: coarse) {
-  .card-fx-ice{animation:iceCrystalIn .5s cubic-bezier(.34,1.4,.64,1) forwards !important;}
-  .card-fx-fire{animation:fireIn .4s ease-out forwards !important;}
-  .card-fx-zap{animation:zapIn .3s ease-out forwards !important;}
-  .card-fx-void{animation:voidIn .4s ease-out forwards !important;}
-  .card-fx-blood{animation:bloodIn .4s ease-out forwards !important;}
-  .card-fx-tornado{animation:tornadoIn .4s ease-out forwards !important;}
-  .card-fx-ghost{animation:ghostIn .5s ease-out forwards !important;}
-  .card-fx-eclipse{animation:eclipseIn .5s ease-out forwards !important;}
-  .card.playable{animation:none !important;}
-  .card.playable[data-r="7"]{animation:none !important;}
-  .card.playable[data-r="A"]{animation:none !important;}
-  .card.playable[data-r="J"]{animation:none !important;}
-  .card.jr.playable{animation:none !important;}
-  .card.jb.playable{animation:none !important;}
+  .card{transition:none !important;}
+  .card.playable{animation:none !important;box-shadow:2px 3px 8px rgba(0,0,0,.4),0 0 0 2px var(--gold);}
+  .card.playable[data-r="7"]{animation:none !important;box-shadow:0 0 0 2px #ff4444;}
+  .card.playable[data-r="A"]{animation:none !important;box-shadow:0 0 0 2px #44ccff;}
+  .card.playable[data-r="J"]{animation:none !important;box-shadow:0 0 0 2px var(--gold);}
+  .card.jr.playable{animation:none !important;box-shadow:0 0 0 2px #ff4040 !important;}
+  .card.jb.playable{animation:none !important;box-shadow:0 0 0 2px #aaaaff !important;}
+  .card.lastcard{animation:none !important;box-shadow:2px 3px 10px rgba(0,0,0,.45),0 0 0 2px #ffdd00;}
   @keyframes checkPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
   .opp-chip.chip-frozen,.opp-chip.chip-fire,.opp-chip.chip-zap,.opp-chip.chip-void,
   .opp-chip.chip-blood,.opp-chip.chip-tornado,.opp-chip.chip-ghost,.opp-chip.chip-eclipse{
     box-shadow:none !important;
+  }
+  .card-fx-ice,.card-fx-fire,.card-fx-zap,.card-fx-void,
+  .card-fx-blood,.card-fx-tornado,.card-fx-ghost,.card-fx-eclipse{
+    animation:none !important;box-shadow:none !important;
   }
 }
 @keyframes cardDraw{0%{opacity:0;transform:translateY(-40px) scale(.7) rotate(-8deg);}60%{opacity:1;transform:translateY(4px) scale(1.06) rotate(1deg);}100%{opacity:1;transform:translateY(0) scale(1) rotate(0);}}
@@ -3430,38 +3428,56 @@ function renderGame(){
   // Turn FX
   checkTurnFX(mine);
 
-  // Topbar
+  // ── Topbar — écriture uniquement si le texte change ──
   const myTimerSec=mine?getTimerLeft(gs):null;
-  document.getElementById('tb-turn').textContent=mine?'🟢 Ton tour ! ('+( myTimerSec!==null?myTimerSec:TIMER_SEC)+'s)':'⏳ Tour de '+curName;
-  document.getElementById('tb-sub').textContent=gs.pendingDraws>0?'⚡ +'+gs.pendingDraws+' en chaîne':'';
+  const tbTurnTxt=mine?'🟢 Ton tour ! ('+(myTimerSec!==null?myTimerSec:TIMER_SEC)+'s)':'⏳ Tour de '+curName;
+  const tbTurnEl=document.getElementById('tb-turn');
+  if(tbTurnEl.textContent!==tbTurnTxt)tbTurnEl.textContent=tbTurnTxt;
+  const tbSubTxt=gs.pendingDraws>0?'⚡ +'+gs.pendingDraws+' en chaîne':'';
+  const tbSubEl=document.getElementById('tb-sub');
+  if(tbSubEl.textContent!==tbSubTxt)tbSubEl.textContent=tbSubTxt;
   const roundTxt=(gs.mode&&gs.mode.gametype==='elim')?(' · Manche '+(gs.round||1)):'';
-  const elimCount=(gs.eliminated||[]).length;
-  const elimTxt=elimCount>0?' · 💀'+elimCount:'';
-  document.getElementById('tb-room').textContent='#'+roomId+roundTxt+elimTxt;
+  const elimTxt=(gs.eliminated||[]).length>0?' · 💀'+(gs.eliminated||[]).length:'';
+  const tbRoomTxt='#'+roomId+roundTxt+elimTxt;
+  const tbRoomEl=document.getElementById('tb-room');
+  if(tbRoomEl.textContent!==tbRoomTxt)tbRoomEl.textContent=tbRoomTxt;
 
-  // Opponent action overlay
+  // ── Opponent action overlay ──
   const oa=document.getElementById('opp-action');
   if(!mine){
-    document.getElementById('opp-nm').textContent=curName;
-    document.getElementById('opp-act').textContent=gs.pendingDraws>0?'⚡ doit prendre +'+gs.pendingDraws+' ou renvoyer':'réfléchit à son coup...';
+    const oaNmTxt=curName;
+    const oaActTxt=gs.pendingDraws>0?'⚡ doit prendre +'+gs.pendingDraws+' ou renvoyer':'réfléchit à son coup...';
+    const oaNm=document.getElementById('opp-nm');const oaAct=document.getElementById('opp-act');
+    if(oaNm.textContent!==oaNmTxt)oaNm.textContent=oaNmTxt;
+    if(oaAct.textContent!==oaActTxt)oaAct.textContent=oaActTxt;
     oa.classList.add('show');
   }else{
     oa.classList.remove('show');
-    document.getElementById('opp-card-zone').innerHTML='';
+    const ocz=document.getElementById('opp-card-zone');
+    if(ocz.children.length)ocz.innerHTML='';
   }
 
-  // Opponents chips — diff update (évite le clignotement)
+  // ── Opponents chips — mise à jour uniquement si les données changent ──
   const or=document.getElementById('opp-row');
-  const existingUids=new Set([...or.querySelectorAll('.opp-chip')].map(c=>c.dataset.uid));
-  const newUids=new Set(gs.playerOrder.filter(u=>u!==myUid));
-  // Supprimer les chips qui ne sont plus là
-  existingUids.forEach(uid=>{if(!newUids.has(uid)){const el=or.querySelector('.opp-chip[data-uid="'+uid+'"]');if(el)el.remove();}});
   gs.playerOrder.forEach(uid=>{
     if(uid===myUid)return;
     const hand=gs.hands[uid]||[];
     const active=uid===curUid;
     const done=(gs.finished||[]).includes(uid);
-    const minis=Array.from({length:Math.min(hand.length,6)},()=>'<div class="mini-card"></div>').join('');
+    const cnt=Array.isArray(hand)?hand.length:0;
+    // Fingerprint léger pour ce chip
+    const chipFP=uid+'|'+cnt+'|'+(active?1:0)+'|'+(done?1:0)+'|'+((gs.afk&&gs.afk[uid]&&gs.afk[uid].count)||0);
+    let d=or.querySelector('.opp-chip[data-uid="'+uid+'"]');
+    if(!d){
+      d=document.createElement('div');d.dataset.uid=uid;or.appendChild(d);
+    }
+    // Classe active/done toujours synchronisée (pas de repaint si déjà correct)
+    const wantClass='opp-chip'+(active?' active':'')+(done?' done':'');
+    if(d.className!==wantClass)d.className=wantClass;
+    // innerHTML seulement si changé
+    if(d.dataset.fp===chipFP)return;
+    d.dataset.fp=chipFP;
+    const minis=Array.from({length:Math.min(cnt,6)},()=>'<div class="mini-card"></div>').join('');
     const tsec=active&&!done?getTimerLeft(gs):null;
     const timerHtml=tsec!==null?makeTimerRing(tsec):'';
     const afkData=(gs.afk&&gs.afk[uid])||null;
@@ -3473,81 +3489,62 @@ function renderGame(){
     const oppAv=oppPlayer.avatar||(gs.playerNames[uid]||'?')[0];
     const oppCol=oppPlayer.color||'';
     const oppAvHtml='<span style="'+(oppPlayer.avatar?'font-size:14px;':'')+(oppCol?'color:'+oppCol+';':'')+' margin-right:4px">'+oppAv+'</span>';
-    const inner='<div style="display:flex;align-items:center;gap:5px;width:100%">'+
+    d.innerHTML='<div style="display:flex;align-items:center;gap:5px;width:100%">'+
       '<div style="flex:1;min-width:0"><div class="opp-name">'+oppAvHtml+gs.playerNames[uid]+afkBadge+(gs.hostUid===uid?'<span class="host-badge">👑</span>':'')+'</div>'+
-      '<div class="opp-count">'+(done?'🏆':hand.length)+'</div></div>'+
+      '<div class="opp-count">'+(done?'🏆':cnt)+'</div></div>'+
       (kickHtml||timerHtml)+'</div>'+
       '<div class="opp-minis">'+minis+'</div>';
-    let d=or.querySelector('.opp-chip[data-uid="'+uid+'"]');
-    if(!d){
-      d=document.createElement('div');d.dataset.uid=uid;or.appendChild(d);
-    }
-    // Update classes
-    d.className='opp-chip'+(active?' active':'')+(done?' done':'');
-    // Update inner HTML only if changed
-    if(d.dataset.inner!==inner){d.innerHTML=inner;d.dataset.inner=inner;}
+  });
+  // Retirer les chips disparus
+  or.querySelectorAll('.opp-chip').forEach(d=>{
+    if(!gs.playerOrder.includes(d.dataset.uid)||d.dataset.uid===myUid)d.remove();
   });
 
-  // Pot — animate new card
+  // ── Pot — ne recréer que si la carte du dessus a changé ──
   const pz=document.getElementById('pot-zone');
-  const prevId=pz.dataset.lid||'';
-  const newId=top.r+top.s+(top.color||'');
-  const isNew=prevId!==newId;
-  pz.innerHTML='';
-  const potEl=makeCard(top);
-  if(isNew){
+  const newPotId=top.r+top.s+(top.color||'');
+  if(pz.dataset.lid!==newPotId){
+    pz.dataset.lid=newPotId;
+    pz.innerHTML='';
+    const potEl=makeCard(top);
     potEl.classList.add('card-fly');
-    // Petite rotation aléatoire sur le pot — effet casino naturel
     const rot=(Math.random()-.5)*10;
     potEl.style.setProperty('--pot-rot',rot+'deg');
-    pz.dataset.lid=newId;
-    // Show opp card preview
-    if(!mine&&prevId){
+    pz.appendChild(potEl);
+    // Aperçu carte adversaire
+    if(!mine&&pz.dataset.prevLid){
       const prev=document.getElementById('opp-card-zone');
       prev.innerHTML='';
       const big=makeCard(top);big.classList.add('opp-card-big');
       prev.appendChild(big);
     }
+    pz.dataset.prevLid=newPotId;
   }
-  pz.appendChild(potEl);
 
-  // Commanded suit
-  document.getElementById('suit-zone').innerHTML=(()=>{
-    let html='';
-    if(gs.commandedSuit){
-      html+='<div class="suit-badge" style="color:'+(RED.includes(gs.commandedSuit)?'var(--red)':'#ddd')+'">'+gs.commandedSuit+' <span style="font-size:10px;color:rgba(245,240,232,.45)">commandé</span></div>';
-    }
-    if(gs.jokerFreeColor&&mine){
-      const fc=gs.jokerFreeColor;
-      html+='<div class="suit-badge" style="color:'+(fc==='red'?'var(--red)':'#aaaaff')+';margin-top:4px;border-color:'+(fc==='red'?'rgba(192,34,42,.5)':'rgba(100,100,255,.5)')+'">'+
-        (fc==='red'?'♥♦':'♠♣')+' <span style="font-size:10px">Joue librement ('+fc+')</span></div>';
-    }
-    // ── Joker sur le pot : montrer la contrainte couleur ──
-    if(top.r==='JOKER'){
-      const jcolor=top.color;
-      const suits=jcolor==='red'?'♥ ♦':'♠ ♣';
-      const col=jcolor==='red'?'var(--red)':'#aaaaff';
-      const bdr=jcolor==='red'?'rgba(192,34,42,.5)':'rgba(100,100,255,.5)';
-      html+='<div class="suit-badge" style="color:'+col+';border-color:'+bdr+';margin-top:4px">'+
-        suits+' <span style="font-size:10px">Joker '+(jcolor==='red'?'rouge 🔴':'noir ⚫')+' — couleur obligatoire</span></div>';
-    }
-    return html;
+  // ── Suit / pending / bank — texte seulement ──
+  const suitHtml=(()=>{
+    let h='';
+    if(gs.commandedSuit)h+='<div class="suit-badge" style="color:'+(RED.includes(gs.commandedSuit)?'var(--red)':'#ddd')+'">'+gs.commandedSuit+' <span style="font-size:10px;color:rgba(245,240,232,.45)">commandé</span></div>';
+    if(gs.jokerFreeColor&&mine){const fc=gs.jokerFreeColor;h+='<div class="suit-badge" style="color:'+(fc==='red'?'var(--red)':'#aaaaff')+';margin-top:4px;border-color:'+(fc==='red'?'rgba(192,34,42,.5)':'rgba(100,100,255,.5)')+'">'+( fc==='red'?'♥♦':'♠♣')+' <span style="font-size:10px">Joue librement ('+fc+')</span></div>';}
+    if(top.r==='JOKER'){const jc=top.color;const suits=jc==='red'?'♥ ♦':'♠ ♣';const col=jc==='red'?'var(--red)':'#aaaaff';const bdr=jc==='red'?'rgba(192,34,42,.5)':'rgba(100,100,255,.5)';h+='<div class="suit-badge" style="color:'+col+';border-color:'+bdr+';margin-top:4px">'+suits+' <span style="font-size:10px">Joker '+(jc==='red'?'rouge 🔴':'noir ⚫')+' — couleur obligatoire</span></div>';}
+    return h;
   })();
-  // Pending
-  document.getElementById('pend-zone').innerHTML=gs.pendingDraws>0?'<div class="pending-badge">⚡ +'+gs.pendingDraws+' à renvoyer ou prendre</div>':'';
+  const sz=document.getElementById('suit-zone');if(sz.innerHTML!==suitHtml)sz.innerHTML=suitHtml;
+  const pendHtml=gs.pendingDraws>0?'<div class="pending-badge">⚡ +'+gs.pendingDraws+' à renvoyer ou prendre</div>':'';
+  const pend=document.getElementById('pend-zone');if(pend.innerHTML!==pendHtml)pend.innerHTML=pendHtml;
+  const bankTxt=(gs.deck?gs.deck.length:0)+' cartes';
+  const bankEl=document.getElementById('bank-cnt');if(bankEl.textContent!==bankTxt)bankEl.textContent=bankTxt;
 
-  // Bank
-  document.getElementById('bank-cnt').textContent=(gs.deck?gs.deck.length:0)+' cartes';
-
-  // My hand
+  // ── Ma main ──
   document.getElementById('h-name').textContent=myName;
-  document.getElementById('h-pending').textContent=gs.pendingDraws>0&&mine?'⚡ Prends +'+gs.pendingDraws+' ou renvoie':'';
+  const hpTxt=gs.pendingDraws>0&&mine?'⚡ Prends +'+gs.pendingDraws+' ou renvoie':'';
+  const hpEl=document.getElementById('h-pending');if(hpEl.textContent!==hpTxt)hpEl.textContent=hpTxt;
   renderHand(top,gs.commandedSuit,gs.pendingDraws,mine,gs);
 
-  // ── CHECK button logic ──
+  // ── CHECK ──
   updateCheckButton(gs);
 
-  // Buttons
+  // ── Boutons action ──
   const jfcBtn=(mine&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
   const canPl=(()=>{
     if(!selCards.length||!mine)return false;
@@ -3555,18 +3552,18 @@ function renderGame(){
     const firstCard=localHand.find(c=>c.id===selCards[0]);
     if(!firstCard)return false;
     return selCards.every((id,i)=>{
-      const c=localHand.find(x=>x.id===id);
-      if(!c)return false;
+      const c=localHand.find(x=>x.id===id);if(!c)return false;
       if(i===0)return canPlay(c,top,gs.commandedSuit,gs.pendingDraws,jfcBtn);
-      // Carte suivante du combo: même rang suffit (validé contre la 1ère)
       return comboOn&&c.r===firstCard.r&&(c.r==='JOKER'?c.color===firstCard.color:true);
     });
   })();
-  document.getElementById('btn-play').disabled=!canPl;
-  if(!canPl){document.getElementById('btn-play').textContent='▶ Jouer';}
+  const bplay=document.getElementById('btn-play');
+  bplay.disabled=!canPl;
+  if(!canPl)bplay.textContent='▶ Jouer';
   const bd=document.getElementById('btn-draw');
-  if(gs.pendingDraws>0&&mine){bd.textContent='😬 Prendre +'+gs.pendingDraws;bd.disabled=false;}
-  else{bd.textContent='🎴 Piocher';bd.disabled=!mine;}
+  const bdTxt=gs.pendingDraws>0&&mine?'😬 Prendre +'+gs.pendingDraws:'🎴 Piocher';
+  if(bd.textContent!==bdTxt)bd.textContent=bdTxt;
+  bd.disabled=!mine;
 }
 
 // ── Mise à jour légère de la sélection (sans reconstruire le DOM des cartes) ──
@@ -3579,9 +3576,7 @@ function updateHandSelection(){
   const comboEnabled=gs.mode&&gs.mode.combo;
   const comboFirst=comboEnabled&&selCards.length>0?localHand.find(c=>c.id===selCards[0]):null;
 
-  // Mettre à jour chaque carte existante sans recréer le DOM
-  const cardEls=document.querySelectorAll('#h-cards .card');
-  cardEls.forEach(el=>{
+  document.querySelectorAll('#h-cards .card').forEach(el=>{
     const id=el.dataset.id;
     if(!id)return;
     const card=localHand.find(c=>c.id===id);
@@ -3592,38 +3587,33 @@ function updateHandSelection(){
       card.r===comboFirst.r&&(card.r==='JOKER'?card.color===comboFirst.color:true);
     const pl=plNormal||plCombo;
     const selIdx=selCards.indexOf(id);
+    const isSel=selIdx>=0;
 
-    // Retirer les classes d'état
-    el.classList.remove('playable','dim','noturn','selected','lastcard');
-    if(selIdx>=0){el.classList.add('selected');}
-    else if(pl){el.classList.add('playable');}
-    else if(!mine){el.classList.add('noturn');}
-    else{el.classList.add('dim');}
-    if(localHand.length===1)el.classList.add('lastcard');
+    // toggle au lieu de remove+add — n'interrompt pas les animations si la classe n'a pas changé
+    el.classList.toggle('selected', isSel);
+    el.classList.toggle('playable', !isSel&&pl);
+    el.classList.toggle('dim',      !isSel&&!pl&&mine);
+    el.classList.toggle('noturn',   !isSel&&!mine);
+    el.classList.toggle('lastcard', localHand.length===1);
 
-    // Badge combo (position dans sélection)
-    const existBadge=el.querySelector('.combo-badge');
-    if(existBadge)existBadge.remove();
-    if(selIdx>=0&&selCards.length>1){
-      const badge=document.createElement('div');
-      badge.className='combo-badge';
-      badge.style.cssText='position:absolute;top:-8px;left:50%;transform:translateX(-50%);'+
-        'background:var(--gold);color:#1a0f00;border-radius:50%;width:16px;height:16px;'+
-        'font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;z-index:20;';
+    // Badge combo
+    let badge=el.querySelector('.combo-badge');
+    if(isSel&&selCards.length>1){
+      if(!badge){
+        badge=document.createElement('div');
+        badge.className='combo-badge';
+        badge.style.cssText='position:absolute;top:-8px;left:50%;transform:translateX(-50%);'+
+          'background:var(--gold);color:#1a0f00;border-radius:50%;width:16px;height:16px;'+
+          'font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;z-index:20;';
+        el.style.position='relative';el.appendChild(badge);
+      }
       badge.textContent=selIdx+1;
-      el.style.position='relative';
-      el.appendChild(badge);
-    }
+    } else if(badge){badge.remove();}
   });
 
-  // Mettre à jour le bouton jouer
   const playBtn=document.getElementById('btn-play');
   if(!playBtn)return;
-  if(mine&&selCards.length>1){playBtn.textContent='▶ Jouer x'+selCards.length;}
-  else if(mine&&selCards.length===1){playBtn.textContent='▶ Jouer';}
-  else{playBtn.textContent='▶ Jouer';}
-
-  // Recalculer si le bouton jouer est actif
+  playBtn.textContent=mine&&selCards.length>1?'▶ Jouer x'+selCards.length:'▶ Jouer';
   const canPl=(()=>{
     if(!selCards.length||!mine||!top)return false;
     const firstCard=localHand.find(c=>c.id===selCards[0]);
@@ -3670,13 +3660,27 @@ function renderHand(top,cmdSuit,pending,mine,gs){
     const plCombo=comboEnabled&&comboFirst&&!alreadySel&&
       card.r===comboFirst.r&&(card.r==='JOKER'?card.color===comboFirst.color:true);
     const pl=plNormal||plCombo;
-    el.classList.remove('playable','noturn','dim','selected','lastcard');
-    if(pl)el.classList.add('playable');
-    else if(!mine)el.classList.add('noturn');
-    else el.classList.add('dim');
+    const isSel=selCards.indexOf(id)>=0;
+    const isLast=localHand.length===1;
+
+    // Ne toucher aux classes que si elles ont changé — évite de relancer les animations CSS
+    const wantPlayable=pl&&!isSel;
+    const wantDim=!pl&&mine&&!isSel;
+    const wantNoturn=!mine&&!isSel;
+    const hasPlayable=el.classList.contains('playable');
+    const hasDim=el.classList.contains('dim');
+    const hasNoturn=el.classList.contains('noturn');
+    const hasSelected=el.classList.contains('selected');
+    const hasLast=el.classList.contains('lastcard');
+
+    if(wantPlayable!==hasPlayable){el.classList.toggle('playable',wantPlayable);}
+    if(wantDim!==hasDim){el.classList.toggle('dim',wantDim);}
+    if(wantNoturn!==hasNoturn){el.classList.toggle('noturn',wantNoturn);}
+    if(isSel!==hasSelected){el.classList.toggle('selected',isSel);}
+    if(isLast!==hasLast){el.classList.toggle('lastcard',isLast);}
+
     const selIdx=selCards.indexOf(id);
     if(selIdx>=0){
-      el.classList.add('selected');
       // Badge combo (seulement si sélection multiple)
       let badge=el.querySelector('.combo-badge');
       if(selCards.length>1){
@@ -3695,7 +3699,6 @@ function renderHand(top,cmdSuit,pending,mine,gs){
       const badge=el.querySelector('.combo-badge');
       if(badge)badge.remove();
     }
-    if(localHand.length===1)el.classList.add('lastcard');
     // Relier le click si pas encore fait (nouvelles cartes seulement)
     if(mine&&!el.dataset.clickBound){
       el.dataset.clickBound='1';
