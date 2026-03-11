@@ -1640,11 +1640,11 @@ function enterLobby(){
   show('s-lobby');
   document.getElementById('lb-code').textContent=roomId;
   if(lobbyRef){lobbyRef.off();}
+  let gameStarted=false;
   lobbyRef=db.ref('rooms/'+roomId);
   lobbyRef.on('value',function(snap){
     const data=snap.val();if(!data)return;
     const players=Object.values(data.players||{});
-    // Render players
     const el=document.getElementById('lb-players');el.innerHTML='';
     const iamHostNow=players.some(p=>p.uid===myUid&&p.host);
     players.forEach(p=>{
@@ -1654,10 +1654,8 @@ function enterLobby(){
       el.appendChild(d);
     });
     document.getElementById('lb-wait').innerHTML=players.length<2?'En attente d\'un autre joueur <span class="dots"></span>':players.length+' joueurs connectés !';
-    // Check if I was kicked
     const stillHere=players.some(p=>p.uid===myUid);
     if(!stillHere&&players.length>0){
-      // I was kicked — go back to setup
       if(lobbyRef){lobbyRef.off();lobbyRef=null;}
       toast('Tu as été retiré de la partie par l\'hôte','d');
       show('s-setup');
@@ -1665,14 +1663,11 @@ function enterLobby(){
     }
     const iamhost=players.find(p=>p.uid===myUid&&p.host);
     document.getElementById('btn-launch').disabled=!(iamhost&&players.length>=2);
-    if(data.status==='playing'){
+    // Démarrer quand status=playing ET game présent, une seule fois
+    if(data.status==='playing' && data.game && !gameStarted){
+      gameStarted=true;
       if(lobbyRef){lobbyRef.off();lobbyRef=null;}
-      // Charger les données fraîches depuis Firebase pour avoir les vrais arrays
-      db.ref('rooms/'+roomId+'/game').once('value').then(function(gameSnap){
-        const freshGame=gameSnap.val();
-        if(freshGame) startGame(freshGame);
-        else if(data.game) startGame(data.game);
-      }).catch(function(){ if(data.game) startGame(data.game); });
+      startGame(data.game);
     }
   });
 }
@@ -1740,10 +1735,10 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
     eliminated:[],
     round:1
   };
-  game.status = 'playing';
+  // Écrire game ET status en même temps, puis laisser le listener Firebase démarrer pour tout le monde
   await db.ref('rooms/'+roomId+'/game').set(game);
   await db.ref('rooms/'+roomId+'/status').set('playing');
-  // Host démarre directement — pas besoin d'attendre le listener
+  // L'hôte démarre aussi via le listener (même chemin que les autres joueurs)
   if(lobbyRef){lobbyRef.off();lobbyRef=null;}
   startGame(game);
 };
@@ -1752,17 +1747,23 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
 // GAME
 // ══════════════════════════════════════════
 function normalizeGame(g){
-  // Firebase supprime les tableaux vides et convertit les tableaux en objets {0:...,1:...}
-  // Cette fonction normalise tout de façon défensive
-  function toArr(v){ if(!v) return []; if(Array.isArray(v)) return v; return Object.values(v); }
-  g.pot        = toArr(g.pot);
-  g.deck       = toArr(g.deck);
-  g.playerOrder= toArr(g.playerOrder);
-  g.finished   = toArr(g.finished);
-  g.eliminated = toArr(g.eliminated);
+  function toArr(v){
+    if(!v) return [];
+    if(Array.isArray(v)) return v;
+    // Firebase convertit les arrays en objets {0:..,1:..} — on récupère les valeurs triées par clé numérique
+    const keys=Object.keys(v);
+    const allNumeric=keys.every(k=>!isNaN(k));
+    if(allNumeric) return keys.sort((a,b)=>Number(a)-Number(b)).map(k=>v[k]);
+    return Object.values(v);
+  }
+  g.pot         = toArr(g.pot);
+  g.deck        = toArr(g.deck);
+  g.playerOrder = toArr(g.playerOrder);
+  g.finished    = toArr(g.finished);
+  g.eliminated  = toArr(g.eliminated);
   if(g.hands){
     Object.keys(g.hands).forEach(uid=>{
-      g.hands[uid]=toArr(g.hands[uid]);
+      g.hands[uid] = toArr(g.hands[uid]);
     });
   }
   return g;
@@ -1775,25 +1776,23 @@ function startGame(g){
   selCard=null; lastMyTurn=false; lastTurnUid='';
   show('s-game');
   startGlobalRingTick();
-  renderGame(); // immediate render before Firebase listener
   if(gameRef){gameRef.off();}
   gameRef=db.ref('rooms/'+roomId+'/game');
+  // Render immédiatement avec les données locales
+  renderGame();
+  // Puis écouter Firebase pour les mises à jour
   gameRef.on('value',function(snap){
     const data=snap.val();if(!data)return;
     normalizeGame(data);
     gameState=data;
     localHand = data.hands && data.hands[myUid] ? data.hands[myUid] : [];
-    // Force re-render: reset lastMyTurn if turn changed externally (timer, etc.)
     const newCurUid=data.playerOrder&&data.playerOrder[data.currentPlayerIdx];
     if(newCurUid!==myUid && lastMyTurn){
       lastMyTurn=false;
       stopMyTimer();
     }
     if(data.status==='finished'){renderWinner();return;}
-    if(data.status==='elim_round_end'){
-      handleElimRound(data);
-      return;
-    }
+    if(data.status==='elim_round_end'){handleElimRound(data);return;}
     renderGame();
   });
 }
@@ -1949,16 +1948,14 @@ function renderGame(){
   if(gs.mode&&gs.mode.timer!==undefined) TIMER_SEC=gs.mode.timer||999;
 
   // ── Timer: start when my turn, stop otherwise ──
-  const turnChanged=curUid!==lastTurnUid;
+  const turnChanged=curUid!==lastTurnUid && lastTurnUid!=='';
   lastTurnUid=curUid;
 
   if(mine){
     if(turnChanged){
-      // Nouveau tour : écrire turnStartTs UNE SEULE FOIS
       db.ref('rooms/'+roomId+'/game/turnStartTs').set(Date.now());
       if(TIMER_SEC>0) startMyTimer(); else stopMyTimer();
     } else if(!lastMyTurn){
-      // Tour en cours (re-render sans changement de joueur)
       if(TIMER_SEC>0 && !timerInterval) startMyTimer();
     }
   } else {
