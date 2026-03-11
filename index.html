@@ -235,12 +235,124 @@ body::before{
 .shakeY{animation:shakeY .4s ease-in-out;}
 @keyframes myTurnGlow{0%{background:rgba(212,168,67,.22);}100%{background:transparent;}}
 .my-turn-fx{animation:myTurnGlow .9s ease-out forwards;}
+.your-turn-banner{display:flex;align-items:center;justify-content:center;gap:8px;padding:7px 14px 4px;animation:ytbSlide .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes ytbSlide{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+#ytb-text{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.5px;text-shadow:0 0 12px rgba(212,168,67,.5);}
+.ytb-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:ytbPulse 1s infinite alternate;box-shadow:0 0 6px var(--gold);}
+.ytb-dot:last-child{animation-delay:.5s;}
+@keyframes ytbPulse{from{opacity:.4;transform:scale(.8);}to{opacity:1;transform:scale(1.3);}}
 
 @media(max-height:600px){
   .card{width:48px;height:70px;}
   .cr{font-size:17px;}.cs{font-size:13px;}.cc{font-size:9px;}
   .act-btn{padding:10px 6px;min-height:44px;font-size:12px;}
 }
+
+/* ══ SETUP REDESIGN ══ */
+#s-setup{justify-content:flex-start;overflow-y:auto;}
+.bg-cards{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+.bgc{position:absolute;font-size:120px;opacity:.04;color:var(--gold);animation:bgFloat 20s infinite ease-in-out;font-family:'Playfair Display',serif;user-select:none;}
+.bgc1{left:5%;top:10%;animation-delay:0s;animation-duration:22s;}
+.bgc2{right:8%;top:25%;animation-delay:-7s;animation-duration:18s;color:#8B1A1A;}
+.bgc3{left:20%;bottom:30%;animation-delay:-13s;animation-duration:25s;color:#8B1A1A;}
+.bgc4{right:15%;bottom:15%;animation-delay:-4s;animation-duration:20s;}
+.bgc5{left:50%;top:60%;animation-delay:-10s;animation-duration:28s;}
+.bgc6{right:40%;top:5%;animation-delay:-16s;animation-duration:16s;color:#8B1A1A;}
+@keyframes bgFloat{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-25px) rotate(6deg);}}
+.setup-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:400px;margin:0 auto;padding:48px 20px 80px;gap:18px;min-height:100dvh;justify-content:center;}
+.logo-block{text-align:center;}
+.logo{font-family:'Playfair Display',serif;font-size:68px;font-weight:900;color:var(--gold);letter-spacing:10px;text-shadow:0 0 40px rgba(212,168,67,.5),0 4px 0 rgba(130,90,20,.5);line-height:1;animation:logoGlow 3s infinite alternate;}
+@keyframes logoGlow{from{text-shadow:0 0 30px rgba(212,168,67,.4),0 4px 0 rgba(130,90,20,.5);}to{text-shadow:0 0 70px rgba(212,168,67,.8),0 4px 0 rgba(130,90,20,.5);}}
+.logo-suits{font-size:16px;color:rgba(212,168,67,.4);letter-spacing:12px;margin:10px 0 6px;}
+.logo-sub{font-size:10px;color:rgba(245,240,232,.25);letter-spacing:3px;text-transform:uppercase;}
+.setup-card{width:100%;background:rgba(8,18,10,.85);border:1px solid rgba(212,168,67,.2);border-radius:20px;padding:24px;backdrop-filter:blur(16px);box-shadow:0 20px 60px rgba(0,0,0,.6),inset 0 1px 0 rgba(212,168,67,.08);animation:slideUp .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.setup-input{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(212,168,67,.18);border-radius:12px;padding:14px 16px;color:var(--cream);font-family:'Lato',sans-serif;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s;box-sizing:border-box;margin-bottom:14px;-webkit-appearance:none;}
+.setup-input:focus{border-color:rgba(212,168,67,.6);box-shadow:0 0 0 3px rgba(212,168,67,.08);}
+.setup-input::placeholder{color:rgba(245,240,232,.25);}
+.setup-code{letter-spacing:8px;font-size:22px;font-weight:900;text-align:center;text-transform:uppercase;margin-bottom:0;flex:1;}
+.setup-btn-main{width:100%;background:linear-gradient(160deg,#e8b84b 0%,#c9922a 100%);border:none;border-radius:12px;padding:16px;color:#1a0f00;font-family:'Lato',sans-serif;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:.5px;transition:all .2s;box-shadow:0 4px 24px rgba(212,168,67,.25);margin-bottom:16px;-webkit-appearance:none;}
+.setup-btn-main:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 32px rgba(212,168,67,.4);}
+.setup-btn-main:active:not(:disabled){transform:scale(.97);}
+.setup-btn-main:disabled{opacity:.35;cursor:not-allowed;}
+.btn-icon{font-size:17px;}
+.setup-divider{display:flex;align-items:center;gap:12px;margin:0 0 16px;color:rgba(245,240,232,.2);font-size:11px;letter-spacing:1px;text-transform:uppercase;}
+.setup-divider::before,.setup-divider::after{content:'';flex:1;height:1px;background:rgba(212,168,67,.1);}
+.setup-join-row{display:flex;gap:10px;align-items:center;}
+.setup-btn-join{width:52px;height:52px;background:rgba(212,168,67,.08);border:1.5px solid rgba(212,168,67,.25);border-radius:12px;color:var(--gold);font-size:20px;cursor:pointer;transition:all .2s;flex-shrink:0;-webkit-appearance:none;}
+.setup-btn-join:hover:not(:disabled){background:rgba(212,168,67,.18);transform:translateX(2px);}
+.setup-btn-join:disabled{opacity:.25;cursor:not-allowed;}
+.setup-connecting{display:flex;align-items:center;gap:12px;color:rgba(245,240,232,.4);font-size:13px;animation:fadeIn .3s;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.conn-spinner{width:18px;height:18px;border:2px solid rgba(212,168,67,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.setup-footer{display:flex;align-items:center;gap:8px;}
+.footer-cfg-btn{background:none;border:none;color:rgba(245,240,232,.18);font-size:11px;cursor:pointer;font-family:'Lato',sans-serif;letter-spacing:.5px;padding:4px 8px;transition:color .2s;-webkit-appearance:none;}
+.footer-cfg-btn:hover{color:rgba(245,240,232,.45);}
+.conn-dot-setup{width:6px;height:6px;border-radius:50%;background:#4caf50;opacity:0;transition:opacity .4s;}
+.conn-dot-setup.show{opacity:1;}
+.conn-dot-setup.off{background:#ff5252;}
+.firebase-panel{width:100%;background:rgba(4,12,6,.92);border:1px solid rgba(212,168,67,.12);border-radius:16px;padding:20px;animation:slideUp .3s ease;}
+.fp-title{font-family:'Playfair Display',serif;font-size:13px;color:rgba(212,168,67,.7);margin-bottom:14px;}
+.fp-guide{margin-bottom:14px;border:none;outline:none;}
+.fp-guide summary{color:rgba(212,168,67,.45);font-size:12px;cursor:pointer;padding:6px 0;list-style:none;}
+.fp-guide summary::-webkit-details-marker{display:none;}
+.fp-guide-body{padding:8px 0 2px;font-size:11px;color:rgba(245,240,232,.4);line-height:1.9;}
+.fp-guide-body a{color:rgba(212,168,67,.7);text-decoration:none;}
+.fp-guide-body strong{color:rgba(245,240,232,.6);}
+.fp-guide-body code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;}
+.status.ok{color:#4caf50;}
+.status.error{color:#ff6b6b;}
+
+/* ══ TUTORIEL ══ */
+#s-tuto{flex-direction:column;padding:0;overflow:hidden;}
+.tuto-skip{position:fixed;top:10px;right:12px;z-index:300;background:rgba(0,0,0,.5);border:1px solid rgba(245,240,232,.12);border-radius:8px;padding:5px 11px;color:rgba(245,240,232,.35);font-size:11px;cursor:pointer;font-family:'Lato',sans-serif;}
+.tuto-table{display:flex;flex-direction:column;align-items:center;width:100%;max-width:480px;margin:0 auto;padding:14px 12px 0;gap:10px;height:calc(100dvh - 190px);}
+.tuto-opps{display:flex;gap:8px;justify-content:center;width:100%;}
+.tuto-opp-chip{background:rgba(255,255,255,.05);border:1px solid rgba(212,168,67,.12);border-radius:12px;padding:8px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:64px;transition:all .3s;}
+.tuto-opp-chip.active{border-color:rgba(212,168,67,.45);background:rgba(212,168,67,.07);box-shadow:0 0 12px rgba(212,168,67,.15);}
+.tuto-opp-name{font-size:10px;color:rgba(245,240,232,.45);}
+.tuto-opp-cnt{font-size:11px;color:var(--gold);font-weight:700;}
+.tuto-opp-cards-mini{display:flex;gap:2px;justify-content:center;flex-wrap:wrap;max-width:80px;}
+.tuto-mini{width:10px;height:14px;background:linear-gradient(160deg,#3a6b4a,#2a4a32);border-radius:2px;border:1px solid rgba(212,168,67,.2);}
+.tuto-center{display:flex;align-items:center;justify-content:center;gap:24px;flex:1;}
+.tuto-deck-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.tuto-deck-card{font-size:52px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.6));transition:transform .15s;line-height:1;}
+.tuto-deck-wrap:hover .tuto-deck-card{transform:scale(1.05);}
+.tuto-deck-count{font-size:10px;color:rgba(245,240,232,.35);}
+.tuto-pot-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.tuto-player-zone{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.tuto-you-label{font-size:11px;color:rgba(245,240,232,.3);letter-spacing:1px;}
+.tuto-hand{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;min-height:80px;align-items:center;}
+.tuto-actions{display:flex;gap:10px;}
+.tuto-btn-draw{padding:11px 20px;border-radius:11px;border:1.5px solid rgba(212,168,67,.25);background:rgba(212,168,67,.07);color:var(--gold);font-family:'Lato',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.tuto-btn-draw:hover{background:rgba(212,168,67,.14);}
+.tuto-btn-draw:disabled{opacity:.3;cursor:not-allowed;}
+.tuto-btn-play{padding:11px 20px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#1a0f00;font-family:'Lato',sans-serif;font-size:13px;font-weight:900;cursor:pointer;transition:all .2s;}
+.tuto-btn-play:hover:not(:disabled){transform:scale(1.04);}
+.tuto-btn-play:disabled{opacity:.3;cursor:not-allowed;background:rgba(212,168,67,.15);color:var(--gold);}
+/* Coach */
+.tuto-coach{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;align-items:flex-end;gap:10px;padding:10px 14px 20px;background:linear-gradient(to top, rgba(4,12,6,.98) 80%, transparent);pointer-events:none;min-height:130px;}
+.tuto-avatar{font-size:34px;flex-shrink:0;animation:tAvatar 2.5s ease-in-out infinite;pointer-events:none;}
+@keyframes tAvatar{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-5px) rotate(3deg);}}
+.tuto-bubble-wrap{display:flex;flex-direction:column;gap:8px;pointer-events:all;flex:1;}
+.tuto-bubble{background:rgba(10,25,14,.98);border:1.5px solid rgba(212,168,67,.35);border-radius:14px 14px 14px 3px;padding:12px 15px;font-size:14px;color:var(--cream);line-height:1.65;box-shadow:0 6px 24px rgba(0,0,0,.5);animation:tBubble .25s cubic-bezier(.34,1.5,.64,1);}
+@keyframes tBubble{from{opacity:0;transform:translateY(8px) scale(.95);}to{opacity:1;transform:none;}}
+.tuto-bubble strong{color:var(--gold);}
+.tuto-bubble em{color:rgba(245,240,232,.55);font-style:normal;font-size:12px;}
+.tuto-ok-btn{align-self:flex-end;background:linear-gradient(135deg,var(--gold),var(--gold-d));border:none;border-radius:9px;padding:9px 20px;color:#1a0f00;font-family:'Lato',sans-serif;font-size:13px;font-weight:900;cursor:pointer;transition:transform .15s;}
+.tuto-ok-btn:hover{transform:scale(1.04);}
+/* Highlight */
+.tuto-hl{position:fixed;z-index:150;border-radius:14px;pointer-events:none;transition:all .35s cubic-bezier(.34,1.1,.64,1);}
+@keyframes tHlPulse{0%,100%{box-shadow:0 0 0 9999px rgba(0,0,0,.55),0 0 0 2px var(--gold),0 0 16px rgba(212,168,67,.4);}50%{box-shadow:0 0 0 9999px rgba(0,0,0,.65),0 0 0 2px var(--gold),0 0 32px rgba(212,168,67,.7);}}
+.tuto-hl.on{animation:tHlPulse 1.6s infinite;}
+/* Progress bar */
+.tuto-bar{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(212,168,67,.1);z-index:300;}
+.tuto-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold));width:0%;transition:width .5s ease;}
+/* Pending badge in tuto */
+#tuto-pend-zone .pending-badge{margin:4px 0;}
+/* Welcome screen */
+#s-welcome{padding:0;}
 </style>
 </head>
 <body>
@@ -251,35 +363,147 @@ body::before{
 
 <!-- ══ SETUP ══ -->
 <div class="screen" id="s-setup">
-  <div class="logo">CHECK</div>
-  <div class="logo-sub">Mau-Mau · Casino</div>
+  <!-- Animated background cards -->
+  <div class="bg-cards" aria-hidden="true">
+    <div class="bgc bgc1">♠</div><div class="bgc bgc2">♥</div>
+    <div class="bgc bgc3">♦</div><div class="bgc bgc4">♣</div>
+    <div class="bgc bgc5">♠</div><div class="bgc bgc6">♥</div>
+  </div>
 
-  <div class="panel" id="panel-firebase">
-    <div class="panel-title">🔥 Firebase <span id="fb-ok" style="display:none;margin-left:auto;font-size:11px;color:var(--ok)">✓ Connecté</span></div>
-    <button class="guide-btn" id="guide-btn">📖 Guide pas à pas (clique ici) <span id="guide-arr">▼</span></button>
-    <div class="guide-content" id="guide-body">
-      <div style="height:10px"></div>
-      <div class="step"><div class="step-n">1</div><div class="step-t">Va sur <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → connecte-toi avec Google.</div></div>
-      <div class="step"><div class="step-n">2</div><div class="step-t">Clique <strong>"Ajouter un projet"</strong> → nom quelconque → désactive Analytics → <strong>"Créer"</strong>.</div></div>
-      <div class="step"><div class="step-n">3</div><div class="step-t">Menu gauche → <strong>Realtime Database</strong> → <strong>"Créer une base"</strong> → <strong>Mode test</strong> → Activer.</div></div>
-      <div class="step"><div class="step-n">4</div><div class="step-t">⚙️ Paramètres du projet → onglet <strong>Général</strong> → bas de page → <strong>&lt;/&gt;</strong> → enregistre l'app → copie les 3 valeurs ci-dessous.</div></div>
+  <div class="setup-wrap">
+    <!-- Logo -->
+    <div class="logo-block">
+      <div class="logo">CHECK</div>
+      <div class="logo-suits">♠ ♥ ♦ ♣</div>
+      <div class="logo-sub">Jeu de cartes multijoueur</div>
     </div>
-    <div style="height:12px"></div>
-    <input class="field" id="f-apikey" placeholder="apiKey  (AIzaSy...)" autocomplete="off" autocorrect="off" spellcheck="false">
-    <input class="field" id="f-dburl" placeholder="databaseURL  (https://xxx.firebaseio.com)" autocomplete="off" autocorrect="off" spellcheck="false">
-    <input class="field" id="f-pid" placeholder="projectId  (mon-projet-12345)" autocomplete="off" autocorrect="off" spellcheck="false">
-    <button class="btn btn-gold" id="btn-connect" style="margin-top:4px">🔗 Connecter Firebase</button>
-    <div class="status" id="fb-status"></div>
+
+    <!-- État connexion (invisible si connecté) -->
+    <div id="conn-status-bar" style="display:none"></div>
+
+    <!-- Panel principal : nom + actions -->
+    <div class="setup-card" id="panel-join" style="display:none">
+      <input class="setup-input" id="f-name" placeholder="Ton prénom ou pseudo" maxlength="14" autocomplete="given-name" autocorrect="off" spellcheck="false">
+      <button class="setup-btn-main" id="btn-create" disabled>
+        <span class="btn-icon">🎲</span> Créer une partie
+      </button>
+      <div class="setup-divider"><span>ou rejoindre</span></div>
+      <div class="setup-join-row">
+        <input class="setup-input setup-code" id="f-code" placeholder="CODE" maxlength="4" autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="setup-btn-join" id="btn-join" disabled>→</button>
+      </div>
+    </div>
+
+    <!-- Connexion en cours -->
+    <div class="setup-connecting" id="setup-connecting" style="display:none">
+      <div class="conn-spinner"></div>
+      <span id="conn-msg">Connexion au serveur…</span>
+    </div>
+
+    <!-- Bouton discret config Firebase (en bas) -->
+    <div class="setup-footer">
+      <button class="footer-cfg-btn" id="btn-show-firebase" onclick="toggleFirebasePanel()">⚙ Config serveur</button>
+      <span style="color:rgba(245,240,232,.1)">·</span>
+      <button class="footer-cfg-btn" onclick="replayTutorial()">📚 Tutoriel</button>
+      <span id="conn-dot-setup" class="conn-dot-setup"></span>
+    </div>
+
+    <!-- Panel Firebase caché par défaut -->
+    <div class="firebase-panel" id="panel-firebase" style="display:none">
+      <div class="fp-title">🔥 Connexion Firebase</div>
+      <details class="fp-guide">
+        <summary>📖 Comment obtenir ces infos ?</summary>
+        <div class="fp-guide-body">
+          <p>1. <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → créer un projet</p>
+          <p>2. Menu → <strong>Realtime Database</strong> → Créer → Mode test</p>
+          <p>3. ⚙️ Paramètres → Général → &lt;/&gt; → copier les 3 valeurs</p>
+          <p>4. Règles DB : <code>{ "rules": { ".read": true, ".write": true } }</code></p>
+        </div>
+      </details>
+      <input class="field" id="f-apikey" placeholder="apiKey  (AIzaSy...)" autocomplete="off" autocorrect="off" spellcheck="false">
+      <input class="field" id="f-dburl" placeholder="databaseURL  (https://xxx.firebaseio.com)" autocomplete="off" autocorrect="off" spellcheck="false">
+      <input class="field" id="f-pid" placeholder="projectId" autocomplete="off" autocorrect="off" spellcheck="false">
+      <button class="btn btn-gold" id="btn-connect" style="margin-top:8px">🔗 Sauvegarder & Connecter</button>
+      <div class="status" id="fb-status"></div>
+      <span id="fb-ok" style="display:none"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WELCOME / FIRST TIME ══ -->
+<div class="screen" id="s-welcome">
+  <div class="bg-cards" aria-hidden="true">
+    <div class="bgc bgc1">♠</div><div class="bgc bgc2">♥</div>
+    <div class="bgc bgc3">♦</div><div class="bgc bgc4">♣</div>
+  </div>
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:420px;margin:0 auto;padding:48px 24px;gap:24px;min-height:100dvh;justify-content:center;text-align:center;">
+    <div class="logo" style="font-size:58px;letter-spacing:8px">CHECK</div>
+    <div class="logo-suits">♠ ♥ ♦ ♣</div>
+    <div style="font-size:22px;font-weight:700;color:var(--cream);margin-top:8px">Bienvenue !</div>
+    <div style="font-size:15px;color:rgba(245,240,232,.55);line-height:1.7;max-width:320px">
+      C\u2019est ta premi\u00e8re fois ici.<br>Est-ce que tu connais déjà les règles du jeu <strong style="color:var(--gold)">CHECK</strong> ?
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;margin-top:8px">
+      <button class="setup-btn-main" id="btn-know-rules" onclick="skipTutorial()">
+        ✅ Oui, je connais les règles
+      </button>
+      <button class="setup-btn-main" style="background:linear-gradient(160deg,rgba(212,168,67,.15) 0%,rgba(212,168,67,.05) 100%);color:var(--gold);border:1.5px solid rgba(212,168,67,.35);box-shadow:none" onclick="startTutorial()">
+        📚 Non, apprends-moi à jouer !
+      </button>
+    </div>
+    <div style="font-size:11px;color:rgba(245,240,232,.2);margin-top:4px">
+      Tu pourras rejouer le tutoriel depuis le menu
+    </div>
+  </div>
+</div>
+
+<!-- ══ TUTORIEL ══ -->
+<div class="screen" id="s-tuto">
+  <button class="tuto-skip" onclick="endTutorial()">Passer ✕</button>
+
+  <!-- Table de jeu tutoriel -->
+  <div class="tuto-table">
+
+    <!-- Adversaires en haut -->
+    <div class="tuto-opps" id="tuto-opp-row"></div>
+
+    <!-- Zone centrale : pioche + pot -->
+    <div class="tuto-center">
+      <div class="tuto-deck-wrap" id="tuto-deck-pile">
+        <div class="tuto-deck-card">🂠</div>
+        <div class="tuto-deck-count" id="tuto-deck-count">52</div>
+      </div>
+      <div class="tuto-pot-wrap">
+        <div id="tuto-pot-zone"></div>
+        <div id="tuto-pend-zone"></div>
+      </div>
+    </div>
+
+    <!-- Main du joueur -->
+    <div class="tuto-player-zone">
+      <div class="tuto-you-label">Toi 👇</div>
+      <div class="tuto-hand" id="tuto-hand"></div>
+      <div class="tuto-actions">
+        <button class="tuto-btn-draw" id="tuto-btn-draw" onclick="tutoDrawCard()">🎴 Piocher</button>
+        <button class="tuto-btn-play" id="tuto-btn-play" disabled onclick="tutoPlayCard()">▶ Jouer</button>
+      </div>
+    </div>
   </div>
 
-  <div class="panel" id="panel-join" style="display:none">
-    <div class="panel-title">👤 Ton nom</div>
-    <input class="field" id="f-name" placeholder="Ton prénom" maxlength="14" autocomplete="given-name">
-    <button class="btn btn-gold" id="btn-create" disabled style="margin-bottom:10px">🎲 Créer une partie</button>
-    <div class="or">ou</div>
-    <input class="field" id="f-code" placeholder="Code (4 lettres)" maxlength="4" style="text-transform:uppercase;letter-spacing:6px;font-size:20px;text-align:center" autocomplete="off" autocorrect="off">
-    <button class="btn btn-outline" id="btn-join" disabled>→ Rejoindre</button>
+  <!-- Coach bulle (bas de page) -->
+  <div class="tuto-coach" id="tuto-coach">
+    <div class="tuto-avatar" id="tuto-avatar">🃏</div>
+    <div class="tuto-bubble-wrap">
+      <div class="tuto-bubble" id="tuto-bubble">…</div>
+      <button class="tuto-ok-btn" id="tuto-ok-btn" style="display:none" onclick="tutoNext()">OK, compris →</button>
+    </div>
   </div>
+
+  <!-- Highlight overlay -->
+  <div class="tuto-hl" id="tuto-hl" style="display:none"></div>
+
+  <!-- Progress bar -->
+  <div class="tuto-bar"><div class="tuto-bar-fill" id="tuto-bar-fill"></div></div>
 </div>
 
 <!-- ══ LOBBY ══ -->
@@ -333,6 +557,11 @@ body::before{
       <button class="act-btn act-play" id="btn-play" disabled>▶ Jouer</button>
     </div>
     <div class="hand-section">
+      <div id="your-turn-banner" class="your-turn-banner" style="display:none">
+        <span class="ytb-dot"></span>
+        <span id="ytb-text">C'est à vous de jouer !</span>
+        <span class="ytb-dot"></span>
+      </div>
       <div class="hand-header">
         <div class="hand-name"><div class="hand-dot"></div><span id="h-name">—</span></div>
         <div id="h-pending" style="font-size:12px;color:#ff8888;font-weight:700"></div>
@@ -348,7 +577,13 @@ body::before{
   <div class="win-name" id="w-name">—</div>
   <div class="win-sub">a remporté la partie !</div>
   <div class="scores" id="w-scores"></div>
-  <button class="btn btn-gold" id="btn-replay" style="max-width:340px;margin-top:8px">🎲 Rejouer</button>
+  <div style="display:flex;gap:10px;width:100%;max-width:340px;margin-top:8px">
+    <button class="btn btn-gold" id="btn-replay" style="flex:2">🎲 Rejouer</button>
+    <button class="btn btn-outline" id="btn-quit-game" style="flex:1">🚪 Quitter</button>
+  </div>
+  <div id="winner-waiting" style="display:none;font-size:12px;color:rgba(245,240,232,.35);margin-top:10px;text-align:center">
+    En attente des autres joueurs… <span class="dots"></span>
+  </div>
 </div>
 
 <!-- ══ SUIT MODAL ══ -->
@@ -446,67 +681,81 @@ function buildDeck(){
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function canPlay(card,top,cmdSuit,pending,jokerFree){
-  // jokerFree: 'red' or 'black' — after joker penalty, same-color cards play freely
-  if(jokerFree){
-    const cardIsRed=isRed(card);
-    if(jokerFree==='red'&&cardIsRed)return true;
-    if(jokerFree==='black'&&!cardIsRed)return true;
-  }
-  if(card.r==='2')return true;
-  if(card.r==='J')return true;
+  // ── Chaîne active (+2 ou +4) : SEULEMENT 7, Joker et J peuvent jouer ──
   if(pending>0){
-    // In a pending chain, only 7 or joker (matching color) can counter
     if(card.r==='7')return true;
-    if(card.r==='JOKER'){
-      // Can counter only if joker color matches top's color family
-      if(top.r==='JOKER')return true;
-      const ts=cmdSuit||top.s;
-      return isRed(card)?RED.includes(ts):BLK.includes(ts);
-    }
+    if(card.r==='JOKER')return true;
+    if(card.r==='J')return true;
+    return false; // 2 et tout le reste bloqués
+  }
+
+  // ── Hors chaîne : J et 2 sont universels ──
+  if(card.r==='J')return true;
+  if(card.r==='2')return true;
+
+  // ── Joker sur le pot (sans chaîne) ──
+  if(top.r==='JOKER'){
+    const jc=top.color;
+    if(card.r==='7')return true;     // 7 passe toujours sur un Joker
+    if(card.r==='JOKER')return true; // Joker sur Joker : toujours OK
+    // Cartes normales : couleur obligatoire
+    if(jc==='black')return BLK.includes(card.s);
+    if(jc==='red')  return RED.includes(card.s);
     return false;
   }
-  if(card.r==='JOKER'){
-    if(top.r==='JOKER')return true;
-    const ts=cmdSuit||top.s;
-    return isRed(card)?RED.includes(ts):BLK.includes(ts);
+
+  // ── Joker couleur libre (après pénalité joker) ──
+  if(jokerFree){
+    if(card.r==='JOKER')return true;
+    if(card.r==='7')return true;
+    const cr=isRed(card);
+    if(jokerFree==='red'&&cr)return true;
+    if(jokerFree==='black'&&!cr)return true;
+    return false;
   }
-  if(cmdSuit)return card.s===cmdSuit;
+
+  // ── Joker qu'on veut jouer ──
+  // Joker rouge : seulement sur cartes rouges, ou si top est Joker, ou même rang
+  // Joker noir  : seulement sur cartes noires, ou si top est Joker, ou même rang
+  if(card.r==='JOKER'){
+    if(card.color==='red') return isRed({r:top.r,s:top.s,color:top.color})||top.r==='JOKER';
+    if(card.color==='black') return !isRed({r:top.r,s:top.s,color:top.color})||top.r==='JOKER';
+    return true;
+  }
+
+  // ── Couleur commandée par un Valet ──
+  if(cmdSuit)return card.s===cmdSuit||card.r===top.r;
+
+  // ── Règle normale : même rang OU même couleur (suit) ──
   if(card.r===top.r)return true;
   return card.s===top.s;
 }
-
-// ══════════════════════════════════════════
-// PERSISTENCE — localStorage + sessionStorage + URL hash (triple backup)
-// ══════════════════════════════════════════
-const LS='check_cfg_v3';
-
+const LS='check_cfg_v3'; // clé de stockage — JAMAIS changer
 function saveCfg(o){
   const str=JSON.stringify(o);
-  // 1. localStorage
   try{localStorage.setItem(LS,str);}catch(e){}
-  // 2. sessionStorage (survit aux rechargements même en mode privé)
   try{sessionStorage.setItem(LS,str);}catch(e){}
-  // 3. URL hash — encode config dans l'URL pour partage facile
-  // On n'encode PAS l'apiKey dans l'URL pour la sécurité — juste dbURL et projectId
+  // Cookie 1 an — survit aux purges localStorage
   try{
-    const safe={databaseURL:o.databaseURL,projectId:o.projectId,name:o.name||''};
-    window.history.replaceState(null,'','#'+btoa(JSON.stringify(safe)));
+    const exp=new Date(Date.now()+365*24*3600*1000).toUTCString();
+    document.cookie=LS+'='+encodeURIComponent(str)+';expires='+exp+';path=/;SameSite=Lax';
   }catch(e){}
 }
 
+
 function loadCfg(){
-  // Essaie localStorage en premier
+  // 1. localStorage
+  try{const v=localStorage.getItem(LS);if(v){const p=JSON.parse(v);if(p&&p.apiKey)return p;}}catch(e){}
+  // 2. sessionStorage
+  try{const v=sessionStorage.getItem(LS);if(v){const p=JSON.parse(v);if(p&&p.apiKey)return p;}}catch(e){}
+  // 3. Cookie (survit aux purges)
   try{
-    const v=localStorage.getItem(LS);
-    if(v){const p=JSON.parse(v);if(p&&p.apiKey)return p;}
-  }catch(e){}
-  // Sinon sessionStorage
-  try{
-    const v=sessionStorage.getItem(LS);
-    if(v){const p=JSON.parse(v);if(p&&p.apiKey)return p;}
+    const m=document.cookie.match('(?:^|;)\s*'+LS+'=([^;]*)');
+    if(m){const p=JSON.parse(decodeURIComponent(m[1]));if(p&&p.apiKey)return p;}
   }catch(e){}
   return null;
 }
+
 
 function clearCfg(){
   try{localStorage.removeItem(LS);}catch(e){}
@@ -560,112 +809,781 @@ function ensureDeck(gs){
 // ══════════════════════════════════════════
 // FIREBASE CONNECTION
 // ══════════════════════════════════════════
-function setConnBtn(loading){
-  const btn=document.getElementById('btn-connect');
-  btn.disabled=loading;
-  btn.textContent=loading?'⏳ Connexion...':'🔗 Connecter Firebase';
-}
+
 
 async function connectFirebase(){
   const apiKey=document.getElementById('f-apikey').value.trim();
   const dbURL=document.getElementById('f-dburl').value.trim();
   const pid=document.getElementById('f-pid').value.trim();
-  if(!apiKey||!dbURL||!pid){setStatus('⚠️ Remplis les 3 champs.',false);return;}
+  const s=document.getElementById('fb-status');
+  if(!apiKey||!dbURL||!pid){if(s){s.textContent='⚠️ Remplis les 3 champs.';s.className='status error';}return;}
   if(!dbURL.startsWith('https://')||!dbURL.includes('firebaseio.com')){
-    setStatus('⚠️ databaseURL invalide. Format : https://xxx-default-rtdb.firebaseio.com',false);return;
+    if(s){s.textContent='⚠️ databaseURL invalide.';s.className='status error';}return;
   }
-  setConnBtn(true);
-  setStatus('⏳ Connexion...', true);
-  try{
-    // Clean up old apps
-    const apps=[...firebase.apps];
-    for(const app of apps){try{await app.delete();}catch(e){}}
-    // Init
-    firebase.initializeApp({apiKey,databaseURL:dbURL,projectId:pid,authDomain:pid+'.firebaseapp.com'});
-    db=firebase.database();
-    // Real test
-    await db.ref('__ping__').set(Date.now());
-    await db.ref('__ping__').remove();
-    // Success
-    saveCfg({apiKey,databaseURL:dbURL,projectId:pid,name:document.getElementById('f-name').value.trim()});
-    setStatus('✅ Connecté !',true);
-    document.getElementById('fb-ok').style.display='';
-    document.getElementById('panel-join').style.display='';
-    // Hide Firebase config panel — no need to show it again
-    document.getElementById('panel-firebase').style.display='none';
-    const cd=document.getElementById('conn-dot');cd.classList.add('show');
-    db.ref('.info/connected').on('value',s=>{
-      cd.classList.toggle('off',!s.val());
-      // If disconnected and reconnected, restore db silently
-    });
-  }catch(e){
-    let msg=String(e.message||e);
-    console.error('[FB]',msg);
-    if(/permission|PERMISSION_DENIED/i.test(msg))msg='❌ Accès refusé. Dans Firebase → Realtime Database → Règles, mets ".read":true et ".write":true puis Publier.';
-    else if(/network|fetch|ERR_/i.test(msg))msg='❌ Erreur réseau.';
-    else if(/api.?key|invalid/i.test(msg))msg='❌ apiKey invalide.';
-    else msg='❌ '+msg;
-    setStatus(msg,false);
+  const btn=document.getElementById('btn-connect');
+  btn.disabled=true;btn.textContent='⏳ Connexion...';
+  const ok=await doConnect(apiKey,dbURL,pid);
+  if(ok){
+    saveCfg({apiKey,databaseURL:dbURL,projectId:pid,name:(document.getElementById('f-name').value||'').trim()});
+    if(s){s.textContent='✅ Connecté et sauvegardé !';s.className='status ok';}
+    checkReady();
+    setTimeout(()=>{document.getElementById('panel-firebase').style.display='none';},1200);
+  }else{
+    if(s){s.textContent='❌ Connexion échouée. Vérifie les valeurs et les règles Firebase.';s.className='status error';}
     db=null;
   }
-  setConnBtn(false);
+  btn.disabled=false;btn.textContent='🔗 Sauvegarder & Connecter';
 }
 
 // Events
-document.getElementById('guide-btn').onclick=function(){
-  const b=document.getElementById('guide-body');
-  const a=document.getElementById('guide-arr');
-  b.classList.toggle('open');
-  a.textContent=b.classList.contains('open')?'▲':'▼';
-};
+function toggleFirebasePanel(){
+  const p=document.getElementById('panel-firebase');
+  p.style.display=p.style.display==='none'?'':'none';
+}
 document.getElementById('btn-connect').onclick=connectFirebase;
 document.getElementById('f-name').oninput=checkReady;
 document.getElementById('f-code').oninput=function(){this.value=this.value.toUpperCase();checkReady();};
 function checkReady(){
   const n=(document.getElementById('f-name').value||'').trim();
-  document.getElementById('btn-create').disabled=!n;
-  document.getElementById('btn-join').disabled=!n||document.getElementById('f-code').value.length<4;
+  document.getElementById('btn-create').disabled=!n||!db;
+  const rc=document.getElementById('f-code');
+  document.getElementById('btn-join').disabled=!n||!db||!(rc&&rc.value.trim().length===4);
+  // Sauvegarder le nom automatiquement
+  if(n.length>=2){
+    const cfg=loadCfg();
+    if(cfg){cfg.name=n;saveCfg(cfg);}
+    myName=n;
+  }
 }
 
 // Auto-load
-(function(){
+
+// ════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// TUTORIEL INTERACTIF — Scénario pratique avec IA
+// ════════════════════════════════════════════════════════
+
+// ── Première visite ──
+function checkFirstTime(){
+  try{ if(!localStorage.getItem('check_seen_v1')) show('s-welcome'); else show('s-setup'); }
+  catch(e){ show('s-setup'); }
+}
+function skipTutorial(){
+  try{localStorage.setItem('check_seen_v1','1');}catch(e){}
   const cfg=loadCfg();
-  if(!cfg||!cfg.apiKey)return;
-  document.getElementById('f-apikey').value=cfg.apiKey||'';
-  document.getElementById('f-dburl').value=cfg.databaseURL||'';
-  document.getElementById('f-pid').value=cfg.projectId||'';
-  if(cfg.name){document.getElementById('f-name').value=cfg.name;checkReady();}
-
-  // Show a tiny reconnect indicator instead of the full form
-  const panel=document.getElementById('panel-firebase');
-  panel.innerHTML=''; // clear the big form
-  panel.style.padding='14px 20px';
-  const badge=document.createElement('div');
-  badge.className='saved-badge';
-  badge.id='saved-badge';
-  badge.style.marginBottom='0';
-  const span=document.createElement('span');
-  span.textContent='🔥 Firebase mémorisé — connexion...';
-  span.id='badge-txt';
-  const btn=document.createElement('button');
-  btn.textContent='Changer config';
-  btn.onclick=function(){
-    clearCfg();
-    // Reload page to show full form again
-    window.location.reload();
-  };
-  badge.appendChild(span);badge.appendChild(btn);
-  panel.appendChild(badge);
-
-  setTimeout(function(){
-    connectFirebase().then(()=>{
-      const t=document.getElementById('badge-txt');
-      if(t)t.textContent='🔥 Firebase connecté ✓';
-    }).catch(()=>{
-      // If auto-connect fails, show full form again
-      window.location.reload();
+  show('s-setup');
+  if(!cfg||!cfg.apiKey){
+    document.getElementById('panel-firebase').style.display='';
+  } else if(!db){
+    const connecting=document.getElementById('setup-connecting');
+    if(connecting) connecting.style.display='flex';
+    document.getElementById('panel-firebase').style.display='none';
+    doConnect(cfg.apiKey,cfg.databaseURL,cfg.projectId).then(ok=>{
+      if(ok){ checkReady(); }
+      else { document.getElementById('panel-firebase').style.display=''; }
     });
-  },400);
+  }
+}
+function replayTutorial(){ startTutorial(); }
+function endTutorial(){
+  hlOff();
+  if(T._iaTimer) clearTimeout(T._iaTimer);
+  T={};
+  skipTutorial();
+}
+
+// ── State global tutoriel ──
+let T={};
+
+// ── Constantes ──
+const TUTO_TOTAL_SCENES=12;
+
+// ════════════════════════════════
+// SCÈNES — chaque scène = une situation pédagogique
+// ════════════════════════════════
+const SCENES=[
+
+  // ── 0. INTRO ──
+  { setup(){
+      setHand('me',[c('K','♠'),c('7','♥'),c('Q','♦'),c('5','♣'),c('2','♣')]);
+      setPot(c('K','♥'));
+      setHand('ia1',[c('A','♣'),c('3','♠'),c('8','♦'),c('J','♥'),c('6','♣')]);
+      setHand('ia2',[c('9','♥'),c('4','♦'),c('Q','♣'),c('7','♠'),c('10','♥')]);
+      lockPlayer();
+    },
+    lines:[
+      {say:`Bienvenue dans <strong>CHECK</strong> ! 🃏 Je suis Max, ton coach.<br><em>On va apprendre en jouant une vraie partie ensemble.</em>`, ok:true},
+      {say:`Le but ? <strong>Vider ta main</strong> avant tout le monde. Celui qui reste avec des cartes perd.`, ok:true},
+      {say:`Tu joues contre <strong>Alice</strong> et <strong>Bob</strong>. Ce sont des IA — elles joueront pour de vrai !`, ok:true, action:'unlockPlayer'},
+    ]
+  },
+
+  // ── 1. RÈGLE DE BASE : jouer une carte ──
+  { setup(){
+      setHand('me',[c('K','♠'),c('7','♥'),c('Q','♦'),c('5','♣'),c('2','♣')]);
+      setPot(c('K','♥'));
+      unlockPlayer();
+    },
+    lines:[
+      {say:`La carte au centre c'est le <strong>pot</strong> — c'est sur elle que tu joues.<br>En ce moment c'est un <strong>K♥</strong>.`, ok:true, hl:'tuto-pot-zone'},
+      {say:`Tu peux jouer une carte si elle a le <strong>même rang</strong> (ex: K sur K) ou la <strong>même couleur</strong> (♥ sur ♥).`, ok:true, hl:'tuto-pot-zone'},
+      {say:`Dans ta main, les cartes <strong>qui brillent</strong> peuvent être jouées. <br><em>Sélectionne le K♠ (même rang que K♥) et joue-le !</em>`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'K'},
+    ]
+  },
+
+  // ── 2. PIOCHER ──
+  { setup(){
+      setHand('me',[c('3','♥'),c('8','♣'),c('9','♦')]);
+      setPot(c('K','♠'));
+      unlockPlayer();
+    },
+    lines:[
+      {say:`Parfait ! Maintenant regarde ta main — aucune carte ne brille. Aucune ne peut se jouer sur le K♠.`, ok:true},
+      {say:`Dans ce cas tu <strong>pioches</strong> une carte dans la pile. Clique sur <strong>🎴 Piocher</strong> !`, ok:false, hl:'tuto-btn-draw', waitFor:'drew'},
+      {say:`La carte passe dans ta main. Si elle est jouable, tu peux la jouer tout de suite ou attendre ton prochain tour.`, ok:true},
+    ]
+  },
+
+  // ── 3. TOUR DE L'IA ──
+  { setup(){
+      setHand('me',[c('5','♣'),c('J','♥'),c('10','♦')]);
+      setPot(c('5','♥'));
+      setHand('ia1',[c('5','♦'),c('3','♠'),c('Q','♥')]);
+      setHand('ia2',[c('8','♠'),c('K','♣'),c('2','♥')]);
+      T.currentPlayer='ia1';
+      unlockPlayer();
+    },
+    lines:[
+      {say:`Bien ! Maintenant c'est le tour d'<strong>Alice</strong>. Regarde ce qu'elle fait.`, ok:false, action:'iaOneTurn'},
+      {say:`Tu vois ? Elle a joué une carte du même rang ou de la même couleur que le pot. <br><em>C'est aussi simple que ça !</em>`, ok:true},
+      {say:`Maintenant c'est <strong>ton tour</strong>. Joue une carte sur ce qu'Alice vient de poser !`, ok:false, hl:'tuto-hand', waitFor:'played'},
+    ]
+  },
+
+  // ── 4. LE 7 (chaîne +2) ──
+  { setup(){
+      setHand('me',[c('7','♠'),c('K','♣'),c('3','♦')]);
+      setPot(c('7','♥'));
+      setHand('ia1',[c('A','♣'),c('8','♦'),c('Q','♥')]);
+      setHand('ia2',[c('9','♥'),c('4','♦'),c('7','♣')]);
+      unlockPlayer();
+    },
+    lines:[
+      {say:`Le <strong>7</strong> est une carte d'attaque ! Si tu le joues, le joueur suivant doit <strong>piocher +2 cartes</strong>.`, ok:true, hl:'tuto-hand'},
+      {say:`Et si lui aussi a un 7, il peut le renvoyer ! La chaîne <strong>s'accumule</strong> : +2, +4, +6...`, ok:true},
+      {say:`Tu as un <strong>7♠</strong> dans ta main — même couleur que le 7♥ du pot. <em>Joue-le !</em>`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'7'},
+    ]
+  },
+
+  // ── 5. Conséquence du 7 — IA doit piocher ──
+  { setup: null, // continue from scene 4
+    lines:[
+      {say:`⚡ <strong>+2 en chaîne !</strong> C'est le tour d'Alice — elle doit prendre ces 2 cartes.<br><em>Regarde...</em>`, ok:false, action:'iaOneTurnForce'},
+      {say:`Alice n'a pas de 7 pour renvoyer, elle prend <strong>+2 cartes</strong>. Aïe ! 😄`, ok:true},
+    ]
+  },
+
+  // ── 6. L'AS (bloquer) ──
+  { setup(){
+      setHand('me',[c('A','♦'),c('K','♣'),c('3','♥')]);
+      setPot(c('A','♠'));
+      setHand('ia1',[c('Q','♣'),c('8','♦'),c('5','♥')]);
+      setHand('ia2',[c('9','♥'),c('4','♦'),c('J','♣')]);
+      unlockPlayer();
+    },
+    lines:[
+      {say:`L'<strong>As</strong> est le bloqueur ! Si tu le joues, le joueur suivant <strong>passe son tour</strong> — il ne peut rien faire.`, ok:true, hl:'tuto-hand'},
+      {say:`Tu as un <strong>A♦</strong> et le pot est un <strong>A♠</strong> — même rang. <em>Joue-le pour bloquer Alice !</em>`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'A'},
+    ]
+  },
+
+  // ── 7. LE VALET (universel + commander couleur) ──
+  { setup(){
+      setHand('me',[c('J','♥'),c('5','♣'),c('10','♦')]);
+      setPot(c('K','♠'));
+      setHand('ia1',[c('Q','♣'),c('8','♦'),c('5','♥')]);
+      setHand('ia2',[c('9','♥'),c('4','♦'),c('2','♣')]);
+      unlockPlayer();
+    },
+    lines:[
+      {say:`Le <strong>Valet (J)</strong> est une joker de couleur ! Il se joue sur <strong>n'importe quelle carte</strong>, peu importe le rang ou la couleur.`, ok:true, hl:'tuto-hand'},
+      {say:`Quand tu le joues, tu <strong>choisis la couleur</strong> que le prochain devra suivre. Très puissant !`, ok:true},
+      {say:`Joue ton <strong>J♥</strong> et choisis la couleur qui t'arrange le mieux !`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'J'},
+    ]
+  },
+
+  // ── 8. LE 2 (universel + dessus/dessous) ──
+  { setup(){
+      setHand('me',[c('2','♦'),c('8','♣'),c('Q','♥')]);
+      setPot(c('K','♠'));
+      setHand('ia1',[c('3','♣'),c('7','♦'),c('A','♥')]);
+      setHand('ia2',[c('9','♥'),c('4','♦'),c('5','♠')]);
+      unlockPlayer();
+    },
+    lines:[
+      {say:`Le <strong>2</strong> est universel lui aussi — il joue sur tout. Mais il a une particularité unique !`, ok:true, hl:'tuto-hand'},
+      {say:`Tu peux le jouer <strong>Dessus</strong> (la carte change, le suivant joue dessus) ou <strong>Dessous</strong> (la carte active ne change pas, le 2 glisse en dessous).`, ok:true},
+      {say:`⚠️ Le 2 ne bloque ni ne renvoie les chaînes +2/+4 — ça c'est réservé au 7 et au Joker.<br><em>Joue ton 2 !</em>`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'2'},
+    ]
+  },
+
+  // ── 9. LE JOKER ──
+  { setup(){
+      const jr={r:'JOKER',s:'★',color:'red',id:'tjr'};
+      setHand('me',[jr,c('8','♣'),c('Q','♥')]);
+      setPot(c('K','♥'));
+      setHand('ia1',[c('3','♣'),c('7','♦'),c('A','♥')]);
+      setHand('ia2',[c('9','♥'),c('4','♦'),c('5','♠')]);
+      unlockPlayer();
+    },
+    lines:[
+      {say:`Le <strong>Joker</strong> 🔴 est la carte la plus forte ! Il oblige le suivant à piocher <strong>+4 cartes</strong>.`, ok:true, hl:'tuto-hand'},
+      {say:`Le <strong>Joker Rouge</strong> joue sur les cartes ♥♦. Le <strong>Joker Noir</strong> joue sur ♠♣.<br>Les Jokers se cumulent entre eux en chaîne.`, ok:true},
+      {say:`Joue ton <strong>Joker Rouge</strong> sur le K♥ (même famille rouge) et regarde l'effet !`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'JOKER'},
+    ]
+  },
+
+  // ── 10. CHAÎNE : contre-attaque ──
+  { setup(){
+      setHand('me',[c('7','♦'),c('K','♣'),c('3','♥')]);
+      setPot(c('7','♠'));
+      T.pendingDraws=2;
+      unlockPlayer();
+    },
+    lines:[
+      {say:`⚡ Attention ! Alice vient de jouer un <strong>7</strong> — tu dois prendre <strong>+2</strong>... <em>sauf si tu as un 7 ou un Joker !</em>`, ok:true, hl:'tuto-pend-zone'},
+      {say:`Tu as un <strong>7♦</strong> ! Si tu le joues, la chaîne monte à <strong>+4</strong> et c'est Bob qui devra piocher ou renvoyer.`, ok:true, hl:'tuto-hand'},
+      {say:`Joue ton <strong>7♦</strong> pour renvoyer la chaîne à Bob !`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'7'},
+    ]
+  },
+
+  // ── 11. PARTIE RAPIDE — tout jouer librement ──
+  { setup(){
+      setHand('me',[c('Q','♠'),c('5','♥'),c('J','♦'),c('10','♣'),c('3','♠')]);
+      setPot(c('Q','♥'));
+      setHand('ia1',[c('A','♣'),c('8','♦'),c('7','♠'),c('K','♥')]);
+      setHand('ia2',[c('9','♠'),c('4','♥'),c('2','♦'),c('6','♣')]);
+      T.currentPlayer='me';
+      unlockPlayer();
+    },
+    lines:[
+      {say:`🏁 Tu connais maintenant toutes les règles ! On joue une <strong>mini-partie libre</strong>.<br>Alice et Bob jouent aussi. Premier à vider sa main gagne !`, ok:false, action:'startFreePlay'},
+    ]
+  },
+
+];
+
+// ── Card helper ──
+let _tid=0;
+function c(r,s){ return {r,s,id:'t'+(++_tid)+r+s}; }
+
+// ── State setters ──
+function setHand(who,cards){ T.hands=T.hands||{me:[],ia1:[],ia2:[]}; T.hands[who]=[...cards]; }
+function setPot(card){ T.pot=[card]; }
+function lockPlayer(){ T.locked=true; }
+function unlockPlayer(){ T.locked=false; T.currentPlayer='me'; }
+
+// ── Highlight ──
+function hlOn(id){
+  const hl=document.getElementById('tuto-hl');
+  if(!hl)return;
+  const el=document.getElementById(id);
+  if(!el){hl.style.display='none';return;}
+  const r=el.getBoundingClientRect();
+  hl.style.cssText=`display:block;top:${r.top-8}px;left:${r.left-8}px;width:${r.width+16}px;height:${r.height+16}px;`;
+  hl.classList.add('on');
+}
+function hlOff(){
+  const hl=document.getElementById('tuto-hl');
+  if(hl){hl.style.display='none';hl.classList.remove('on');}
+}
+
+// ── Render ──
+function renderTuto(){
+  if(!T.hands)return;
+  const top=T.pot&&T.pot.length?T.pot[T.pot.length-1]:null;
+  // Opps
+  const row=document.getElementById('tuto-opp-row');
+  if(row){
+    row.innerHTML='';
+    ['ia1','ia2'].forEach((uid,i)=>{
+      const active=T.currentPlayer===uid;
+      const nm=i===0?'Alice 🤖':'Bob 🤖';
+      const hand=T.hands[uid]||[];
+      const d=document.createElement('div');
+      d.className='tuto-opp-chip'+(active?' active':'');
+      const minis=hand.map(()=>'<div class="tuto-mini"></div>').join('');
+      d.innerHTML=`<div class="tuto-opp-name">${nm}</div><div class="tuto-opp-cards-mini">${minis}</div><div class="tuto-opp-cnt">🂠 ${hand.length}</div>`;
+      row.appendChild(d);
+    });
+  }
+  // Deck count
+  const dc=document.getElementById('tuto-deck-count');
+  if(dc) dc.textContent=(T.deck||[]).length;
+  // Pot
+  const pz=document.getElementById('tuto-pot-zone');
+  if(pz&&top){ pz.innerHTML=''; pz.appendChild(makeTCard(top,false)); }
+  // Pending
+  const pendZ=document.getElementById('tuto-pend-zone');
+  if(pendZ) pendZ.innerHTML=T.pendingDraws>0?`<div class="pending-badge">⚡ +${T.pendingDraws} en chaîne</div>`:'';
+  // Hand
+  renderTHand(top);
+  // Buttons
+  const isMine=T.currentPlayer==='me'&&!T.locked&&!T.freeplay_iaThinking;
+  document.getElementById('tuto-btn-draw').disabled=!isMine;
+  document.getElementById('tuto-btn-play').disabled=!isMine||!T.selected;
+}
+
+function renderTHand(top){
+  const hc=document.getElementById('tuto-hand');
+  if(!hc)return;
+  hc.innerHTML='';
+  const isMine=T.currentPlayer==='me'&&!T.locked;
+  (T.hands&&T.hands.me||[]).forEach(card=>{
+    const pl=isMine&&canPlay(card,top,T.commandedSuit,T.pendingDraws,null);
+    const el=makeTCard(card,pl);
+    if(card.id===T.selected) el.style.transform='translateY(-10px)';
+    el.onclick=()=>{
+      if(!isMine)return;
+      T.selected=(T.selected===card.id)?null:card.id;
+      renderTuto();
+      document.getElementById('tuto-btn-play').disabled=!T.selected;
+    };
+    hc.appendChild(el);
+  });
+}
+
+function makeTCard(card,playable){
+  const el=document.createElement('div');
+  const isR=card.r==='JOKER'?card.color==='red':RED.includes(card.s);
+  el.style.cssText=`width:48px;height:68px;border-radius:8px;display:flex;flex-direction:column;justify-content:space-between;padding:4px 5px;cursor:${playable?'pointer':'default'};transition:transform .2s,box-shadow .2s;position:relative;user-select:none;flex-shrink:0;background:${isR?'linear-gradient(160deg,#fff5f5,#ffd5d5)':'linear-gradient(160deg,#f5f5ff,#dce0f5)'};border:${playable?'2px solid var(--gold)':'1px solid rgba(0,0,0,.15)'};box-shadow:${playable?'0 0 12px rgba(212,168,67,.5),0 3px 8px rgba(0,0,0,.3)':'0 2px 6px rgba(0,0,0,.3)'};`;
+  const color=isR?'#b91c1c':'#1e1b4b';
+  if(card.r==='JOKER'){
+    el.innerHTML=`<div style="font-size:8px;font-weight:900;color:${color}">JKR</div><div style="font-size:18px;text-align:center">${card.color==='red'?'🔴':'⚫'}</div><div style="font-size:8px;font-weight:900;color:${color};align-self:flex-end">JKR</div>`;
+  }else{
+    el.innerHTML=`<div style="font-size:10px;font-weight:900;color:${color};line-height:1.2">${card.r}<br>${card.s}</div><div style="font-size:20px;text-align:center;color:${color}">${card.s}</div><div style="font-size:10px;font-weight:900;color:${color};align-self:flex-end;line-height:1.2;transform:rotate(180deg)">${card.r}<br>${card.s}</div>`;
+  }
+  return el;
+}
+
+// ── Scene runner ──
+let _sceneIdx=0;
+let _lineIdx=0;
+
+function startTutorial(){
+  try{localStorage.setItem('check_seen_v1','1');}catch(e){}
+  _tid=0; _sceneIdx=0; _lineIdx=0;
+  T={ hands:{me:[],ia1:[],ia2:[]}, pot:[], deck:buildTDeck(), pendingDraws:0, commandedSuit:null, selected:null, currentPlayer:'me', locked:true };
+  show('s-tuto');
+  runScene(0);
+}
+
+function buildTDeck(){
+  const ranks=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+  const suits=['♠','♣','♥','♦'];
+  const cards=[];
+  let i=0;
+  for(const s of suits) for(const r of ranks) cards.push({r,s,id:'dk'+(i++)});
+  cards.push({r:'JOKER',s:'★',color:'red',id:'dkJR'});
+  cards.push({r:'JOKER',s:'★',color:'black',id:'dkJB'});
+  for(let i=cards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cards[i],cards[j]]=[cards[j],cards[i]];}
+  return cards;
+}
+
+function runScene(idx){
+  _sceneIdx=idx;
+  _lineIdx=0;
+  if(idx>=SCENES.length){ endTutorial(); return; }
+  const scene=SCENES[idx];
+  // Progress bar
+  const pct=Math.round((idx/SCENES.length)*100);
+  const fill=document.getElementById('tuto-bar-fill');
+  if(fill) fill.style.width=pct+'%';
+  // Setup
+  if(scene.setup) scene.setup();
+  renderTuto();
+  runLine(idx,0);
+}
+
+function runLine(sceneIdx,lineIdx){
+  _sceneIdx=sceneIdx; _lineIdx=lineIdx;
+  const scene=SCENES[sceneIdx];
+  if(!scene||lineIdx>=scene.lines.length){ runScene(sceneIdx+1); return; }
+  const line=scene.lines[lineIdx];
+  // Show bubble
+  say(line.say, line.ok!==false);
+  // Highlight
+  if(line.hl) hlOn(line.hl); else hlOff();
+  // Action
+  if(line.action==='unlockPlayer'){ unlockPlayer(); renderTuto(); }
+  if(line.action==='iaOneTurn'){ setTimeout(()=>iaOneTurn(()=>runLine(sceneIdx,lineIdx+1)),600); return; }
+  if(line.action==='iaOneTurnForce'){ setTimeout(()=>iaForceDrawPenalty(()=>runLine(sceneIdx,lineIdx+1)),600); return; }
+  if(line.action==='startFreePlay'){ startFreePlay(); return; }
+  // Wait for player action
+  if(line.waitFor){
+    T.waitingFor=line.waitFor;
+    T.waitingExpect=line.expect||null;
+    // ok btn hidden during wait
+    const okb=document.getElementById('tuto-ok-btn');
+    if(okb) okb.style.display='none';
+  }
+}
+
+function tutoNext(){
+  runLine(_sceneIdx, _lineIdx+1);
+}
+
+function say(msg, showOk){
+  const bub=document.getElementById('tuto-bubble');
+  if(bub){ bub.innerHTML=msg; bub.style.animation='none'; void bub.offsetWidth; bub.style.animation=''; }
+  const okb=document.getElementById('tuto-ok-btn');
+  if(okb) okb.style.display=showOk?'':'none';
+}
+
+// ── Player actions ──
+function tutoDrawCard(){
+  if(T.currentPlayer!=='me'||T.locked||T.freeplay_iaThinking)return;
+  const top=T.pot&&T.pot.length?T.pot[T.pot.length-1]:null;
+  if(T.pendingDraws>0){
+    for(let i=0;i<T.pendingDraws;i++){
+      if(!T.deck.length) reshufTuto();
+      if(T.deck.length) T.hands.me.push(T.deck.pop());
+    }
+    T.pendingDraws=0;
+  }else{
+    if(!T.deck.length) reshufTuto();
+    if(T.deck.length) T.hands.me.push(T.deck.pop());
+  }
+  T.selected=null;
+  renderTuto();
+  // Check if waiting for draw
+  if(T.waitingFor==='drew'){
+    T.waitingFor=null;
+    setTimeout(()=>runLine(_sceneIdx,_lineIdx+1),500);
+    return;
+  }
+  // In freeplay: advance turn
+  if(T.freeplay) tutoFreePlayNextTurn(false);
+}
+
+function tutoPlayCard(){
+  if(!T.selected||T.currentPlayer!=='me'||T.locked||T.freeplay_iaThinking)return;
+  const card=T.hands.me.find(c=>c.id===T.selected);
+  if(!card)return;
+  const top=T.pot[T.pot.length-1];
+  if(!canPlay(card,top,T.commandedSuit,T.pendingDraws,null))return;
+
+  if(card.r==='J'){
+    tutoPickSuit().then(suit=>{ if(suit) tutoDoPlay(card,suit,null); });
+    return;
+  }
+  if(card.r==='2'){
+    tutoPickTwo().then(pl=>{ if(pl) tutoDoPlay(card,null,pl); });
+    return;
+  }
+  tutoDoPlay(card,null,null);
+}
+
+function tutoDoPlay(card,suit,twoPlace){
+  T.hands.me=T.hands.me.filter(c=>c.id!==card.id);
+  T.selected=null;
+  // Pot
+  if(card.r==='2'&&twoPlace==='bottom'&&T.pot.length>0){
+    const top=T.pot[T.pot.length-1];
+    T.pot=[...T.pot.slice(0,-1),card,top];
+  }else{
+    T.pot.push(card);
+  }
+  // Effects
+  if(card.r==='7') T.pendingDraws+=2;
+  else if(card.r==='JOKER') T.pendingDraws+=4;
+  else if(card.r==='J'){T.commandedSuit=suit;T.pendingDraws=0;}
+  else if(card.r==='2'){/* keep pending */}
+  else if(card.r==='A'){T.pendingDraws=0;}
+  else{T.pendingDraws=0;T.commandedSuit=null;}
+
+  renderTuto();
+
+  // Check win in freeplay
+  if(T.freeplay){
+    if(T.hands.me.length===0){ tutoWin('Toi'); return; }
+    tutoFreePlayNextTurn(card.r==='A');
+    return;
+  }
+
+  // Check waiting
+  const was=T.waitingFor;
+  const exp=T.waitingExpect;
+  T.waitingFor=null; T.waitingExpect=null;
+  if(was==='played'||(was&&was.startsWith('played'))){
+    if(exp&&card.r!==exp){
+      // Wrong card — gently correct
+      T.hands.me.push(card); T.pot.pop();
+      if(card.r==='2'&&twoPlace==='bottom'){T.pot=[...T.pot.slice(0,-1)];T.pot.push(T.pot[T.pot.length-1]);}
+      T.pendingDraws= card.r==='7'?T.pendingDraws-2:card.r==='JOKER'?T.pendingDraws-4:T.pendingDraws;
+      T.waitingFor=was; T.waitingExpect=exp;
+      say(`<em>Pas tout à fait... essaie de jouer le <strong>${exp}</strong> pour voir l'effet de cette carte !</em>`,false);
+      renderTuto();
+      return;
+    }
+    setTimeout(()=>runLine(_sceneIdx,_lineIdx+1),400);
+  }
+}
+
+function reshufTuto(){
+  const keep=T.pot.length?[T.pot[T.pot.length-1]]:[];
+  const rest=T.pot.slice(0,-1);
+  T.pot=keep;
+  for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];}
+  T.deck=[...T.deck,...rest];
+}
+
+// ── IA plays one turn ──
+function iaOneTurn(cb){
+  const uid=T.currentPlayer;
+  if(uid==='me'){ if(cb) cb(); return; }
+  const hand=[...(T.hands[uid]||[])];
+  const top=T.pot[T.pot.length-1];
+  let played=null;
+  if(T.pendingDraws>0) played=hand.find(c=>c.r==='7'||c.r==='JOKER'||c.r==='J');
+  if(!played) played=hand.find(c=>canPlay(c,top,T.commandedSuit,T.pendingDraws,null));
+  if(played){
+    T.hands[uid]=hand.filter(c=>c.id!==played.id);
+    T.pot.push(played);
+    if(played.r==='7') T.pendingDraws+=2;
+    else if(played.r==='JOKER') T.pendingDraws+=4;
+    else if(played.r==='J'){
+      const counts={};
+      T.hands[uid].forEach(c=>{if(c.r!=='JOKER')counts[c.s]=(counts[c.s]||0)+1;});
+      const best=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+      T.commandedSuit=best?best[0]:null;
+      T.pendingDraws=0;
+    }
+    else if(played.r==='A'){T.pendingDraws=0;}
+    else{T.pendingDraws=0;T.commandedSuit=null;}
+  }else{
+    if(T.pendingDraws>0){
+      for(let i=0;i<T.pendingDraws;i++){if(!T.deck.length)reshufTuto();if(T.deck.length)T.hands[uid].push(T.deck.pop());}
+      T.pendingDraws=0;
+    }else{
+      if(!T.deck.length)reshufTuto();
+      if(T.deck.length)T.hands[uid].push(T.deck.pop());
+    }
+  }
+  // Advance to next
+  const order=['me','ia1','ia2'];
+  let next=(order.indexOf(uid)+1)%3;
+  if(played&&played.r==='A') next=(next+1)%3;
+  T.currentPlayer=order[next];
+  renderTuto();
+  setTimeout(()=>{ if(cb) cb(); },600);
+}
+
+function iaForceDrawPenalty(cb){
+  const uid=T.currentPlayer;
+  const hand=[...(T.hands[uid]||[])];
+  // Force draw: no counter
+  if(T.pendingDraws>0){
+    for(let i=0;i<T.pendingDraws;i++){if(!T.deck.length)reshufTuto();if(T.deck.length)T.hands[uid].push(T.deck.pop());}
+    T.pendingDraws=0;
+  }else{
+    if(!T.deck.length)reshufTuto();
+    if(T.deck.length)T.hands[uid].push(T.deck.pop());
+  }
+  const order=['me','ia1','ia2'];
+  T.currentPlayer=order[(order.indexOf(uid)+1)%3];
+  renderTuto();
+  setTimeout(()=>{ if(cb) cb(); },700);
+}
+
+// ── Free play mode ──
+function startFreePlay(){
+  T.freeplay=true;
+  T.freeplay_iaThinking=false;
+  T.currentPlayer='me';
+  say(`🎮 <strong>Joue librement !</strong> Vide ta main avant Alice et Bob pour gagner !`, false);
+  hlOff();
+  renderTuto();
+}
+
+function tutoFreePlayNextTurn(skip){
+  const order=['me','ia1','ia2'];
+  let idx=order.indexOf(T.currentPlayer);
+  let next=(idx+1)%3;
+  if(skip) next=(next+1)%3;
+  T.currentPlayer=order[next];
+  renderTuto();
+  if(T.currentPlayer!=='me'){
+    T.freeplay_iaThinking=true;
+    T._iaTimer=setTimeout(()=>{ iaFreePlayTurn(); },900);
+  }
+}
+
+function iaFreePlayTurn(){
+  const uid=T.currentPlayer;
+  if(!uid||uid==='me'){T.freeplay_iaThinking=false;return;}
+  const hand=[...(T.hands[uid]||[])];
+  const top=T.pot[T.pot.length-1];
+  let played=null;
+  if(T.pendingDraws>0) played=hand.find(c=>c.r==='7'||c.r==='JOKER'||c.r==='J');
+  if(!played) played=hand.find(c=>canPlay(c,top,T.commandedSuit,T.pendingDraws,null));
+  if(played){
+    T.hands[uid]=hand.filter(c=>c.id!==played.id);
+    T.pot.push(played);
+    if(played.r==='7') T.pendingDraws+=2;
+    else if(played.r==='JOKER') T.pendingDraws+=4;
+    else if(played.r==='J'){
+      const counts={};
+      T.hands[uid].forEach(c=>{if(c.r!=='JOKER')counts[c.s]=(counts[c.s]||0)+1;});
+      const best=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+      T.commandedSuit=best?best[0]:null;
+      T.pendingDraws=0;
+    }
+    else if(played.r==='A'){T.pendingDraws=0;}
+    else{T.pendingDraws=0;T.commandedSuit=null;}
+    if(T.hands[uid].length===0){ T.freeplay_iaThinking=false; tutoWin(uid==='ia1'?'Alice':'Bob'); return; }
+  }else{
+    if(T.pendingDraws>0){
+      for(let i=0;i<T.pendingDraws;i++){if(!T.deck.length)reshufTuto();if(T.deck.length)T.hands[uid].push(T.deck.pop());}
+      T.pendingDraws=0;
+    }else{
+      if(!T.deck.length)reshufTuto();
+      if(T.deck.length)T.hands[uid].push(T.deck.pop());
+    }
+  }
+  T.freeplay_iaThinking=false;
+  const order=['me','ia1','ia2'];
+  let next=(order.indexOf(uid)+1)%3;
+  if(played&&played.r==='A') next=(next+1)%3;
+  T.currentPlayer=order[next];
+  renderTuto();
+  if(T.currentPlayer!=='me'){
+    T.freeplay_iaThinking=true;
+    T._iaTimer=setTimeout(iaFreePlayTurn,900);
+  }
+}
+
+function tutoWin(who){
+  hlOff();
+  const fill=document.getElementById('tuto-bar-fill');
+  if(fill) fill.style.width='100%';
+  if(who==='Toi'){
+    say(`🏆 <strong>Tu as gagné !</strong> Bravo, tu maîtrises CHECK !<br><em>Prêt(e) à jouer en ligne ?</em>`,false);
+  }else{
+    say(`<strong>${who} a gagné</strong> cette fois... mais tu connais toutes les règles maintenant !`,false);
+  }
+  const okb=document.getElementById('tuto-ok-btn');
+  if(okb){ okb.textContent='🎲 Jouer en ligne !'; okb.style.display=''; okb.onclick=endTutorial; }
+}
+
+// ── Modals suit/two ──
+function tutoPickSuit(){
+  return new Promise(res=>{
+    const d=document.createElement('div');
+    d.style.cssText='position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);';
+    d.innerHTML='<div style="background:rgba(8,20,10,.98);border:1.5px solid rgba(212,168,67,.4);border-radius:16px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:14px;"><div style="color:var(--gold);font-size:15px;font-weight:700">Quelle couleur commander ?</div><div style="display:flex;gap:12px">'
+      +['♠','♣','♥','♦'].map(s=>`<button style="font-size:26px;background:rgba(255,255,255,.07);border:1.5px solid rgba(212,168,67,.3);border-radius:10px;width:52px;height:52px;cursor:pointer;color:${RED.includes(s)?'#c0392b':'#e8e8e8'}" data-s="${s}">${s}</button>`).join('')
+      +'</div></div>';
+    d.querySelectorAll('button').forEach(b=>{b.onclick=()=>{d.remove();res(b.dataset.s);};});
+    document.body.appendChild(d);
+  });
+}
+function tutoPickTwo(){
+  return new Promise(res=>{
+    const d=document.createElement('div');
+    d.style.cssText='position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);';
+    d.innerHTML='<div style="background:rgba(8,20,10,.98);border:1.5px solid rgba(212,168,67,.4);border-radius:16px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:14px;"><div style="color:var(--gold);font-size:15px;font-weight:700">Où jouer le 2 ?</div><div style="display:flex;gap:12px;"><button style="padding:14px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-d));border:none;border-radius:10px;color:#1a0f00;font-weight:700;font-family:Lato,sans-serif;cursor:pointer" data-p="top">⬆️ Dessus<br><small style=\'font-weight:400;font-size:11px\'>Change la carte active</small></button><button style="padding:14px 20px;background:rgba(255,255,255,.06);border:1.5px solid rgba(212,168,67,.25);border-radius:10px;color:var(--gold);font-family:Lato,sans-serif;cursor:pointer" data-p="bottom">⬇️ Dessous<br><small style=\'font-weight:400;font-size:11px\'>Carte active inchangée</small></button></div><button style="font-size:11px;color:rgba(245,240,232,.3);background:none;border:none;cursor:pointer;font-family:Lato,sans-serif;margin-top:4px" data-p="">Annuler</button></div>';
+    d.querySelectorAll('button').forEach(b=>{b.onclick=()=>{d.remove();res(b.dataset.p||null);};});
+    document.body.appendChild(d);
+  });
+}
+
+// ══ AUTO-CONNECT ══
+async function doConnect(apiKey,dbURL,pid){
+  const connecting=document.getElementById('setup-connecting');
+  const msgEl=document.getElementById('conn-msg');
+  if(connecting)connecting.style.display='flex';
+  if(msgEl)msgEl.textContent='Connexion au serveur…';
+  try{
+    const apps=[...firebase.apps];
+    for(const app of apps){try{await app.delete();}catch(e){}}
+    firebase.initializeApp({apiKey,databaseURL:dbURL,projectId:pid,authDomain:pid+'.firebaseapp.com'});
+    db=firebase.database();
+    await db.ref('__ping__').set(Date.now());
+    await db.ref('__ping__').remove();
+    // Success
+    if(connecting)connecting.style.display='none';
+    document.getElementById('panel-join').style.display='';
+    document.getElementById('panel-firebase').style.display='none';
+    const ds=document.getElementById('conn-dot-setup');if(ds){ds.classList.add('show');}
+    const cd=document.getElementById('conn-dot');if(cd){cd.classList.add('show');}
+    db.ref('.info/connected').on('value',s=>{
+      const off=!s.val();
+      const ds2=document.getElementById('conn-dot-setup');if(ds2){ds2.classList.toggle('off',off);}
+      const cd2=document.getElementById('conn-dot');if(cd2){cd2.classList.toggle('off',off);}
+    });
+    return true;
+  }catch(e){
+    if(connecting)connecting.style.display='none';
+    console.error('[Firebase]',e);
+    return false;
+  }
+}
+
+(async function(){
+  const seen = localStorage.getItem('check_seen_v1');
+  const cfg  = loadCfg();
+
+  // ── Pas de config → 1ère fois ou config perdue ──
+  if(!cfg || !cfg.apiKey){
+    if(!seen){ show('s-welcome'); }
+    else {
+      show('s-setup');
+      document.getElementById('panel-firebase').style.display='';
+    }
+    return;
+  }
+
+  // ── A une config ──
+  // Restaurer le nom immédiatement
+  if(cfg.name){
+    const nf=document.getElementById('f-name');
+    if(nf){ nf.value=cfg.name; }
+    myName=cfg.name;
+  }
+
+  // Première fois (a config mais pas vu tuto) → welcome
+  if(!seen){ show('s-welcome'); return; }
+
+  // ── Connexion silencieuse ──
+  show('s-setup');
+  // Montrer spinner discret, PAS le panel Firebase
+  const connecting=document.getElementById('setup-connecting');
+  const connMsg=document.getElementById('conn-msg');
+  if(connecting) connecting.style.display='flex';
+  if(connMsg) connMsg.textContent='Connexion…';
+  // Panel Firebase reste caché
+  document.getElementById('panel-firebase').style.display='none';
+
+  const ok = await doConnect(cfg.apiKey, cfg.databaseURL, cfg.projectId);
+  if(ok){
+    checkReady();
+    return;
+  }
+  // Retry silencieux après 3s
+  if(connMsg) connMsg.textContent='Reconnexion…';
+  if(connecting) connecting.style.display='flex';
+  await new Promise(r=>setTimeout(r,3000));
+  const ok2 = await doConnect(cfg.apiKey, cfg.databaseURL, cfg.projectId);
+  if(ok2){
+    checkReady();
+    return;
+  }
+  // Echec → montrer panel Firebase avec message
+  if(connecting) connecting.style.display='none';
+  document.getElementById('panel-firebase').style.display='';
+  const s=document.getElementById('fb-status');
+  if(s){ s.textContent='⚠️ Connexion impossible. Vérifie ta connexion internet ou reconfigure.'; s.className='status error'; }
 })();
 
 // ══════════════════════════════════════════
@@ -709,27 +1627,45 @@ document.getElementById('btn-leave').onclick=function(){
   show('s-setup');
 };
 
+async function kickPlayer(uid){
+  if(!db||!roomId)return;
+  // Remove player from room
+  await db.ref('rooms/'+roomId+'/players/'+uid).remove();
+  // Notify via a kicked field so the kicked player knows
+  await db.ref('rooms/'+roomId+'/kicked/'+uid).set(true);
+  toast('Joueur retiré','i');
+}
+
 function enterLobby(){
   show('s-lobby');
   document.getElementById('lb-code').textContent=roomId;
   if(lobbyRef){lobbyRef.off();}
-  let started=false;
   lobbyRef=db.ref('rooms/'+roomId);
   lobbyRef.on('value',function(snap){
     const data=snap.val();if(!data)return;
     const players=Object.values(data.players||{});
     // Render players
     const el=document.getElementById('lb-players');el.innerHTML='';
+    const iamHostNow=players.some(p=>p.uid===myUid&&p.host);
     players.forEach(p=>{
       const d=document.createElement('div');d.className='lobby-player';
-      d.innerHTML='<div class="lobby-av">'+p.name[0].toUpperCase()+'</div><div><div class="lobby-nm">'+p.name+'</div><div class="lobby-role">'+(p.host?'👑 Hôte':'✓ Connecté')+'</div></div>';
+      const kickBtn=(!p.host&&iamHostNow)?'<button onclick="kickPlayer(\''+p.uid+'\')" style="margin-left:auto;background:rgba(255,60,60,.15);border:1px solid rgba(255,60,60,.3);color:#ff8888;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:Lato,sans-serif">✕ Retirer</button>':'';
+      d.innerHTML='<div class="lobby-av">'+p.name[0].toUpperCase()+'</div><div style="flex:1"><div class="lobby-nm">'+p.name+'</div><div class="lobby-role">'+(p.host?'👑 Hôte':'✓ Connecté')+'</div></div>'+kickBtn;
       el.appendChild(d);
     });
-    document.getElementById('lb-wait').innerHTML=players.length<2?'En attente d'un autre joueur <span class="dots"></span>':players.length+' joueurs connectés !';
+    document.getElementById('lb-wait').innerHTML=players.length<2?'En attente d\'un autre joueur <span class="dots"></span>':players.length+' joueurs connectés !';
+    // Check if I was kicked
+    const stillHere=players.some(p=>p.uid===myUid);
+    if(!stillHere&&players.length>0){
+      // I was kicked — go back to setup
+      if(lobbyRef){lobbyRef.off();lobbyRef=null;}
+      toast('Tu as été retiré de la partie par l\'hôte','d');
+      show('s-setup');
+      return;
+    }
     const iamhost=players.find(p=>p.uid===myUid&&p.host);
     document.getElementById('btn-launch').disabled=!(iamhost&&players.length>=2);
-    if(data.status==='playing'&&data.game&&!started){
-      started=true;
+    if(data.status==='playing'&&data.game){
       lobbyRef.off();lobbyRef=null;
       startGame(data.game);
     }
@@ -799,43 +1735,70 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
     eliminated:[],
     round:1
   };
+  game.status = 'playing';
   await db.ref('rooms/'+roomId+'/game').set(game);
   await db.ref('rooms/'+roomId+'/status').set('playing');
+  // Host démarre directement — pas besoin d'attendre le listener
+  if(lobbyRef){lobbyRef.off();lobbyRef=null;}
+  startGame(game);
 };
 
 // ══════════════════════════════════════════
 // GAME
 // ══════════════════════════════════════════
-function normGame(g){
-  // Firebase convertit les arrays en objets {0:..,1:..} — on remet en ordre
-  function toArr(v){
-    if(!v)return[];
-    if(Array.isArray(v))return v;
-    const keys=Object.keys(v);
-    if(keys.every(k=>!isNaN(k)))return keys.sort((a,b)=>+a-+b).map(k=>v[k]);
-    return Object.values(v);
-  }
-  g.pot=toArr(g.pot);
-  g.deck=toArr(g.deck);
-  g.playerOrder=toArr(g.playerOrder);
-  g.finished=toArr(g.finished);
-  g.eliminated=toArr(g.eliminated);
-  if(g.hands)Object.keys(g.hands).forEach(u=>{g.hands[u]=toArr(g.hands[u]);});
-  return g;
-}
-
 function startGame(g){
-  normGame(g);
+  // Normalize arrays
+  if(g.pot&&!Array.isArray(g.pot)) g.pot=Object.values(g.pot);
+  if(g.deck&&!Array.isArray(g.deck)) g.deck=Object.values(g.deck);
+  if(g.playerOrder&&!Array.isArray(g.playerOrder)) g.playerOrder=Object.values(g.playerOrder);
+  if(g.finished&&!Array.isArray(g.finished)) g.finished=Object.values(g.finished);
+  if(g.eliminated&&!Array.isArray(g.eliminated)) g.eliminated=Object.values(g.eliminated);
+  // afk is an object {uid: {count,name,ts}} — no array conversion needed
+  if(g.hands){
+    Object.keys(g.hands).forEach(uid=>{
+      if(g.hands[uid]&&!Array.isArray(g.hands[uid]))
+        g.hands[uid]=Object.values(g.hands[uid]);
+    });
+  }
   gameState=g;
-  localHand=(g.hands&&g.hands[myUid])||[];
+  // Normalize hands robustly
+  if(g.hands){
+    Object.keys(g.hands).forEach(uid=>{
+      if(g.hands[uid]&&!Array.isArray(g.hands[uid]))
+        g.hands[uid]=Object.values(g.hands[uid]);
+    });
+  }
+  localHand=(g.hands&&g.hands[myUid])&&Array.isArray(g.hands[myUid])
+    ? g.hands[myUid]
+    : (g.hands&&g.hands[myUid] ? Object.values(g.hands[myUid]) : []);
+  selCard=null; lastMyTurn=false; lastTurnUid='';
   show('s-game');
+  startGlobalRingTick();
+  renderGame(); // immediate render before Firebase listener
   if(gameRef){gameRef.off();}
   gameRef=db.ref('rooms/'+roomId+'/game');
   gameRef.on('value',function(snap){
     const data=snap.val();if(!data)return;
-    normGame(data);
+    // Normalize Firebase data (Firebase can turn arrays into objects)
+    if(data.pot&&!Array.isArray(data.pot)) data.pot=Object.values(data.pot);
+    if(data.deck&&!Array.isArray(data.deck)) data.deck=Object.values(data.deck);
+    if(data.playerOrder&&!Array.isArray(data.playerOrder)) data.playerOrder=Object.values(data.playerOrder);
+    if(data.finished&&!Array.isArray(data.finished)) data.finished=Object.values(data.finished);
+    if(data.eliminated&&!Array.isArray(data.eliminated)) data.eliminated=Object.values(data.eliminated);
+    if(data.hands){
+      Object.keys(data.hands).forEach(uid=>{
+        if(data.hands[uid]&&!Array.isArray(data.hands[uid]))
+          data.hands[uid]=Object.values(data.hands[uid]);
+      });
+    }
     gameState=data;
-    localHand=(data.hands&&data.hands[myUid])||[];
+    localHand=(data.hands&&data.hands[myUid]) ? (Array.isArray(data.hands[myUid]) ? data.hands[myUid] : Object.values(data.hands[myUid])) : [];
+    // Force re-render: reset lastMyTurn if turn changed externally (timer, etc.)
+    const newCurUid=data.playerOrder&&data.playerOrder[data.currentPlayerIdx];
+    if(newCurUid!==myUid && lastMyTurn){
+      lastMyTurn=false;
+      stopMyTimer();
+    }
     if(data.status==='finished'){renderWinner();return;}
     if(data.status==='elim_round_end'){
       handleElimRound(data);
@@ -863,10 +1826,44 @@ function startMyTimer(){
     if(timerLeft<=0){
       clearInterval(timerInterval);
       timerInterval=null;
-      // Auto-draw and pass
       await autoPass();
     }
   },1000);
+}
+
+// ── Global 1-second tick: updates ALL timer rings for everyone ──
+let _globalRingInterval=null;
+function startGlobalRingTick(){
+  if(_globalRingInterval)return; // already running
+  _globalRingInterval=setInterval(tickAllRings,1000);
+}
+function tickAllRings(){
+  if(!gameState||!gameState.turnStartTs||!TIMER_SEC||TIMER_SEC>900)return;
+  const gs=gameState;
+  const curUid=gs.playerOrder[gs.currentPlayerIdx];
+  const sec=Math.max(0,getTimerLeft(gs));
+  // Update topbar text (my turn or opp turn)
+  const tbTurn=document.getElementById('tb-turn');
+  if(tbTurn){
+    if(curUid===myUid){
+      tbTurn.textContent='🟢 Ton tour ! ('+Math.max(0,timerLeft)+'s)';
+    } else {
+      const nm=(gs.playerNames&&gs.playerNames[curUid])||'?';
+      tbTurn.textContent='⏳ Tour de '+nm+' ('+sec+'s)';
+    }
+  }
+  // Update the active opp chip ring directly in DOM
+  const fg=document.querySelector('.opp-chip.active .timer-ring-fg');
+  const num=document.querySelector('.opp-chip.active .timer-ring-num');
+  if(fg){
+    const offset=75.4*(1-sec/TIMER_SEC);
+    fg.style.strokeDashoffset=offset;
+    if(sec<=5){fg.classList.add('urgent');}else{fg.classList.remove('urgent');}
+  }
+  if(num){
+    num.textContent=sec;
+    if(sec<=5){num.classList.add('urgent');}else{num.classList.remove('urgent');}
+  }
 }
 
 function stopMyTimer(){
@@ -904,12 +1901,20 @@ async function autoPass(){
   selCard=null;
   toast('⏱️ Temps écoulé — carte piochée !','d');
   vibrate([100,50,200]);
-  await db.ref('rooms/'+roomId+'/game').update({
-    deck,['hands/'+myUid]:newHand,currentPlayerIdx:nextIdx,
-    jokerFreeColor:null,jokerPendingColor:null,
-    turnStartTs:Date.now(),
-    lastFX:{r:'timeout',s:'',color:null,by:myUid,ts:Date.now()}
-  });
+  // Increment AFK counter for this player
+  const afkSnap=await db.ref('rooms/'+roomId+'/afk/'+myUid).once('value');
+  const curAfk=(afkSnap.val()||{}).count||0;
+  await db.ref('rooms/'+roomId+'/afk/'+myUid).set({count:curAfk+1,name:myName,ts:Date.now()});
+
+  const drawUpd={};
+  drawUpd['deck']=deck;
+  drawUpd['hands/'+myUid]=newHand;
+  drawUpd['currentPlayerIdx']=nextIdx;
+  drawUpd['jokerFreeColor']=null;
+  drawUpd['jokerPendingColor']=null;
+  drawUpd['turnStartTs']=Date.now();
+  drawUpd['lastFX']={r:'timeout',s:'',color:null,by:myUid,ts:Date.now()};
+  await db.ref('rooms/'+roomId+'/game').update(drawUpd);
 }
 
 // Timer display on opp chips (uses turnStartTs from Firebase)
@@ -936,22 +1941,35 @@ function makeTimerRing(sec){
 function renderGame(){
   if(!gameState)return;
   const gs=gameState;
-  const curUid=gs.playerOrder[gs.currentPlayerIdx];
-  const curName=gs.playerNames[curUid];
+  // Guards
+  if(!gs.playerOrder||!Array.isArray(gs.playerOrder)||!gs.playerOrder.length) return;
+  if(!gs.pot||!Array.isArray(gs.pot)||!gs.pot.length) return;
+  if(!gs.hands) return;
+  // Re-sync localHand
+  localHand = gs.hands[myUid] ? (Array.isArray(gs.hands[myUid]) ? gs.hands[myUid] : Object.values(gs.hands[myUid])) : [];
+  const curUid=gs.playerOrder[gs.currentPlayerIdx]||gs.playerOrder[0];
+  const curName=(gs.playerNames&&gs.playerNames[curUid])||'?';
   const mine=curUid===myUid;
   const top=gs.pot[gs.pot.length-1];
+  if(!top) return;
 
   // ── Timer: update TIMER_SEC from mode ──
   if(gs.mode&&gs.mode.timer!==undefined) TIMER_SEC=gs.mode.timer||999;
 
   // ── Timer: start when my turn, stop otherwise ──
-  if(mine&&!lastMyTurn){
-    // My turn just started — write turnStartTs to Firebase
-    db.ref('rooms/'+roomId+'/game/turnStartTs').set(Date.now());
-    if(TIMER_SEC>0) startMyTimer(); else stopMyTimer();
-  } else if(!mine&&lastMyTurn){
-    stopMyTimer();
-  } else if(!mine){
+  const turnChanged=curUid!==lastTurnUid;
+  lastTurnUid=curUid;
+
+  if(mine){
+    if(turnChanged){
+      // Nouveau tour : écrire turnStartTs UNE SEULE FOIS
+      db.ref('rooms/'+roomId+'/game/turnStartTs').set(Date.now());
+      if(TIMER_SEC>0) startMyTimer(); else stopMyTimer();
+    } else if(!lastMyTurn){
+      // Tour en cours (re-render sans changement de joueur)
+      if(TIMER_SEC>0 && !timerInterval) startMyTimer();
+    }
+  } else {
     stopMyTimer();
   }
 
@@ -971,12 +1989,31 @@ function renderGame(){
     }
   }
 
-  // Turn FX
+  // Turn FX (lastMyTurn mis à jour dans checkTurnFX)
   checkTurnFX(mine);
+  lastMyTurn=mine;
 
   // Topbar
   const myTimerSec=mine?getTimerLeft(gs):null;
   document.getElementById('tb-turn').textContent=mine?'🟢 Ton tour ! ('+( myTimerSec!==null?myTimerSec:TIMER_SEC)+'s)':'⏳ Tour de '+curName;
+  // Your turn banner
+  const banner=document.getElementById('your-turn-banner');
+  const ytbTxt=document.getElementById('ytb-text');
+  if(banner&&ytbTxt){
+    if(mine){
+      banner.style.display='flex';
+      if(gs.pendingDraws>0){
+        ytbTxt.textContent='⚡ Renvoyez ou prenez +'+gs.pendingDraws+' cartes !';
+        ytbTxt.style.color='#ff8844';
+      } else {
+        const msgs=["C'est à vous de jouer !","À vous de jouer !","Votre tour !","Jouez une carte !"];
+        ytbTxt.textContent=msgs[Math.floor(Date.now()/5000)%msgs.length];
+        ytbTxt.style.color='var(--gold)';
+      }
+    } else {
+      banner.style.display='none';
+    }
+  }
   document.getElementById('tb-sub').textContent=gs.pendingDraws>0?'⚡ +'+gs.pendingDraws+' en chaîne':'';
   const roundTxt=(gs.mode&&gs.mode.gametype==='elim')?(' · Manche '+(gs.round||1)):'';
   const elimCount=(gs.eliminated||[]).length;
@@ -1006,10 +2043,15 @@ function renderGame(){
     const minis=Array.from({length:Math.min(hand.length,6)},()=>'<div class="mini-card"></div>').join('');
     const tsec=active&&!done?getTimerLeft(gs):null;
     const timerHtml=tsec!==null?makeTimerRing(tsec):'';
+    const afkData=(gs.afk&&gs.afk[uid])||null;
+    const afkCount=afkData?afkData.count:0;
+    const afkBadge=afkCount>0?'<span style="font-size:9px;background:rgba(255,100,0,.2);border:1px solid rgba(255,100,0,.4);color:#ff8844;border-radius:6px;padding:1px 5px;margin-left:4px" title="Tours passés automatiquement">💤'+afkCount+'</span>':'';
+    const canKick=isHost&&afkCount>=3&&!done;
+    const kickHtml=canKick?'<button onclick="kickAfk(&quot;'+uid+'&quot;)" style="font-size:10px;padding:3px 7px;background:rgba(255,50,50,.15);border:1px solid rgba(255,50,50,.35);color:#ff7777;border-radius:7px;cursor:pointer;font-family:Lato,sans-serif;white-space:nowrap">✕ Expulser</button>':'';
     d.innerHTML='<div style="display:flex;align-items:center;gap:5px;width:100%">'+
-      '<div style="flex:1;min-width:0"><div class="opp-name">'+gs.playerNames[uid]+'</div>'+
+      '<div style="flex:1;min-width:0"><div class="opp-name">'+gs.playerNames[uid]+afkBadge+'</div>'+
       '<div class="opp-count">'+(done?'🏆':hand.length)+'</div></div>'+
-      timerHtml+'</div>'+
+      (kickHtml||timerHtml)+'</div>'+
       '<div class="opp-minis">'+minis+'</div>';
     or.appendChild(d);
   });
@@ -1045,6 +2087,15 @@ function renderGame(){
       html+='<div class="suit-badge" style="color:'+(fc==='red'?'var(--red)':'#aaaaff')+';margin-top:4px;border-color:'+(fc==='red'?'rgba(192,34,42,.5)':'rgba(100,100,255,.5)')+'">'+
         (fc==='red'?'♥♦':'♠♣')+' <span style="font-size:10px">Joue librement ('+fc+')</span></div>';
     }
+    // ── Joker sur le pot : montrer la contrainte couleur ──
+    if(top.r==='JOKER'){
+      const jcolor=top.color;
+      const suits=jcolor==='red'?'♥ ♦':'♠ ♣';
+      const col=jcolor==='red'?'var(--red)':'#aaaaff';
+      const bdr=jcolor==='red'?'rgba(192,34,42,.5)':'rgba(100,100,255,.5)';
+      html+='<div class="suit-badge" style="color:'+col+';border-color:'+bdr+';margin-top:4px">'+
+        suits+' <span style="font-size:10px">Joker '+(jcolor==='red'?'rouge 🔴':'noir ⚫')+' — couleur obligatoire</span></div>';
+    }
     return html;
   })();
   // Pending
@@ -1067,9 +2118,10 @@ function renderGame(){
 }
 
 function renderHand(top,cmdSuit,pending,mine,gs){
-  const hc=document.getElementById('h-cards');hc.innerHTML='';
+  if(!gs)return;
+  const hc=document.getElementById('h-cards');if(!hc)return;hc.innerHTML='';
   localHand.forEach(card=>{
-    const jfc=(mine&&gs&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
+    const jfc=(mine&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
     const pl=mine&&canPlay(card,top,cmdSuit,pending,jfc);
     const el=makeCard(card);
     el.dataset.r=card.r;
@@ -1078,12 +2130,14 @@ function renderHand(top,cmdSuit,pending,mine,gs){
     else el.classList.add('dim');
     if(card.id===selCard)el.classList.add('selected');
     if(localHand.length===1)el.classList.add('lastcard');
-    el.addEventListener('click',function(){
-      if(selCard!==card.id)addRipple(el);
-      selCard=(selCard===card.id)?null:card.id;
-      vibrate(18);
-      renderGame();
-    });
+    if(mine){
+      el.addEventListener('click',function(){
+        if(selCard!==card.id)addRipple(el);
+        selCard=(selCard===card.id)?null:card.id;
+        vibrate(18);
+        renderGame();
+      });
+    }
     hc.appendChild(el);
   });
 }
@@ -1111,7 +2165,13 @@ document.getElementById('btn-draw').onclick=async function(){
   const newHand=[...localHand,card];
   const nextIdx=advIdx(gs.playerOrder,gs.currentPlayerIdx,gs.finished||[]);
   selCard=null;
-  await db.ref('rooms/'+roomId+'/game').update({deck,['hands/'+myUid]:newHand,currentPlayerIdx:nextIdx,jokerFreeColor:null,jokerPendingColor:null,lastFX:{r:'draw',s:'',color:null,by:myUid,ts:Date.now()}});
+  const bdu2={};
+  bdu2['deck']=deck;bdu2['hands/'+myUid]=newHand;
+  bdu2['currentPlayerIdx']=nextIdx;
+  bdu2['jokerFreeColor']=null;bdu2['jokerPendingColor']=null;
+  bdu2['turnStartTs']=Date.now();
+  bdu2['lastFX']={r:'draw',s:'',color:null,by:myUid,ts:Date.now()};
+  await db.ref('rooms/'+roomId+'/game').update(bdu2);
   stopMyTimer();
   toast('🎴 Pioché — tour passé','i');
 };
@@ -1121,7 +2181,10 @@ document.getElementById('btn-play').onclick=tryPlay;
 async function tryPlay(){
   if(!myTurn()||!selCard)return;
   const gs=gameState;
+  if(!gs.pot||!gs.pot.length){console.warn('pot empty');return;}
   const top=gs.pot[gs.pot.length-1];
+  if(!top){console.warn('top undefined');return;}
+  if(!gs.playerOrder||!gs.playerOrder.length){console.warn('no playerOrder');return;}
   const card=localHand.find(c=>c.id===selCard);
   const jfcCheck=(gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
   if(!card||!canPlay(card,top,gs.commandedSuit,gs.pendingDraws,jfcCheck))return;
@@ -1130,7 +2193,7 @@ async function tryPlay(){
     const s=await pickSuit();
     if(s===null)return; // cancelled
     await doPlay(card,s,null);
-  } else if(card.r==='2'&&mode.two==='place'){
+  } else if(card.r==='2'){
     const placement=await pickTwoPlacement();
     if(placement===null)return; // cancelled
     await doPlay(card,null,placement);
@@ -1145,12 +2208,13 @@ async function doPlay(card,suit,twoPlace){
   // 2 placement: 'bottom' = insert under top card, 'top' = normal push
   let newPot;
   if(card.r==='2'&&twoPlace==='bottom'&&gs.pot.length>0){
-    // Insert under the top card: [...pot_minus_top, card, top]
+    // Glisser le 2 SOUS la carte du dessus : le pot actif reste inchangé
     const top=gs.pot[gs.pot.length-1];
-    newPot=[...gs.pot.slice(0,-1),card,top];
+    newPot=[...gs.pot.slice(0,-1), card, top];
     toast('⬇️ 2 glissé en dessous — la carte précédente reste active !','i');
   } else {
-    newPot=[...gs.pot,card];
+    // Pose normale au-dessus du pot
+    newPot=[...gs.pot, card];
   }
   let pending=gs.pendingDraws, cmdSuit=null, skip=false;
 
@@ -1162,17 +2226,21 @@ async function doPlay(card,suit,twoPlace){
     // jokerPendingColor will be read by takePenalty and set as jokerFreeColor
   }
   else if(card.r==='J'){cmdSuit=suit;toast('🃏 Valet ! '+suit+' commandé','i');pending=0;}
-  else if(card.r==='2'&&twoPlace!=='bottom'){toast('✨ Passe-partout (dessus)','i');pending=0;}
-  else if(card.r==='2'&&twoPlace==='bottom'){
-    // Keep current suit/rank logic — top card unchanged
-    pending=gs.pendingDraws; // don't reset pending
-    cmdSuit=gs.commandedSuit; // keep commanded suit
+  else if(card.r==='2'){
+    // 2 = passe-partout : ne touche PAS à la chaîne en cours (pending reste intact)
+    // Ne remet jamais pending à 0 — le 7 et le Joker continuent à faire effet
+    pending=gs.pendingDraws; // conserve la chaîne
+    if(twoPlace==='bottom'){
+      cmdSuit=gs.commandedSuit; // carte du dessous : état du pot inchangé
+    }
+    // pas de toast si bottom (déjà fait dans newPot)
+    if(twoPlace!=='bottom') toast('✨ 2 joué — chaîne conservée !','i');
   }
   else if(card.r==='A'){skip=true;toast('🚫 As ! Joueur suivant bloqué','i');pending=0;}
   else{pending=0;}
 
   let finished=[...(gs.finished||[])];
-  if(newHand.length===0){finished.push(myUid);toast('🏆 '+myName+' a posé sa dernière carte !','g');}
+  if(newHand.length===0){finished.push(myUid);toast('🏆 '+myName+' a posé sa dernière carte !','g');setTimeout(fxWin,200);}
 
   let nextIdx=advIdx(gs.playerOrder,gs.currentPlayerIdx,finished);
   if(skip)nextIdx=advIdx(gs.playerOrder,nextIdx,finished);
@@ -1189,22 +2257,31 @@ async function doPlay(card,suit,twoPlace){
 
   // Track joker color for the free-play rule after penalty
   stopMyTimer();
+  // Reset AFK counter when player actually plays
+  if(db&&roomId) db.ref('rooms/'+roomId+'/afk/'+myUid).remove();
   const jokerColor=(card.r==='JOKER')?(card.color||null):null;
   // Clear free-color bonus when player uses their turn
-  const upd={pot:newPot,['hands/'+myUid]:newHand,pendingDraws:pending,commandedSuit:cmdSuit,currentPlayerIdx:nextIdx,finished,
-    jokerPendingColor:jokerColor,  // null unless a joker just played
-    jokerFreeColor:null,  // clear free-color when a card is played
-    turnStartTs:Date.now(),
-    lastFX:{r:card.r,s:card.s,color:card.color||null,by:myUid,ts:Date.now()}};
-  if(over) upd.status='finished';
+  // Écriture Firebase : chemins explicites pour éviter les problèmes d'update partiel
+  const gameRef2=db.ref('rooms/'+roomId+'/game');
+  const upd={};
+  upd['pot']=newPot;
+  upd['hands/'+myUid]=newHand;
+  upd['pendingDraws']=pending;
+  upd['commandedSuit']=cmdSuit||null;
+  upd['currentPlayerIdx']=nextIdx;
+  upd['finished']=finished;
+  upd['jokerPendingColor']=jokerColor||null;
+  upd['jokerFreeColor']=null;
+  upd['turnStartTs']=Date.now();
+  upd['lastFX']={r:card.r,s:card.s,color:card.color||null,by:myUid,ts:Date.now()};
+  if(over) upd['status']='finished';
   if(roundOver&&isElim){
-    // Find loser: the one still in with most cards (or last one still in)
-    const loserUid=stillIn.length===1 ? stillIn[0] :
-      stillIn.sort((a,b)=>(gs.hands[b]||[]).length-(gs.hands[a]||[]).length)[0];
-    upd.status='elim_round_end';
-    upd.roundLoser=loserUid;
+    const loserUid=stillIn.length===1?stillIn[0]:
+      [...stillIn].sort((a,b)=>(gs.hands[b]||[]).length-(gs.hands[a]||[]).length)[0];
+    upd['status']='elim_round_end';
+    upd['roundLoser']=loserUid;
   }
-  await db.ref('rooms/'+roomId+'/game').update(upd);
+  await gameRef2.update(upd);
 }
 
 async function takePenalty(){
@@ -1224,16 +2301,16 @@ async function takePenalty(){
   // If the penalty came from a joker, give the FREE COLOR bonus to the NEXT player
   // jokerPendingColor was set when the joker was played
   const wasJoker=n>=4&&gs.jokerPendingColor;
-  await db.ref('rooms/'+roomId+'/game').update({
-    deck,
-    ['hands/'+myUid]:h,
-    pendingDraws:0,
-    currentPlayerIdx:nextIdx,
-    jokerPendingColor:null,
-    // The player who took the joker penalty can now play any same-color card
-    jokerFreeColor: wasJoker ? gs.jokerPendingColor : null,
-    lastFX:{r:'penalty',s:''+penN,color:null,by:myUid,ts:Date.now()}
-  });
+  const pu={};
+  pu['deck']=deck;
+  pu['hands/'+myUid]=h;
+  pu['pendingDraws']=0;
+  pu['currentPlayerIdx']=nextIdx;
+  pu['jokerPendingColor']=null;
+  pu['jokerFreeColor']=wasJoker?gs.jokerPendingColor:null;
+  pu['turnStartTs']=Date.now();
+  pu['lastFX']={r:'penalty',s:''+penN,color:null,by:myUid,ts:Date.now()};
+  await db.ref('rooms/'+roomId+'/game').update(pu);
 }
 
 // ── Suit picker ──
@@ -1276,6 +2353,33 @@ document.getElementById('suit-cancel').onclick=cancelSuit;
 // ELIMINATION MODE — round end handler
 // ══════════════════════════════════════════
 let elimHandled = ''; // track last handled round to avoid double-trigger
+
+async function kickAfk(uid){
+  if(!isHost||!db||!roomId)return;
+  const gs=gameState;
+  if(!gs)return;
+  const name=gs.playerNames[uid]||'?';
+  // Remove from game: give their cards to deck, advance turn if needed
+  const theirHand=gs.hands[uid]||[];
+  let newDeck=[...(gs.deck||[]),...theirHand];
+  shuffle(newDeck);
+  const newOrder=gs.playerOrder.filter(u=>u!==uid);
+  let newIdx=gs.currentPlayerIdx;
+  const removedIdx=gs.playerOrder.indexOf(uid);
+  if(removedIdx<=gs.currentPlayerIdx&&newIdx>0) newIdx--;
+  newIdx=newIdx%newOrder.length;
+  const ku={};
+  ku['playerOrder']=newOrder;
+  ku['deck']=newDeck;
+  ku['hands/'+uid]=null;
+  ku['afk/'+uid]=null;
+  ku['playerNames/'+uid]=gs.playerNames[uid]; // keep name for display
+  ku['currentPlayerIdx']=newIdx;
+  ku['turnStartTs']=Date.now();
+  await db.ref('rooms/'+roomId+'/game').update(ku);
+  await db.ref('rooms/'+roomId+'/kicked/'+uid).set(true);
+  toast('💀 '+name+' a été expulsé pour inactivité','d');
+}
 
 async function handleElimRound(gs){
   const roundKey = (gs.round||1)+'_'+(gs.roundLoser||'');
@@ -1408,45 +2512,51 @@ function renderWinner(){
   }
   show('s-winner');
 }
-document.getElementById('btn-replay').onclick=function(){
+document.getElementById('btn-replay').onclick=async function(){
   if(gameRef){gameRef.off();gameRef=null;}
+  // Host: reset room to lobby + clear game state
+  if(isHost){
+    document.getElementById('winner-waiting').style.display='';
+    document.getElementById('btn-replay').disabled=true;
+    try{
+      await db.ref('rooms/'+roomId+'/game').remove();
+      await db.ref('rooms/'+roomId+'/status').set('lobby');
+    }catch(e){ toast('Erreur: '+e.message,'d'); }
+    document.getElementById('btn-replay').disabled=false;
+    document.getElementById('winner-waiting').style.display='none';
+    enterLobby();
+  } else {
+    // Non-host: just wait — listenLobbyFromWinner() will catch status change
+    document.getElementById('winner-waiting').style.display='';
+    document.getElementById('btn-replay').disabled=true;
+    listenLobbyFromWinner();
+  }
+};
+
+document.getElementById('btn-quit-game').onclick=function(){
+  if(gameRef){gameRef.off();gameRef=null;}
+  if(db && roomId) db.ref('rooms/'+roomId+'/players/'+myUid).remove();
+  roomId=null; isHost=false;
   show('s-setup');
 };
+
+function listenLobbyFromWinner(){
+  if(!db||!roomId)return;
+  const ref=db.ref('rooms/'+roomId+'/status');
+  ref.on('value',function(snap){
+    if(snap.val()==='lobby'){
+      ref.off();
+      document.getElementById('winner-waiting').style.display='none';
+      document.getElementById('btn-replay').disabled=false;
+      enterLobby();
+    }
+  });
+}
 
 // ══════════════════════════════════════════
 // EFFECTS ENGINE
 // ══════════════════════════════════════════
-const cvs=document.getElementById('fx-canvas');
-const ctx=cvs.getContext('2d');
-let pts=[],raf=null;
-function resizeCvs(){cvs.width=window.innerWidth;cvs.height=window.innerHeight;}
-resizeCvs();window.addEventListener('resize',resizeCvs);
-
-function spawn(x,y,n,colors,spread,grav){
-  spread=spread||80;grav=grav||0.18;
-  for(let i=0;i<n;i++){
-    const a=Math.random()*Math.PI*2,sp=2+Math.random()*5;
-    pts.push({x,y,vx:Math.cos(a)*sp*(spread/80),vy:Math.sin(a)*sp*(spread/80)-3,
-      color:colors[Math.floor(Math.random()*colors.length)],
-      sz:4+Math.random()*6,life:1,dec:0.018+Math.random()*0.02,
-      grav,shape:Math.random()>.5?'r':'c'});
-  }
-  if(!raf)loop();
-}
-function loop(){
-  ctx.clearRect(0,0,cvs.width,cvs.height);
-  pts=pts.filter(p=>p.life>0);
-  pts.forEach(p=>{
-    p.x+=p.vx;p.y+=p.vy;p.vy+=p.grav;p.vx*=.98;p.life-=p.dec;
-    ctx.save();ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;
-    ctx.translate(p.x,p.y);
-    if(p.shape==='r')ctx.fillRect(-p.sz/2,-p.sz/3,p.sz,p.sz*.6);
-    else{ctx.beginPath();ctx.arc(0,0,p.sz/2,0,Math.PI*2);ctx.fill();}
-    ctx.restore();
-  });
-  raf=pts.length?requestAnimationFrame(loop):null;
-  if(!raf)ctx.clearRect(0,0,cvs.width,cvs.height);
-}
+// canvas & loop in new FX engine below
 
 function flash(color,dur){
   dur=dur||200;const el=document.getElementById('fx-flash');
@@ -1488,8 +2598,10 @@ function checkTurnFX(mine){
     const hs=document.querySelector('.hand-section');
     if(hs){hs.classList.remove('my-turn-fx');void hs.offsetWidth;hs.classList.add('my-turn-fx');}
     spawn(window.innerWidth/2,window.innerHeight-80,16,['#f0c040','#d4a843','#fff8dc'],60,0.2);
+    const banner=document.getElementById('your-turn-banner');
+    if(banner){banner.style.animation='none';void banner.offsetWidth;banner.style.animation='';}
   }
-  lastMyTurn=mine;
+  // NB: lastMyTurn est mis à jour par renderGame() APRES cet appel
 }
 
 function getPotXY(){
@@ -1499,54 +2611,207 @@ function getPotXY(){
   return{x:r.left+r.width/2,y:r.top+r.height/2};
 }
 
+// ── FX variants ──
+const FX_VARIANTS={
+  JOKER_RED:[
+    ()=>{const {x,y}=getPotXY();
+      vibrate([100,40,150,40,250]);
+      flash('rgba(255,30,0,.3)',400);
+      shockwave(x,y,'#ff4400',4);
+      laserBurst(x,y,'#ff4400',12);
+      spawn(x,y,80,['#ff2200','#ff6600','#ffaa00','#fff700','#fff'],130,0.22,{shapes:['r','c','s'],spin:true,minSz:3,maxSz:9,upBias:4});
+      setTimeout(()=>spawn(x,y,40,['#ff4400','#ffcc00','#fff'],100,0.3,{shapes:['c'],dec:0.025}),200);
+      combo(['💥 JOKER!','🔥 BOOM!','☢️ +4!'][Math.floor(Math.random()*3)],'#ff5500');
+      floatE('🔥',x,y-30);floatE('💥',x-40,y-10);
+      shakeEl('.table-center');
+    },
+    ()=>{const {x,y}=getPotXY();
+      vibrate([80,60,200]);flash('rgba(255,80,0,.25)',350);
+      for(let i=0;i<6;i++) setTimeout(()=>{const ox=(Math.random()-.5)*80,oy=(Math.random()-.5)*60;spawn(x+ox,y+oy,10,['#ff3300','#ff8800','#ffdd00'],60,0.28,{shapes:['s','c'],spin:true});},i*80);
+      shockwave(x,y,'#ff6600',5);
+      combo('☠️ JOKER!!!','#ff4400');
+      floatE('☢️',x,y);shakeEl('.table-center');
+    }
+  ],
+  JOKER_BLACK:[
+    ()=>{const {x,y}=getPotXY();
+      vibrate([120,50,180,50,300]);
+      flash('rgba(60,60,255,.3)',400);
+      shockwave(x,y,'#4444ff',4);
+      laserBurst(x,y,'#8888ff',12);
+      spawn(x,y,80,['#4444ff','#8888ff','#aaaaff','#ffffff','#00ccff'],130,0.22,{shapes:['r','c','s'],spin:true,minSz:3,maxSz:9,upBias:4});
+      for(let i=0;i<4;i++) setTimeout(()=>zapLine(x+(Math.random()-.5)*60,y+(Math.random()-.5)*40,x+(Math.random()-.5)*120,y-100-Math.random()*60,'#aaaaff'),i*100);
+      combo(['⚡ JOKER!','💀 +4!','🌌 CHAOS!'][Math.floor(Math.random()*3)],'#8888ff');
+      floatE('⚡',x,y-30);floatE('💀',x-40,y-10);
+      shakeEl('.table-center');
+    },
+    ()=>{const {x,y}=getPotXY();
+      vibrate([100,60,220]);flash('rgba(80,0,200,.28)',380);
+      for(let i=0;i<5;i++) setTimeout(()=>zapLine(x,y,x+(Math.random()-.5)*200,y-60-Math.random()*100,'#ccaaff'),i*90);
+      spawn(x,y,60,['#6600ff','#aa66ff','#ffffff','#00aaff'],110,0.2,{shapes:['c','s'],spin:true});
+      combo('🌩️ JOKER!!!','#9966ff');
+      floatE('🌩️',x,y);shakeEl('.table-center');
+    }
+  ],
+  SEVEN:[
+    ()=>{const {x,y}=getPotXY();
+      vibrate([60,30,80]);flash('rgba(255,80,0,.2)',250);
+      shockwave(x,y,'#ff6600',3);
+      spawn(x,y,40,['#ff4444','#ff8800','#ffcc00','#fff'],90,0.2,{shapes:['r','c','t'],spin:true});
+      combo(['⚡ +2!','🔥 +2!!','💢 +2!'][Math.floor(Math.random()*3)],'#ff8800');
+      floatE(['⚡','🔥','💢'][Math.floor(Math.random()*3)],x,y-20);
+    },
+    ()=>{const {x,y}=getPotXY();
+      vibrate([80,40,100]);flash('rgba(255,60,0,.22)',280);
+      for(let i=0;i<3;i++) setTimeout(()=>{spawn(x,y,12,['#ff6600','#ffaa00','#fff'],70,0.25);},i*120);
+      zapLine(x,y,x,y-120,'#ffcc00');
+      combo('⚡ CHAIN +'+((Math.random()>.5)?2:4)+'!','#ff6644');
+      floatE('⚡',x,y);
+    }
+  ],
+  ACE:[
+    ()=>{const {x,y}=getPotXY();
+      vibrate([40,20,40,20,80]);flash('rgba(0,200,255,.25)',350);
+      shockwave(x,y,'#00ccff',3);
+      spawn(x,y,35,['#00ccff','#aaeeff','#ffffff','#0088ff','#66ddff'],80,0.08,{upBias:5,shapes:['r','c']});
+      for(let i=0;i<3;i++) setTimeout(()=>laserBurst(x,y,'#00ccff',6),i*150);
+      combo(['🚫 BLOQUÉ!','❄️ FREEZE!','🛑 STOP!'][Math.floor(Math.random()*3)],'#00ddff');
+      floatE(['❄️','🚫','🛑'][Math.floor(Math.random()*3)],x,y);
+    },
+    ()=>{const {x,y}=getPotXY();
+      vibrate([60,30,60,30,100]);flash('rgba(100,220,255,.2)',300);
+      spawn(x,y,50,['#0099ff','#00ffdd','#aaffee','#fff'],100,0.05,{upBias:6,shapes:['c','s'],spin:true});
+      shockwave(x,y,'#00ffdd',4);
+      combo('❄️ BLIZZARD!','#00ffdd');floatE('❄️',x-20,y);floatE('❄️',x+20,y-10);
+    }
+  ],
+  JACK:[
+    ()=>{const {x,y}=getPotXY();
+      vibrate(50);
+      laserBurst(x,y,'#f0c040',10);
+      spawn(x,y,40,['#f0c040','#fff8dc','#d4a843','#fff','#ffe066'],80,0.15,{shapes:['s','r'],spin:true,dec:0.02});
+      shockwave(x,y,'#f0c040',2);
+      combo(['🃏 VALET!','👑 ROYAL!','🎯 JOKER!'][Math.floor(Math.random()*3)],'#f0c040');
+      floatE(['🃏','👑','🎯'][Math.floor(Math.random()*3)],x,y);
+    },
+    ()=>{const {x,y}=getPotXY();
+      vibrate([40,20,60]);
+      for(let i=0;i<8;i++) setTimeout(()=>{const a=i*Math.PI/4;laserBurst(x+Math.cos(a)*30,y+Math.sin(a)*30,'#ffe066',4);},i*80);
+      spawn(x,y,50,['#ffd700','#fff8a0','#fff','#d4a843'],100,0.12,{shapes:['s','c','t'],spin:true});
+      combo('✨ COULEUR!','#ffe066');floatE('👑',x,y);
+    }
+  ],
+  TWO:[
+    ()=>{const {x,y}=getPotXY();
+      vibrate(30);
+      spawn(x,y,25,['#88ff88','#44cc66','#aaffaa','#ffffff'],60,0.12,{shapes:['c','r'],dec:0.022});
+      combo(['✨ PASSE!','🃏 2!','♻️ LIBRE!'][Math.floor(Math.random()*3)],'#66ff88');
+      floatE(['✨','♻️','🌿'][Math.floor(Math.random()*3)],x,y-10);
+    },
+    ()=>{const {x,y}=getPotXY();
+      vibrate([20,10,30]);
+      shockwave(x,y,'#44cc66',2);
+      spawn(x,y,30,['#00ff88','#44ffaa','#aaffcc','#fff'],70,0.1,{shapes:['c','s'],spin:true,dec:0.02});
+      combo('✨ LIBRE!','#44ff88');floatE('✨',x,y);
+    }
+  ],
+  NORMAL_RED:[
+    ()=>{const {x,y}=getPotXY();vibrate(12);spawn(x,y,10,['#ff8888','#ff5555','#ffcccc'],40,0.2,{shapes:['c'],dec:0.03});},
+    ()=>{const {x,y}=getPotXY();vibrate(12);spawn(x,y,8,['#ff6666','#ff9999'],35,0.18);},
+    ()=>{const {x,y}=getPotXY();vibrate(15);spawn(x,y,12,['#ff4444','#ffaaaa','#fff'],42,0.22,{shapes:['r','c']});}
+  ],
+  NORMAL_BLK:[
+    ()=>{const {x,y}=getPotXY();vibrate(12);spawn(x,y,10,['#aaaaaa','#cccccc','#888888'],40,0.2,{shapes:['c'],dec:0.03});},
+    ()=>{const {x,y}=getPotXY();vibrate(12);spawn(x,y,8,['#999','#bbb','#ddd'],35,0.18);},
+    ()=>{const {x,y}=getPotXY();vibrate(15);spawn(x,y,12,['#777','#aaa','#fff'],42,0.22,{shapes:['r','c']});}
+  ],
+  WIN:[
+    ()=>{
+      vibrate([100,50,100,50,200,50,200]);
+      flash('rgba(212,168,67,.35)',600);
+      const cx=window.innerWidth/2,cy=window.innerHeight/2;
+      shockwave(cx,cy,'#f0c040',6);
+      laserBurst(cx,cy,'#f0c040',16);
+      // Confetti burst from multiple points
+      const pts2=[[cx,cy],[cx-100,cy+50],[cx+100,cy+50],[cx,cy-80]];
+      pts2.forEach(([px,py],i)=>{
+        setTimeout(()=>spawn(px,py,50,['#f0c040','#ff5533','#5599ff','#44ff88','#fff','#ff44aa','#ffcc00'],120,0.15,{shapes:['r','c','s','t'],spin:true,minSz:3,maxSz:10,dec:0.012,upBias:5}),i*150);
+      });
+      combo('🏆 VICTOIRE!','#f0c040');
+      floatE('🏆',cx,cy-50);floatE('🎉',cx-50,cy);floatE('✨',cx+50,cy-20);
+    }
+  ]
+};
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
 function triggerFX(card){
-  const {x,y}=getPotXY();
   if(card.r==='JOKER'){
-    vibrate([80,40,120,40,200]);
-    flash(card.color==='red'?'rgba(255,50,50,.25)':'rgba(100,100,255,.2)',300);
-    spawn(x,y,60,card.color==='red'?['#ff4040','#ff8800','#ffcc00','#ff2200','#fff']:['#6666ff','#aaaaff','#ffffff','#4444dd'],120,0.25);
-    combo('💥 JOKER!',card.color==='red'?'#ff5533':'#8888ff');
-    shakeEl('.table-center');floatE(card.color==='red'?'🔥':'⚡',x,y);
+    pick(card.color==='red'?FX_VARIANTS.JOKER_RED:FX_VARIANTS.JOKER_BLACK)();
   }else if(card.r==='7'){
-    vibrate([60,30,60]);flash('rgba(255,80,80,.18)',250);
-    spawn(x,y,30,['#ff4444','#ff8800','#ffcc00','#fff'],80,0.2);
-    combo('⚡ +2!','#ff6644');shakeEl('.table-center');floatE('⚡',x,y-20);
+    pick(FX_VARIANTS.SEVEN)();
   }else if(card.r==='A'){
-    vibrate([40,20,40,20,80]);flash('rgba(80,200,255,.2)',300);
-    spawn(x,y,25,['#44ccff','#aaeeff','#fff','#0088ff'],70,0.15);
-    combo('🚫 BLOQUÉ!','#44ccff');floatE('❄️',x,y);
+    pick(FX_VARIANTS.ACE)();
   }else if(card.r==='J'){
-    vibrate(50);spawn(x,y,20,['#f0c040','#fff8dc','#d4a843','#fff'],60,0.18);
-    combo('🃏 VALET','#f0c040');floatE('🎯',x,y);
+    pick(FX_VARIANTS.JACK)();
   }else if(card.r==='2'){
-    vibrate(30);spawn(x,y,15,['#88ff88','#44cc66','#fff'],50,0.15);
-    combo('✨ PASSE!','#66ff88');
-  }else if(card.r==='draw'){
+    pick(FX_VARIANTS.TWO)();
+  }else if(card.r==='draw'||card.r==='timeout'){
     vibrate(12);
   }else{
-    vibrate(12);spawn(x,y,8,isRed(card)?['#ff8888','#ffcccc']:['#aaa','#ccc'],35,0.22);
+    pick(isRed(card)?FX_VARIANTS.NORMAL_RED:FX_VARIANTS.NORMAL_BLK)();
   }
 }
 
+function fxWin(){ pick(FX_VARIANTS.WIN)(); }
+
 function fxPenalty(n, isMine){
-  if(isMine){
-    // Toi : ton téléphone vibre fort, ta main tremble
-    vibrate([100,50,100,50,150]);
-    flash('rgba(220,50,50,.35)',350);
-    shakeEl('.hand-section');
-    const hc=document.getElementById('h-cards');
-    if(hc){const r=hc.getBoundingClientRect();spawn(r.left+r.width/2,r.top+r.height/2,n*5,['#ff3333','#ff8800','#ffcc00','#ff5555'],100,0.3);}
-    combo('-'+n+' 😬','#ff4444');
-    floatE('😱',window.innerWidth/2,window.innerHeight/2);
-  } else {
-    // Adversaire : explosion sur le pot, leur chip tremble
-    const {x,y}=getPotXY();
-    flash('rgba(255,100,0,.2)',250);
-    spawn(x,y,n*6,['#ff4444','#ff8800','#ffdd00','#ff5555','#fff'],110,0.28);
-    combo('😬 +'+n+' cartes!','#ff8844');
-    floatE('😱',x,y-30);
-    shakeEl('.opp-row');
-  }
+  const variants_mine=[
+    ()=>{
+      vibrate([120,50,120,50,200]);
+      flash('rgba(220,20,20,.4)',400);
+      shakeEl('.hand-section');
+      const hc=document.getElementById('h-cards');
+      if(hc){const r=hc.getBoundingClientRect();const px=r.left+r.width/2,py=r.top+r.height/2;
+        shockwave(px,py,'#ff2200',3);
+        spawn(px,py,n*8,['#ff1111','#ff5500','#ff8800','#ffcc00','#fff'],120,0.3,{shapes:['c','r','s'],spin:true,upBias:6});}
+      combo('-'+n+' 😱','#ff3300');
+      floatE(['😱','💀','😭'][Math.floor(Math.random()*3)],window.innerWidth/2,window.innerHeight/2-40);
+      floatE('🃏'.repeat(Math.min(n,4)),window.innerWidth/2-20,window.innerHeight/2);
+    },
+    ()=>{
+      vibrate([150,60,150]);
+      flash('rgba(255,0,0,.35)',450);
+      shakeEl('.hand-section');shakeEl('#h-cards');
+      const cx=window.innerWidth/2,cy=window.innerHeight*.65;
+      for(let i=0;i<n;i++) setTimeout(()=>{
+        spawn(cx+(Math.random()-.5)*100,cy+(Math.random()-.5)*40,6,['#ff2200','#ff7700','#ffcc00'],80,0.35,{shapes:['r','c']});
+      },i*80);
+      shockwave(cx,cy,'#ff4400',4);
+      combo(['AÏEEE -'+n,'OUTCH! -'+n,'BOOM -'+n+' 💀'][Math.floor(Math.random()*3)],'#ff4400');
+    }
+  ];
+  const variants_opp=[
+    ()=>{
+      const {x,y}=getPotXY();
+      flash('rgba(255,120,0,.22)',300);
+      shockwave(x,y,'#ff6600',3);
+      spawn(x,y,n*7,['#ff3300','#ff7700','#ffbb00','#fff','#ff5555'],120,0.25,{shapes:['r','c','s'],spin:true});
+      combo('😬 +'+n+'  cartes!','#ff8800');
+      floatE(['😬','😅','🥵'][Math.floor(Math.random()*3)],x,y-30);
+      shakeEl('.opp-row');
+    },
+    ()=>{
+      const {x,y}=getPotXY();
+      flash('rgba(200,80,0,.2)',280);
+      for(let i=0;i<n;i++) setTimeout(()=>spawn(x+(Math.random()-.5)*60,y+(Math.random()-.5)*40,5,['#ff5500','#ffaa00','#fff'],60,0.3),i*100);
+      laserBurst(x,y,'#ff8800',8);
+      combo('+'+n+' 😈','#ff9900');
+      floatE('😈',x,y-20);
+    }
+  ];
+  if(isMine) pick(variants_mine)();
+  else pick(variants_opp)();
 }
 
 function fxWin(){
