@@ -373,7 +373,7 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
   0%  {opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-10deg);}
   25% {opacity:1;transform:translate(-50%,-58%) scale(1.25) rotate(3deg);}
   55% {opacity:1;transform:translate(-50%,-63%) scale(1.05) rotate(-1deg);}
-  80% {opacity:1;transform:translate(-50%,-68%) scale(1) rotate(0);}
+  80% {opacity:.8;transform:translate(-50%,-68%) scale(1) rotate(0);}
   100%{opacity:0;transform:translate(-50%,-90%) scale(.8);}
 }
 .float-e{position:fixed;pointer-events:none;z-index:390;font-size:34px;user-select:none;animation:floatUp 1.5s ease-out forwards;}
@@ -3450,9 +3450,9 @@ function renderGame(){
     const oaNm=document.getElementById('opp-nm');const oaAct=document.getElementById('opp-act');
     if(oaNm.textContent!==oaNmTxt)oaNm.textContent=oaNmTxt;
     if(oaAct.textContent!==oaActTxt)oaAct.textContent=oaActTxt;
-    oa.classList.add('show');
+    if(!oa.classList.contains('show'))oa.classList.add('show');
   }else{
-    oa.classList.remove('show');
+    if(oa.classList.contains('show'))oa.classList.remove('show');
     const ocz=document.getElementById('opp-card-zone');
     if(ocz.children.length)ocz.innerHTML='';
   }
@@ -3536,7 +3536,8 @@ function renderGame(){
   const bankEl=document.getElementById('bank-cnt');if(bankEl.textContent!==bankTxt)bankEl.textContent=bankTxt;
 
   // ── Ma main ──
-  document.getElementById('h-name').textContent=myName;
+  const hNameEl=document.getElementById('h-name');
+  if(hNameEl.textContent!==myName)hNameEl.textContent=myName;
   const hpTxt=gs.pendingDraws>0&&mine?'⚡ Prends +'+gs.pendingDraws+' ou renvoie':'';
   const hpEl=document.getElementById('h-pending');if(hpEl.textContent!==hpTxt)hpEl.textContent=hpTxt;
   renderHand(top,gs.commandedSuit,gs.pendingDraws,mine,gs);
@@ -3639,7 +3640,6 @@ function renderHand(top,cmdSuit,pending,mine,gs){
   const newIds=localHand.map(c=>c.id).join(',');
   const oldIds=hc.dataset.handIds||'';
   if(newIds!==oldIds){
-    // Main changée → reconstruire (nouvelle carte piochée, carte jouée, etc.)
     hc.innerHTML='';
     hc.dataset.handIds=newIds;
     localHand.forEach(card=>{
@@ -3647,6 +3647,15 @@ function renderHand(top,cmdSuit,pending,mine,gs){
       el.dataset.r=card.r;el.dataset.id=card.id;
       hc.appendChild(el);
     });
+    // Réappliquer immédiatement les overlays d'effets si actifs — évite le flash
+    if(activeHandEffect){
+      hc.querySelectorAll('.card').forEach(card=>{
+        const ov=document.createElement('div');
+        ov.className='card-fx-'+activeHandEffect.fxClass+' card-fx-persistent';
+        card.style.position='relative';card.style.overflow='visible';
+        card.appendChild(ov);
+      });
+    }
   }
 
   // ── Toujours : mettre à jour les classes sans toucher au DOM ──
@@ -4582,6 +4591,8 @@ function combo(txt,color){
   const el=document.getElementById('fx-combo');
   el.textContent=txt;el.style.color=color||'#f0c040';
   el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');
+  clearTimeout(el._clearTimer);
+  el._clearTimer=setTimeout(()=>{el.classList.remove('pop');el.textContent='';},1200);
 }
 
 function floatE(e,x,y,opt={}){
@@ -4598,6 +4609,7 @@ function floatE(e,x,y,opt={}){
 }
 
 function shakeEl(sel){
+  if(_isMobile)return; // reflow forcé = clignotement sur mobile
   const el=document.querySelector(sel);if(!el)return;
   el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');
   setTimeout(()=>el.classList.remove('shake'),600);
@@ -4633,7 +4645,7 @@ function checkTurnFX(mine){
     else if(vx===2){vibrate([30,50,80]);flash('rgba(212,168,67,.15)',400);laserBurst(cx,cy,'#f0c040',6,50);}
     else{vibrate([50,30,80]);flash('rgba(212,168,67,.2)',350);spawn(cx,cy,14,['#f0c040','#d4a843','#fff'],60,0.15,{shapes:['star','d'],spin:true});}
     const hs=document.querySelector('.hand-section');
-    if(hs){hs.classList.remove('my-turn-fx');void hs.offsetWidth;hs.classList.add('my-turn-fx');}
+    if(hs&&!_isMobile){hs.classList.remove('my-turn-fx');void hs.offsetWidth;hs.classList.add('my-turn-fx');}
   }
   lastMyTurn=mine;
 }
@@ -4883,25 +4895,27 @@ let activeHandEffect = null;
 // Apply persistent effect on MY hand cards (called in renderHand)
 function applyHandEffect(){
   if(!activeHandEffect)return;
-  const cards=document.querySelectorAll('#h-cards .card');
-  cards.forEach((card,i)=>{
-    if(card.querySelector('.card-fx-persistent'))return; // already applied
-    const ov=document.createElement('div');
-    ov.className='card-fx-'+activeHandEffect.fxClass+' card-fx-persistent';
-    card.style.position='relative';card.style.overflow='visible';
-    card.appendChild(ov);
+  // Overlays sur les cartes — skip si déjà présent
+  document.querySelectorAll('#h-cards .card').forEach(card=>{
+    if(!card.querySelector('.card-fx-persistent')){
+      const ov=document.createElement('div');
+      ov.className='card-fx-'+activeHandEffect.fxClass+' card-fx-persistent';
+      card.style.position='relative';card.style.overflow='visible';
+      card.appendChild(ov);
+    }
   });
-  // Banner under hand
+  // Banner — créer une seule fois, mettre à jour seulement si changé
   let banner=document.getElementById('hand-status-banner');
   if(!banner){
     banner=document.createElement('div');
     banner.id='hand-status-banner';
-    banner.className='hand-status-banner';
     const hh=document.querySelector('.hand-header');
     if(hh)hh.parentNode.insertBefore(banner,hh);
   }
-  banner.className='hand-status-banner '+activeHandEffect.labelClass;
-  banner.textContent=activeHandEffect.label;
+  const wantClass='hand-status-banner '+activeHandEffect.labelClass;
+  const wantText=activeHandEffect.label;
+  if(banner.className!==wantClass)banner.className=wantClass;
+  if(banner.textContent!==wantText)banner.textContent=wantText;
 }
 
 // Clear MY hand effect (called when my turn starts)
