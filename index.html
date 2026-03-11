@@ -403,11 +403,11 @@ body::before{
 #offline-overlay .off-spinner{width:22px;height:22px;border:2px solid rgba(255,100,100,.2);border-top-color:#ff6b6b;border-radius:50%;animation:spin .8s linear infinite;}
 
 /* ══ GAME LOG ══ */
-#game-log{position:fixed;bottom:160px;right:10px;width:190px;max-height:140px;overflow:hidden;display:flex;flex-direction:column;gap:3px;pointer-events:none;z-index:100;}
-.log-entry{font-size:10.5px;color:rgba(245,240,232,.7);background:rgba(0,0,0,.55);border:1px solid rgba(212,168,67,.12);border-radius:7px;padding:4px 8px;line-height:1.4;backdrop-filter:blur(4px);animation:logIn .25s ease-out;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.log-entry.log-me{border-color:rgba(212,168,67,.35);color:var(--gold);}
-.log-entry.log-special{border-color:rgba(255,100,50,.3);color:#ffaa88;}
-@keyframes logIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+#game-log{position:fixed;top:54px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:100;white-space:nowrap;}
+.log-entry{display:inline-block;font-size:12px;color:rgba(245,240,232,.85);background:rgba(0,0,0,.72);border:1px solid rgba(212,168,67,.2);border-radius:20px;padding:5px 14px;line-height:1.4;backdrop-filter:blur(6px);animation:logIn .2s ease-out;}
+.log-entry.log-me{border-color:rgba(212,168,67,.5);color:var(--gold);}
+.log-entry.log-special{border-color:rgba(255,100,50,.4);color:#ffaa88;}
+@keyframes logIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
 
 /* ══ RÉACTIONS RAPIDES ══ */
 #react-btn{position:fixed;bottom:170px;left:10px;z-index:200;background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.25);border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;-webkit-appearance:none;}
@@ -675,6 +675,15 @@ body::before{
       <button class="mode-opt" data-field="timer" data-val="30">30 sec<span>Normal</span></button>
       <button class="mode-opt" data-field="timer" data-val="0">Sans limite<span>Relax</span></button>
     </div>
+    <div class="mode-section">Options spéciales</div>
+    <div class="mode-row" id="mode-combo" style="flex-wrap:wrap">
+      <button class="mode-opt sel" data-field="combo" data-val="0" style="flex:1">
+        🃏 Combo désactivé<span>1 carte à la fois</span>
+      </button>
+      <button class="mode-opt" data-field="combo" data-val="1" style="flex:1">
+        🔥 Combo activé<span>Même rang = jouer x2 x3</span>
+      </button>
+    </div>
     <div style="font-size:11px;color:rgba(245,240,232,.35);margin-top:-2px;padding:0 2px">
       ✅ Le 2 (passe-partout) peut être joué dessus ou dessous le pot dans tous les modes.
     </div>
@@ -805,7 +814,7 @@ let myUid='u_'+Math.random().toString(36).slice(2,10);
 let myName='', roomId='', isHost=false;
 let localHand=[], gameState=null;
 let selCard=null, selCards=[], suitResolve=null, toastTmr=null;
-// selCards = tableau de card.id sélectionnées (même rang+couleur = combo)
+// selCards = tableau de card.id sélectionnées (même rang = combo si option activée)
 function getSelCardObj(){return selCards.length?localHand.find(c=>c.id===selCards[0]):null;}
 // Session score (in-memory only)
 let sessionWins=0, sessionGames=0;
@@ -900,17 +909,31 @@ function showReactPopup(name,e){
 }
 
 // ── Game Log ──
-const MAX_LOG=8;
+let _logTimer=null;
 function addLog(msg, type=''){
   const log=document.getElementById('game-log');
   if(!log)return;
-  const e=document.createElement('div');
-  e.className='log-entry'+(type?' log-'+type:'');
-  e.textContent=msg;
-  log.appendChild(e);
-  while(log.children.length>MAX_LOG)log.removeChild(log.firstChild);
-  // auto-scroll
-  setTimeout(()=>e.scrollIntoView({behavior:'smooth',block:'end'}),50);
+  // Effacer l'entrée courante immédiatement
+  const old=log.querySelector('.log-entry');
+  if(old){
+    old.style.transition='opacity .15s';
+    old.style.opacity='0';
+    setTimeout(()=>{if(old.parentNode)old.remove();},150);
+  }
+  clearTimeout(_logTimer);
+  // Afficher le nouveau après micro-délai
+  setTimeout(()=>{
+    log.innerHTML='';
+    const e=document.createElement('div');
+    e.className='log-entry'+(type?' log-'+type:'');
+    e.textContent=msg;
+    log.appendChild(e);
+    _logTimer=setTimeout(()=>{
+      e.style.transition='opacity .4s';
+      e.style.opacity='0';
+      setTimeout(()=>e.remove(),400);
+    },3000);
+  },old?160:0);
 }
 function advIdx(order,cur,finished){
   let n=(cur+1)%order.length,loops=0;
@@ -1164,7 +1187,7 @@ function enterLobby(){
 }
 
 // Game mode settings
-const gameMode={cards:5,decks:1,two:'place',timer:15,gametype:'classic'};
+const gameMode={cards:5,decks:1,two:'place',timer:15,gametype:'classic',combo:0};
 
 function updateModeSummary(){
   const el=document.getElementById('mode-summary');
@@ -1223,7 +1246,7 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
     deck:fullDeck,pot:[pot],hands,
     currentPlayerIdx:0,commandedSuit:null,pendingDraws:0,finished:[],
     status:'playing',lastFX:null,turnStartTs:Date.now(),
-    mode:{cards:gameMode.cards,decks:gameMode.decks,two:'place',timer:gameMode.timer,gametype:gameMode.gametype},
+    mode:{cards:gameMode.cards,decks:gameMode.decks,two:'place',timer:gameMode.timer,gametype:gameMode.gametype,combo:gameMode.combo||0},
     eliminated:[],
     round:1
   };
@@ -1705,12 +1728,14 @@ function renderHand(top,cmdSuit,pending,mine,gs){
             selCards=[card.id];
             selCard=card.id;
           } else {
-            // Doit être même rang ET même couleur (ou même joker)
+            // Même rang suffit (Joker : même couleur obligatoire). Combo doit être activé.
             const first=localHand.find(c=>c.id===selCards[0]);
-            if(first&&first.r===card.r&&(first.r==='JOKER'?first.color===card.color:first.s===card.s)){
+            const comboEnabled=gameState&&gameState.mode&&gameState.mode.combo;
+            const rankMatch=first&&first.r===card.r&&(first.r==='JOKER'?first.color===card.color:true);
+            if(comboEnabled&&rankMatch){
               selCards.push(card.id);
             } else {
-              // Différente carte — remplacer la sélection
+              // Différente carte ou combo désactivé — remplacer la sélection
               selCards=[card.id];
               selCard=card.id;
             }
@@ -2223,7 +2248,7 @@ async function handleElimRound(gs){
     lastFX: null,
     turnStartTs: Date.now(),
     round: (gs.round||1) + 1,
-    mode: gs.mode,
+    mode: {...(gs.mode||{}),combo:gs.mode&&gs.mode.combo||0},
     jokerFreeColor: null,
     jokerPendingColor: null
   });
