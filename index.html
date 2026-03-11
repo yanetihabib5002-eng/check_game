@@ -82,23 +82,14 @@ body::before{
 
 /* ── GAME ── */
 #s-game{padding:0;justify-content:flex-start;background:transparent;}
-.game-wrap{
-  width:100%;
-  height:100dvh;
-  max-height:100dvh;
-  display:grid;
-  grid-template-rows: auto auto auto 1fr auto auto;
-  position:relative;
-  z-index:10;
-  overflow:hidden;
-}
+.game-wrap{width:100%;height:100dvh;display:flex;flex-direction:column;position:relative;z-index:10;}
 /* topbar */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:max(env(safe-area-inset-top,0px),8px) 14px 8px;background:rgba(0,0,0,.45);border-bottom:1px solid rgba(212,168,67,.15);flex-shrink:0;}
 .tb-turn{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);font-weight:700;}
 .tb-sub{font-size:11px;color:rgba(245,240,232,.4);margin-top:1px;}
 .tb-room{font-size:11px;color:rgba(212,168,67,.35);letter-spacing:1px;}
 /* opponents */
-.opp-row{display:flex;justify-content:center;gap:8px;padding:6px 10px;flex-shrink:0;}
+.opp-row{display:flex;justify-content:center;gap:8px;padding:8px 10px;flex-shrink:0;}
 .opp-chip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 10px;border-radius:12px;background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.08);transition:all .3s;min-width:58px;}
 .opp-chip.active{border-color:var(--gold);background:rgba(212,168,67,.1);}
 .opp-chip.done{border-color:var(--ok);}
@@ -119,7 +110,7 @@ body::before{
 .opp-minis{display:flex;gap:2px;}
 .mini-card{width:9px;height:13px;border-radius:2px;background:linear-gradient(135deg,#2a6a3a,#1a4a2a);border:1px solid rgba(212,168,67,.25);}
 /* table center */
-.table-center{min-height:0;display:flex;align-items:center;justify-content:center;gap:28px;position:relative;overflow:hidden;}
+.table-center{flex:1;display:flex;align-items:center;justify-content:center;gap:28px;position:relative;overflow:hidden;}
 .table-center::before{content:'';position:absolute;width:82%;height:68%;border:2px solid rgba(212,168,67,.1);border-radius:50%;box-shadow:inset 0 0 50px rgba(0,0,0,.2);}
 .pile-zone{display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1;}
 .pile-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(212,168,67,.45);font-weight:700;}
@@ -166,16 +157,16 @@ body::before{
 .suit-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.5);border:1px solid rgba(212,168,67,.3);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:900;}
 .pending-badge{background:var(--danger);color:#fff;font-weight:900;font-size:13px;border-radius:8px;padding:4px 10px;box-shadow:0 2px 8px rgba(204,51,51,.4);}
 /* hand */
-.hand-section{flex-shrink:0;background:rgba(0,0,0,.5);border-top:1px solid rgba(212,168,67,.15);padding-bottom:max(env(safe-area-inset-bottom,0px),8px);min-height:0;}
+.hand-section{flex-shrink:0;background:rgba(0,0,0,.5);border-top:1px solid rgba(212,168,67,.15);padding-bottom:max(env(safe-area-inset-bottom,0px),8px);}
 .hand-header{display:flex;align-items:center;justify-content:space-between;padding:7px 14px 0;}
 .hand-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:8px;}
 .hand-dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok);}
-.hand-scroll{overflow-x:auto;overflow-y:visible;scrollbar-width:none;padding:8px 12px;-webkit-overflow-scrolling:touch;min-height:90px;}
+.hand-scroll{overflow-x:auto;scrollbar-width:none;padding:8px 12px;-webkit-overflow-scrolling:touch;}
 .hand-scroll::-webkit-scrollbar{display:none;}
 .hand-cards{display:flex;gap:7px;min-width:max-content;align-items:flex-end;}
 /* actions */
-.action-row{display:flex;gap:8px;padding:6px 12px 10px;flex-shrink:0;}
-.act-btn{flex:1;padding:16px 6px;min-height:56px;border-radius:14px;border:none;cursor:pointer;font-family:'Lato',sans-serif;font-weight:900;font-size:14px;letter-spacing:.5px;text-transform:uppercase;transition:transform .15s,opacity .2s;-webkit-appearance:none;}
+.action-row{display:flex;gap:8px;padding:6px 12px 8px;flex-shrink:0;}
+.act-btn{flex:1;padding:14px 6px;min-height:52px;border-radius:14px;border:none;cursor:pointer;font-family:'Lato',sans-serif;font-weight:900;font-size:13px;letter-spacing:.5px;text-transform:uppercase;transition:transform .15s,opacity .2s;-webkit-appearance:none;}
 .act-btn:active{transform:scale(.94);}
 .act-btn:disabled{opacity:.3;cursor:default;}
 .act-play{background:linear-gradient(135deg,#44bb66,#228844);color:#fff;box-shadow:0 3px 12px rgba(34,136,68,.4);}
@@ -1745,7 +1736,11 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
     round:1
   };
   game.status = 'playing';
-  await db.ref('rooms/'+roomId).update({game: game, status: 'playing'});
+  await db.ref('rooms/'+roomId+'/game').set(game);
+  await db.ref('rooms/'+roomId+'/status').set('playing');
+  // Host démarre directement — pas besoin d'attendre le listener
+  if(lobbyRef){lobbyRef.off();lobbyRef=null;}
+  startGame(game);
 };
 
 // ══════════════════════════════════════════
@@ -1766,8 +1761,16 @@ function startGame(g){
     });
   }
   gameState=g;
-  localHand=(g.hands&&g.hands[myUid])||[];
-  if(!Array.isArray(localHand)) localHand=Object.values(localHand);
+  // Normalize hands robustly
+  if(g.hands){
+    Object.keys(g.hands).forEach(uid=>{
+      if(g.hands[uid]&&!Array.isArray(g.hands[uid]))
+        g.hands[uid]=Object.values(g.hands[uid]);
+    });
+  }
+  localHand=(g.hands&&g.hands[myUid])&&Array.isArray(g.hands[myUid])
+    ? g.hands[myUid]
+    : (g.hands&&g.hands[myUid] ? Object.values(g.hands[myUid]) : []);
   selCard=null; lastMyTurn=false; lastTurnUid='';
   show('s-game');
   startGlobalRingTick();
