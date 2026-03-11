@@ -586,7 +586,13 @@ body::before{
   <div class="win-name" id="w-name">—</div>
   <div class="win-sub">a remporté la partie !</div>
   <div class="scores" id="w-scores"></div>
-  <button class="btn btn-gold" id="btn-replay" style="max-width:340px;margin-top:8px">🎲 Rejouer</button>
+  <div style="display:flex;gap:10px;width:100%;max-width:340px;margin-top:8px">
+    <button class="btn btn-gold" id="btn-replay" style="flex:2">🎲 Rejouer</button>
+    <button class="btn btn-outline" id="btn-quit-game" style="flex:1">🚪 Quitter</button>
+  </div>
+  <div id="winner-waiting" style="display:none;font-size:12px;color:rgba(245,240,232,.35);margin-top:10px;text-align:center">
+    En attente des autres joueurs… <span class="dots"></span>
+  </div>
 </div>
 
 <!-- ══ SUIT MODAL ══ -->
@@ -2496,10 +2502,46 @@ function renderWinner(){
   }
   show('s-winner');
 }
-document.getElementById('btn-replay').onclick=function(){
+document.getElementById('btn-replay').onclick=async function(){
   if(gameRef){gameRef.off();gameRef=null;}
+  // Host: reset room to lobby + clear game state
+  if(isHost){
+    document.getElementById('winner-waiting').style.display='';
+    document.getElementById('btn-replay').disabled=true;
+    try{
+      await db.ref('rooms/'+roomId+'/game').remove();
+      await db.ref('rooms/'+roomId+'/status').set('lobby');
+    }catch(e){ toast('Erreur: '+e.message,'d'); }
+    document.getElementById('btn-replay').disabled=false;
+    document.getElementById('winner-waiting').style.display='none';
+    enterLobby();
+  } else {
+    // Non-host: just wait — listenLobbyFromWinner() will catch status change
+    document.getElementById('winner-waiting').style.display='';
+    document.getElementById('btn-replay').disabled=true;
+    listenLobbyFromWinner();
+  }
+};
+
+document.getElementById('btn-quit-game').onclick=function(){
+  if(gameRef){gameRef.off();gameRef=null;}
+  if(db && roomId) db.ref('rooms/'+roomId+'/players/'+myUid).remove();
+  roomId=null; isHost=false;
   show('s-setup');
 };
+
+function listenLobbyFromWinner(){
+  if(!db||!roomId)return;
+  const ref=db.ref('rooms/'+roomId+'/status');
+  ref.on('value',function(snap){
+    if(snap.val()==='lobby'){
+      ref.off();
+      document.getElementById('winner-waiting').style.display='none';
+      document.getElementById('btn-replay').disabled=false;
+      enterLobby();
+    }
+  });
+}
 
 // ══════════════════════════════════════════
 // EFFECTS ENGINE
