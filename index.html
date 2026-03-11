@@ -1666,8 +1666,13 @@ function enterLobby(){
     const iamhost=players.find(p=>p.uid===myUid&&p.host);
     document.getElementById('btn-launch').disabled=!(iamhost&&players.length>=2);
     if(data.status==='playing'&&data.game){
-      lobbyRef.off();lobbyRef=null;
-      startGame(data.game);
+      if(lobbyRef){lobbyRef.off();lobbyRef=null;}
+      // Refetch game data to ensure all arrays are properly normalized from Firebase
+      db.ref('rooms/'+roomId+'/game').once('value').then(function(gameSnap){
+        const freshGame=gameSnap.val();
+        if(freshGame) startGame(freshGame);
+        else startGame(data.game);
+      }).catch(function(){ startGame(data.game); });
     }
   });
 }
@@ -1941,6 +1946,13 @@ function makeTimerRing(sec){
 function renderGame(){
   if(!gameState)return;
   const gs=gameState;
+  // Normalisation défensive — Firebase peut convertir les arrays en objets
+  if(gs.pot&&!Array.isArray(gs.pot)) gs.pot=Object.values(gs.pot);
+  if(gs.deck&&!Array.isArray(gs.deck)) gs.deck=Object.values(gs.deck);
+  if(gs.playerOrder&&!Array.isArray(gs.playerOrder)) gs.playerOrder=Object.values(gs.playerOrder);
+  if(gs.finished&&!Array.isArray(gs.finished)) gs.finished=Object.values(gs.finished);
+  if(gs.eliminated&&!Array.isArray(gs.eliminated)) gs.eliminated=Object.values(gs.eliminated);
+  if(gs.hands){Object.keys(gs.hands).forEach(uid=>{if(gs.hands[uid]&&!Array.isArray(gs.hands[uid]))gs.hands[uid]=Object.values(gs.hands[uid]);});}
   // Guards
   if(!gs.playerOrder||!Array.isArray(gs.playerOrder)||!gs.playerOrder.length) return;
   if(!gs.pot||!Array.isArray(gs.pot)||!gs.pot.length) return;
@@ -2110,7 +2122,8 @@ function renderGame(){
   renderHand(top,gs.commandedSuit,gs.pendingDraws,mine,gs);
 
   // Buttons
-  const canPl=selCard&&mine&&localHand.some(c=>c.id===selCard&&canPlay(c,top,gs.commandedSuit,gs.pendingDraws));
+  const jfcBtn=(mine&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
+  const canPl=selCard&&mine&&localHand.some(c=>c.id===selCard&&canPlay(c,top,gs.commandedSuit,gs.pendingDraws,jfcBtn));
   document.getElementById('btn-play').disabled=!canPl;
   const bd=document.getElementById('btn-draw');
   if(gs.pendingDraws>0&&mine){bd.textContent='😬 Prendre +'+gs.pendingDraws;bd.disabled=false;}
@@ -2130,14 +2143,13 @@ function renderHand(top,cmdSuit,pending,mine,gs){
     else el.classList.add('dim');
     if(card.id===selCard)el.classList.add('selected');
     if(localHand.length===1)el.classList.add('lastcard');
-    if(mine){
-      el.addEventListener('click',function(){
-        if(selCard!==card.id)addRipple(el);
-        selCard=(selCard===card.id)?null:card.id;
-        vibrate(18);
-        renderGame();
-      });
-    }
+    // Toujours permettre la sélection (pas seulement quand c'est ton tour)
+    el.addEventListener('click',function(){
+      if(selCard!==card.id)addRipple(el);
+      selCard=(selCard===card.id)?null:card.id;
+      vibrate(18);
+      renderGame();
+    });
     hc.appendChild(el);
   });
 }
