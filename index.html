@@ -297,6 +297,56 @@ body::before{
 .fp-guide-body code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;}
 .status.ok{color:#4caf50;}
 .status.error{color:#ff6b6b;}
+
+/* ══ TUTORIEL ══ */
+#s-tuto{flex-direction:column;padding:0;overflow:hidden;}
+.tuto-skip{position:fixed;top:10px;right:12px;z-index:300;background:rgba(0,0,0,.5);border:1px solid rgba(245,240,232,.12);border-radius:8px;padding:5px 11px;color:rgba(245,240,232,.35);font-size:11px;cursor:pointer;font-family:'Lato',sans-serif;}
+.tuto-table{display:flex;flex-direction:column;align-items:center;width:100%;max-width:480px;margin:0 auto;padding:14px 12px 0;gap:10px;height:calc(100dvh - 190px);}
+.tuto-opps{display:flex;gap:8px;justify-content:center;width:100%;}
+.tuto-opp-chip{background:rgba(255,255,255,.05);border:1px solid rgba(212,168,67,.12);border-radius:12px;padding:8px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:64px;transition:all .3s;}
+.tuto-opp-chip.active{border-color:rgba(212,168,67,.45);background:rgba(212,168,67,.07);box-shadow:0 0 12px rgba(212,168,67,.15);}
+.tuto-opp-name{font-size:10px;color:rgba(245,240,232,.45);}
+.tuto-opp-cnt{font-size:11px;color:var(--gold);font-weight:700;}
+.tuto-opp-cards-mini{display:flex;gap:2px;justify-content:center;flex-wrap:wrap;max-width:80px;}
+.tuto-mini{width:10px;height:14px;background:linear-gradient(160deg,#3a6b4a,#2a4a32);border-radius:2px;border:1px solid rgba(212,168,67,.2);}
+.tuto-center{display:flex;align-items:center;justify-content:center;gap:24px;flex:1;}
+.tuto-deck-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.tuto-deck-card{font-size:52px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.6));transition:transform .15s;line-height:1;}
+.tuto-deck-wrap:hover .tuto-deck-card{transform:scale(1.05);}
+.tuto-deck-count{font-size:10px;color:rgba(245,240,232,.35);}
+.tuto-pot-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.tuto-player-zone{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.tuto-you-label{font-size:11px;color:rgba(245,240,232,.3);letter-spacing:1px;}
+.tuto-hand{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;min-height:80px;align-items:center;}
+.tuto-actions{display:flex;gap:10px;}
+.tuto-btn-draw{padding:11px 20px;border-radius:11px;border:1.5px solid rgba(212,168,67,.25);background:rgba(212,168,67,.07);color:var(--gold);font-family:'Lato',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.tuto-btn-draw:hover{background:rgba(212,168,67,.14);}
+.tuto-btn-draw:disabled{opacity:.3;cursor:not-allowed;}
+.tuto-btn-play{padding:11px 20px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#1a0f00;font-family:'Lato',sans-serif;font-size:13px;font-weight:900;cursor:pointer;transition:all .2s;}
+.tuto-btn-play:hover:not(:disabled){transform:scale(1.04);}
+.tuto-btn-play:disabled{opacity:.3;cursor:not-allowed;background:rgba(212,168,67,.15);color:var(--gold);}
+/* Coach */
+.tuto-coach{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;align-items:flex-end;gap:10px;padding:10px 14px 20px;background:linear-gradient(to top, rgba(4,12,6,.98) 80%, transparent);pointer-events:none;min-height:130px;}
+.tuto-avatar{font-size:34px;flex-shrink:0;animation:tAvatar 2.5s ease-in-out infinite;pointer-events:none;}
+@keyframes tAvatar{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-5px) rotate(3deg);}}
+.tuto-bubble-wrap{display:flex;flex-direction:column;gap:8px;pointer-events:all;flex:1;}
+.tuto-bubble{background:rgba(10,25,14,.98);border:1.5px solid rgba(212,168,67,.35);border-radius:14px 14px 14px 3px;padding:12px 15px;font-size:14px;color:var(--cream);line-height:1.65;box-shadow:0 6px 24px rgba(0,0,0,.5);animation:tBubble .25s cubic-bezier(.34,1.5,.64,1);}
+@keyframes tBubble{from{opacity:0;transform:translateY(8px) scale(.95);}to{opacity:1;transform:none;}}
+.tuto-bubble strong{color:var(--gold);}
+.tuto-bubble em{color:rgba(245,240,232,.55);font-style:normal;font-size:12px;}
+.tuto-ok-btn{align-self:flex-end;background:linear-gradient(135deg,var(--gold),var(--gold-d));border:none;border-radius:9px;padding:9px 20px;color:#1a0f00;font-family:'Lato',sans-serif;font-size:13px;font-weight:900;cursor:pointer;transition:transform .15s;}
+.tuto-ok-btn:hover{transform:scale(1.04);}
+/* Highlight */
+.tuto-hl{position:fixed;z-index:150;border-radius:14px;pointer-events:none;transition:all .35s cubic-bezier(.34,1.1,.64,1);}
+@keyframes tHlPulse{0%,100%{box-shadow:0 0 0 9999px rgba(0,0,0,.55),0 0 0 2px var(--gold),0 0 16px rgba(212,168,67,.4);}50%{box-shadow:0 0 0 9999px rgba(0,0,0,.65),0 0 0 2px var(--gold),0 0 32px rgba(212,168,67,.7);}}
+.tuto-hl.on{animation:tHlPulse 1.6s infinite;}
+/* Progress bar */
+.tuto-bar{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(212,168,67,.1);z-index:300;}
+.tuto-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold));width:0%;transition:width .5s ease;}
+/* Pending badge in tuto */
+#tuto-pend-zone .pending-badge{margin:4px 0;}
+/* Welcome screen */
+#s-welcome{padding:0;}
 </style>
 </head>
 <body>
@@ -347,6 +397,8 @@ body::before{
     <!-- Bouton discret config Firebase (en bas) -->
     <div class="setup-footer">
       <button class="footer-cfg-btn" id="btn-show-firebase" onclick="toggleFirebasePanel()">⚙ Config serveur</button>
+      <span style="color:rgba(245,240,232,.1)">·</span>
+      <button class="footer-cfg-btn" onclick="replayTutorial()">📚 Tutoriel</button>
       <span id="conn-dot-setup" class="conn-dot-setup"></span>
     </div>
 
@@ -370,6 +422,82 @@ body::before{
       <span id="fb-ok" style="display:none"></span>
     </div>
   </div>
+</div>
+
+<!-- ══ WELCOME / FIRST TIME ══ -->
+<div class="screen" id="s-welcome">
+  <div class="bg-cards" aria-hidden="true">
+    <div class="bgc bgc1">♠</div><div class="bgc bgc2">♥</div>
+    <div class="bgc bgc3">♦</div><div class="bgc bgc4">♣</div>
+  </div>
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:420px;margin:0 auto;padding:48px 24px;gap:24px;min-height:100dvh;justify-content:center;text-align:center;">
+    <div class="logo" style="font-size:58px;letter-spacing:8px">CHECK</div>
+    <div class="logo-suits">♠ ♥ ♦ ♣</div>
+    <div style="font-size:22px;font-weight:700;color:var(--cream);margin-top:8px">Bienvenue !</div>
+    <div style="font-size:15px;color:rgba(245,240,232,.55);line-height:1.7;max-width:320px">
+      C\u2019est ta premi\u00e8re fois ici.<br>Est-ce que tu connais déjà les règles du jeu <strong style="color:var(--gold)">CHECK</strong> ?
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;margin-top:8px">
+      <button class="setup-btn-main" id="btn-know-rules" onclick="skipTutorial()">
+        ✅ Oui, je connais les règles
+      </button>
+      <button class="setup-btn-main" style="background:linear-gradient(160deg,rgba(212,168,67,.15) 0%,rgba(212,168,67,.05) 100%);color:var(--gold);border:1.5px solid rgba(212,168,67,.35);box-shadow:none" onclick="startTutorial()">
+        📚 Non, apprends-moi à jouer !
+      </button>
+    </div>
+    <div style="font-size:11px;color:rgba(245,240,232,.2);margin-top:4px">
+      Tu pourras rejouer le tutoriel depuis le menu
+    </div>
+  </div>
+</div>
+
+<!-- ══ TUTORIEL ══ -->
+<div class="screen" id="s-tuto">
+  <button class="tuto-skip" onclick="endTutorial()">Passer ✕</button>
+
+  <!-- Table de jeu tutoriel -->
+  <div class="tuto-table">
+
+    <!-- Adversaires en haut -->
+    <div class="tuto-opps" id="tuto-opp-row"></div>
+
+    <!-- Zone centrale : pioche + pot -->
+    <div class="tuto-center">
+      <div class="tuto-deck-wrap" id="tuto-deck-pile">
+        <div class="tuto-deck-card">🂠</div>
+        <div class="tuto-deck-count" id="tuto-deck-count">52</div>
+      </div>
+      <div class="tuto-pot-wrap">
+        <div id="tuto-pot-zone"></div>
+        <div id="tuto-pend-zone"></div>
+      </div>
+    </div>
+
+    <!-- Main du joueur -->
+    <div class="tuto-player-zone">
+      <div class="tuto-you-label">Toi 👇</div>
+      <div class="tuto-hand" id="tuto-hand"></div>
+      <div class="tuto-actions">
+        <button class="tuto-btn-draw" id="tuto-btn-draw" onclick="tutoDrawCard()">🎴 Piocher</button>
+        <button class="tuto-btn-play" id="tuto-btn-play" disabled onclick="tutoPlayCard()">▶ Jouer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coach bulle (bas de page) -->
+  <div class="tuto-coach" id="tuto-coach">
+    <div class="tuto-avatar" id="tuto-avatar">🃏</div>
+    <div class="tuto-bubble-wrap">
+      <div class="tuto-bubble" id="tuto-bubble">…</div>
+      <button class="tuto-ok-btn" id="tuto-ok-btn" style="display:none" onclick="tutoNext()">OK, compris →</button>
+    </div>
+  </div>
+
+  <!-- Highlight overlay -->
+  <div class="tuto-hl" id="tuto-hl" style="display:none"></div>
+
+  <!-- Progress bar -->
+  <div class="tuto-bar"><div class="tuto-bar-fill" id="tuto-bar-fill"></div></div>
 </div>
 
 <!-- ══ LOBBY ══ -->
@@ -711,6 +839,647 @@ function checkReady(){
 }
 
 // Auto-load
+
+// ════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// TUTORIEL INTERACTIF — Scénario pratique avec IA
+// ════════════════════════════════════════════════════════
+
+// ── Première visite ──
+function checkFirstTime(){
+  try{ if(!localStorage.getItem('check_seen_v1')) show('s-welcome'); else show('s-setup'); }
+  catch(e){ show('s-setup'); }
+}
+function skipTutorial(){
+  try{localStorage.setItem('check_seen_v1','1');}catch(e){}
+  const cfg=loadCfg();
+  show('s-setup');
+  if(!cfg||!cfg.apiKey){
+    document.getElementById('panel-firebase').style.display='';
+  } else if(!db){
+    const connecting=document.getElementById('setup-connecting');
+    if(connecting) connecting.style.display='flex';
+    document.getElementById('panel-firebase').style.display='none';
+    doConnect(cfg.apiKey,cfg.databaseURL,cfg.projectId).then(ok=>{
+      if(ok){ checkReady(); }
+      else { document.getElementById('panel-firebase').style.display=''; }
+    });
+  }
+}
+function replayTutorial(){ startTutorial(); }
+function endTutorial(){
+  hlOff();
+  if(T._iaTimer) clearTimeout(T._iaTimer);
+  T={};
+  skipTutorial();
+}
+
+// ── State global tutoriel ──
+let T={};
+
+// ── Constantes ──
+const TUTO_TOTAL_SCENES=12;
+
+// ════════════════════════════════
+// SCÈNES — chaque scène = une situation pédagogique
+// ════════════════════════════════
+const SCENES=[
+
+  // ── 0. INTRO ──
+  { setup(){
+      setHand('me',[c('K','♠'),c('7','♥'),c('Q','♦'),c('5','♣'),c('2','♣')]);
+      setPot(c('K','♥'));
+      setHand('ia1',[c('A','♣'),c('3','♠'),c('8','♦'),c('J','♥'),c('6','♣')]);
+      setHand('ia2',[c('9','♥'),c('4','♦'),c('Q','♣'),c('7','♠'),c('10','♥')]);
+      lockPlayer();
+    },
+    lines:[
+      {say:`Bienvenue dans <strong>CHECK</strong> ! 🃏 Je suis Max, ton coach.<br><em>On va apprendre en jouant une vraie partie ensemble.</em>`, ok:true},
+      {say:`Le but ? <strong>Vider ta main</strong> avant tout le monde. Celui qui reste avec des cartes perd.`, ok:true},
+      {say:`Tu joues contre <strong>Alice</strong> et <strong>Bob</strong>. Ce sont des IA — elles joueront pour de vrai !`, ok:true, action:'unlockPlayer'},
+    ]
+  },
+
+  // ── 1. RÈGLE DE BASE : jouer une carte ──
+  { setup(){
+      setHand('me',[c('K','♠'),c('7','♥'),c('Q','♦'),c('5','♣'),c('2','♣')]);
+      setPot(c('K','♥'));
+      unlockPlayer();
+    },
+    lines:[
+      {say:`La carte au centre c'est le <strong>pot</strong> — c'est sur elle que tu joues.<br>En ce moment c'est un <strong>K♥</strong>.`, ok:true, hl:'tuto-pot-zone'},
+      {say:`Tu peux jouer une carte si elle a le <strong>même rang</strong> (ex: K sur K) ou la <strong>même couleur</strong> (♥ sur ♥).`, ok:true, hl:'tuto-pot-zone'},
+      {say:`Dans ta main, les cartes <strong>qui brillent</strong> peuvent être jouées. <br><em>Sélectionne le K♠ (même rang que K♥) et joue-le !</em>`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'K'},
+    ]
+  },
+
+  // ── 2. PIOCHER ──
+  { setup(){
+      setHand('me',[c('3','♥'),c('8','♣'),c('9','♦')]);
+      setPot(c('K','♠'));
+      unlockPlayer();
+    },
+    lines:[
+      {say:`Parfait ! Maintenant regarde ta main — aucune carte ne brille. Aucune ne peut se jouer sur le K♠.`, ok:true},
+      {say:`Dans ce cas tu <strong>pioches</strong> une carte dans la pile. Clique sur <strong>🎴 Piocher</strong> !`, ok:false, hl:'tuto-btn-draw', waitFor:'drew'},
+      {say:`La carte passe dans ta main. Si elle est jouable, tu peux la jouer tout de suite ou attendre ton prochain tour.`, ok:true},
+    ]
+  },
+
+  // ── 3. TOUR DE L'IA ──
+  { setup(){
+      setHand('me',[c('5','♣'),c('J','♥'),c('10','♦')]);
+      setPot(c('5','♥'));
+      setHand('ia1',[c('5','♦'),c('3','♠'),c('Q','♥')]);
+      setHand('ia2',[c('8','♠'),c('K','♣'),c('2','♥')]);
+      T.currentPlayer='ia1';
+      unlockPlayer();
+    },
+    lines:[
+      {say:`Bien ! Maintenant c'est le tour d'<strong>Alice</strong>. Regarde ce qu'elle fait.`, ok:false, action:'iaOneTurn'},
+      {say:`Tu vois ? Elle a joué une carte du même rang ou de la même couleur que le pot. <br><em>C'est aussi simple que ça !</em>`, ok:true},
+      {say:`Maintenant c'est <strong>ton tour</strong>. Joue une carte sur ce qu'Alice vient de poser !`, ok:false, hl:'tuto-hand', waitFor:'played'},
+    ]
+  },
+
+  // ── 4. LE 7 (chaîne +2) ──
+  { setup(){
+      setHand('me',[c('7','♠'),c('K','♣'),c('3','♦')]);
+      setPot(c('7','♥'));
+      setHand('ia1',[c('A','♣'),c('8','♦'),c('Q','♥')]);
+      setHand('ia2',[c('9','♥'),c('4','♦'),c('7','♣')]);
+      unlockPlayer();
+    },
+    lines:[
+      {say:`Le <strong>7</strong> est une carte d'attaque ! Si tu le joues, le joueur suivant doit <strong>piocher +2 cartes</strong>.`, ok:true, hl:'tuto-hand'},
+      {say:`Et si lui aussi a un 7, il peut le renvoyer ! La chaîne <strong>s'accumule</strong> : +2, +4, +6...`, ok:true},
+      {say:`Tu as un <strong>7♠</strong> dans ta main — même couleur que le 7♥ du pot. <em>Joue-le !</em>`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'7'},
+    ]
+  },
+
+  // ── 5. Conséquence du 7 — IA doit piocher ──
+  { setup: null, // continue from scene 4
+    lines:[
+      {say:`⚡ <strong>+2 en chaîne !</strong> C'est le tour d'Alice — elle doit prendre ces 2 cartes.<br><em>Regarde...</em>`, ok:false, action:'iaOneTurnForce'},
+      {say:`Alice n'a pas de 7 pour renvoyer, elle prend <strong>+2 cartes</strong>. Aïe ! 😄`, ok:true},
+    ]
+  },
+
+  // ── 6. L'AS (bloquer) ──
+  { setup(){
+      setHand('me',[c('A','♦'),c('K','♣'),c('3','♥')]);
+      setPot(c('A','♠'));
+      setHand('ia1',[c('Q','♣'),c('8','♦'),c('5','♥')]);
+      setHand('ia2',[c('9','♥'),c('4','♦'),c('J','♣')]);
+      unlockPlayer();
+    },
+    lines:[
+      {say:`L'<strong>As</strong> est le bloqueur ! Si tu le joues, le joueur suivant <strong>passe son tour</strong> — il ne peut rien faire.`, ok:true, hl:'tuto-hand'},
+      {say:`Tu as un <strong>A♦</strong> et le pot est un <strong>A♠</strong> — même rang. <em>Joue-le pour bloquer Alice !</em>`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'A'},
+    ]
+  },
+
+  // ── 7. LE VALET (universel + commander couleur) ──
+  { setup(){
+      setHand('me',[c('J','♥'),c('5','♣'),c('10','♦')]);
+      setPot(c('K','♠'));
+      setHand('ia1',[c('Q','♣'),c('8','♦'),c('5','♥')]);
+      setHand('ia2',[c('9','♥'),c('4','♦'),c('2','♣')]);
+      unlockPlayer();
+    },
+    lines:[
+      {say:`Le <strong>Valet (J)</strong> est une joker de couleur ! Il se joue sur <strong>n'importe quelle carte</strong>, peu importe le rang ou la couleur.`, ok:true, hl:'tuto-hand'},
+      {say:`Quand tu le joues, tu <strong>choisis la couleur</strong> que le prochain devra suivre. Très puissant !`, ok:true},
+      {say:`Joue ton <strong>J♥</strong> et choisis la couleur qui t'arrange le mieux !`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'J'},
+    ]
+  },
+
+  // ── 8. LE 2 (universel + dessus/dessous) ──
+  { setup(){
+      setHand('me',[c('2','♦'),c('8','♣'),c('Q','♥')]);
+      setPot(c('K','♠'));
+      setHand('ia1',[c('3','♣'),c('7','♦'),c('A','♥')]);
+      setHand('ia2',[c('9','♥'),c('4','♦'),c('5','♠')]);
+      unlockPlayer();
+    },
+    lines:[
+      {say:`Le <strong>2</strong> est universel lui aussi — il joue sur tout. Mais il a une particularité unique !`, ok:true, hl:'tuto-hand'},
+      {say:`Tu peux le jouer <strong>Dessus</strong> (la carte change, le suivant joue dessus) ou <strong>Dessous</strong> (la carte active ne change pas, le 2 glisse en dessous).`, ok:true},
+      {say:`⚠️ Le 2 ne bloque ni ne renvoie les chaînes +2/+4 — ça c'est réservé au 7 et au Joker.<br><em>Joue ton 2 !</em>`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'2'},
+    ]
+  },
+
+  // ── 9. LE JOKER ──
+  { setup(){
+      const jr={r:'JOKER',s:'★',color:'red',id:'tjr'};
+      setHand('me',[jr,c('8','♣'),c('Q','♥')]);
+      setPot(c('K','♥'));
+      setHand('ia1',[c('3','♣'),c('7','♦'),c('A','♥')]);
+      setHand('ia2',[c('9','♥'),c('4','♦'),c('5','♠')]);
+      unlockPlayer();
+    },
+    lines:[
+      {say:`Le <strong>Joker</strong> 🔴 est la carte la plus forte ! Il oblige le suivant à piocher <strong>+4 cartes</strong>.`, ok:true, hl:'tuto-hand'},
+      {say:`Le <strong>Joker Rouge</strong> joue sur les cartes ♥♦. Le <strong>Joker Noir</strong> joue sur ♠♣.<br>Les Jokers se cumulent entre eux en chaîne.`, ok:true},
+      {say:`Joue ton <strong>Joker Rouge</strong> sur le K♥ (même famille rouge) et regarde l'effet !`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'JOKER'},
+    ]
+  },
+
+  // ── 10. CHAÎNE : contre-attaque ──
+  { setup(){
+      setHand('me',[c('7','♦'),c('K','♣'),c('3','♥')]);
+      setPot(c('7','♠'));
+      T.pendingDraws=2;
+      unlockPlayer();
+    },
+    lines:[
+      {say:`⚡ Attention ! Alice vient de jouer un <strong>7</strong> — tu dois prendre <strong>+2</strong>... <em>sauf si tu as un 7 ou un Joker !</em>`, ok:true, hl:'tuto-pend-zone'},
+      {say:`Tu as un <strong>7♦</strong> ! Si tu le joues, la chaîne monte à <strong>+4</strong> et c'est Bob qui devra piocher ou renvoyer.`, ok:true, hl:'tuto-hand'},
+      {say:`Joue ton <strong>7♦</strong> pour renvoyer la chaîne à Bob !`, ok:false, hl:'tuto-hand', waitFor:'played', expect:'7'},
+    ]
+  },
+
+  // ── 11. PARTIE RAPIDE — tout jouer librement ──
+  { setup(){
+      setHand('me',[c('Q','♠'),c('5','♥'),c('J','♦'),c('10','♣'),c('3','♠')]);
+      setPot(c('Q','♥'));
+      setHand('ia1',[c('A','♣'),c('8','♦'),c('7','♠'),c('K','♥')]);
+      setHand('ia2',[c('9','♠'),c('4','♥'),c('2','♦'),c('6','♣')]);
+      T.currentPlayer='me';
+      unlockPlayer();
+    },
+    lines:[
+      {say:`🏁 Tu connais maintenant toutes les règles ! On joue une <strong>mini-partie libre</strong>.<br>Alice et Bob jouent aussi. Premier à vider sa main gagne !`, ok:false, action:'startFreePlay'},
+    ]
+  },
+
+];
+
+// ── Card helper ──
+let _tid=0;
+function c(r,s){ return {r,s,id:'t'+(++_tid)+r+s}; }
+
+// ── State setters ──
+function setHand(who,cards){ T.hands=T.hands||{me:[],ia1:[],ia2:[]}; T.hands[who]=[...cards]; }
+function setPot(card){ T.pot=[card]; }
+function lockPlayer(){ T.locked=true; }
+function unlockPlayer(){ T.locked=false; T.currentPlayer='me'; }
+
+// ── Highlight ──
+function hlOn(id){
+  const hl=document.getElementById('tuto-hl');
+  if(!hl)return;
+  const el=document.getElementById(id);
+  if(!el){hl.style.display='none';return;}
+  const r=el.getBoundingClientRect();
+  hl.style.cssText=`display:block;top:${r.top-8}px;left:${r.left-8}px;width:${r.width+16}px;height:${r.height+16}px;`;
+  hl.classList.add('on');
+}
+function hlOff(){
+  const hl=document.getElementById('tuto-hl');
+  if(hl){hl.style.display='none';hl.classList.remove('on');}
+}
+
+// ── Render ──
+function renderTuto(){
+  if(!T.hands)return;
+  const top=T.pot&&T.pot.length?T.pot[T.pot.length-1]:null;
+  // Opps
+  const row=document.getElementById('tuto-opp-row');
+  if(row){
+    row.innerHTML='';
+    ['ia1','ia2'].forEach((uid,i)=>{
+      const active=T.currentPlayer===uid;
+      const nm=i===0?'Alice 🤖':'Bob 🤖';
+      const hand=T.hands[uid]||[];
+      const d=document.createElement('div');
+      d.className='tuto-opp-chip'+(active?' active':'');
+      const minis=hand.map(()=>'<div class="tuto-mini"></div>').join('');
+      d.innerHTML=`<div class="tuto-opp-name">${nm}</div><div class="tuto-opp-cards-mini">${minis}</div><div class="tuto-opp-cnt">🂠 ${hand.length}</div>`;
+      row.appendChild(d);
+    });
+  }
+  // Deck count
+  const dc=document.getElementById('tuto-deck-count');
+  if(dc) dc.textContent=(T.deck||[]).length;
+  // Pot
+  const pz=document.getElementById('tuto-pot-zone');
+  if(pz&&top){ pz.innerHTML=''; pz.appendChild(makeTCard(top,false)); }
+  // Pending
+  const pendZ=document.getElementById('tuto-pend-zone');
+  if(pendZ) pendZ.innerHTML=T.pendingDraws>0?`<div class="pending-badge">⚡ +${T.pendingDraws} en chaîne</div>`:'';
+  // Hand
+  renderTHand(top);
+  // Buttons
+  const isMine=T.currentPlayer==='me'&&!T.locked&&!T.freeplay_iaThinking;
+  document.getElementById('tuto-btn-draw').disabled=!isMine;
+  document.getElementById('tuto-btn-play').disabled=!isMine||!T.selected;
+}
+
+function renderTHand(top){
+  const hc=document.getElementById('tuto-hand');
+  if(!hc)return;
+  hc.innerHTML='';
+  const isMine=T.currentPlayer==='me'&&!T.locked;
+  (T.hands&&T.hands.me||[]).forEach(card=>{
+    const pl=isMine&&canPlay(card,top,T.commandedSuit,T.pendingDraws,null);
+    const el=makeTCard(card,pl);
+    if(card.id===T.selected) el.style.transform='translateY(-10px)';
+    el.onclick=()=>{
+      if(!isMine)return;
+      T.selected=(T.selected===card.id)?null:card.id;
+      renderTuto();
+      document.getElementById('tuto-btn-play').disabled=!T.selected;
+    };
+    hc.appendChild(el);
+  });
+}
+
+function makeTCard(card,playable){
+  const el=document.createElement('div');
+  const isR=card.r==='JOKER'?card.color==='red':RED.includes(card.s);
+  el.style.cssText=`width:48px;height:68px;border-radius:8px;display:flex;flex-direction:column;justify-content:space-between;padding:4px 5px;cursor:${playable?'pointer':'default'};transition:transform .2s,box-shadow .2s;position:relative;user-select:none;flex-shrink:0;background:${isR?'linear-gradient(160deg,#fff5f5,#ffd5d5)':'linear-gradient(160deg,#f5f5ff,#dce0f5)'};border:${playable?'2px solid var(--gold)':'1px solid rgba(0,0,0,.15)'};box-shadow:${playable?'0 0 12px rgba(212,168,67,.5),0 3px 8px rgba(0,0,0,.3)':'0 2px 6px rgba(0,0,0,.3)'};`;
+  const color=isR?'#b91c1c':'#1e1b4b';
+  if(card.r==='JOKER'){
+    el.innerHTML=`<div style="font-size:8px;font-weight:900;color:${color}">JKR</div><div style="font-size:18px;text-align:center">${card.color==='red'?'🔴':'⚫'}</div><div style="font-size:8px;font-weight:900;color:${color};align-self:flex-end">JKR</div>`;
+  }else{
+    el.innerHTML=`<div style="font-size:10px;font-weight:900;color:${color};line-height:1.2">${card.r}<br>${card.s}</div><div style="font-size:20px;text-align:center;color:${color}">${card.s}</div><div style="font-size:10px;font-weight:900;color:${color};align-self:flex-end;line-height:1.2;transform:rotate(180deg)">${card.r}<br>${card.s}</div>`;
+  }
+  return el;
+}
+
+// ── Scene runner ──
+let _sceneIdx=0;
+let _lineIdx=0;
+
+function startTutorial(){
+  try{localStorage.setItem('check_seen_v1','1');}catch(e){}
+  _tid=0; _sceneIdx=0; _lineIdx=0;
+  T={ hands:{me:[],ia1:[],ia2:[]}, pot:[], deck:buildTDeck(), pendingDraws:0, commandedSuit:null, selected:null, currentPlayer:'me', locked:true };
+  show('s-tuto');
+  runScene(0);
+}
+
+function buildTDeck(){
+  const ranks=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+  const suits=['♠','♣','♥','♦'];
+  const cards=[];
+  let i=0;
+  for(const s of suits) for(const r of ranks) cards.push({r,s,id:'dk'+(i++)});
+  cards.push({r:'JOKER',s:'★',color:'red',id:'dkJR'});
+  cards.push({r:'JOKER',s:'★',color:'black',id:'dkJB'});
+  for(let i=cards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cards[i],cards[j]]=[cards[j],cards[i]];}
+  return cards;
+}
+
+function runScene(idx){
+  _sceneIdx=idx;
+  _lineIdx=0;
+  if(idx>=SCENES.length){ endTutorial(); return; }
+  const scene=SCENES[idx];
+  // Progress bar
+  const pct=Math.round((idx/SCENES.length)*100);
+  const fill=document.getElementById('tuto-bar-fill');
+  if(fill) fill.style.width=pct+'%';
+  // Setup
+  if(scene.setup) scene.setup();
+  renderTuto();
+  runLine(idx,0);
+}
+
+function runLine(sceneIdx,lineIdx){
+  _sceneIdx=sceneIdx; _lineIdx=lineIdx;
+  const scene=SCENES[sceneIdx];
+  if(!scene||lineIdx>=scene.lines.length){ runScene(sceneIdx+1); return; }
+  const line=scene.lines[lineIdx];
+  // Show bubble
+  say(line.say, line.ok!==false);
+  // Highlight
+  if(line.hl) hlOn(line.hl); else hlOff();
+  // Action
+  if(line.action==='unlockPlayer'){ unlockPlayer(); renderTuto(); }
+  if(line.action==='iaOneTurn'){ setTimeout(()=>iaOneTurn(()=>runLine(sceneIdx,lineIdx+1)),600); return; }
+  if(line.action==='iaOneTurnForce'){ setTimeout(()=>iaForceDrawPenalty(()=>runLine(sceneIdx,lineIdx+1)),600); return; }
+  if(line.action==='startFreePlay'){ startFreePlay(); return; }
+  // Wait for player action
+  if(line.waitFor){
+    T.waitingFor=line.waitFor;
+    T.waitingExpect=line.expect||null;
+    // ok btn hidden during wait
+    const okb=document.getElementById('tuto-ok-btn');
+    if(okb) okb.style.display='none';
+  }
+}
+
+function tutoNext(){
+  runLine(_sceneIdx, _lineIdx+1);
+}
+
+function say(msg, showOk){
+  const bub=document.getElementById('tuto-bubble');
+  if(bub){ bub.innerHTML=msg; bub.style.animation='none'; void bub.offsetWidth; bub.style.animation=''; }
+  const okb=document.getElementById('tuto-ok-btn');
+  if(okb) okb.style.display=showOk?'':'none';
+}
+
+// ── Player actions ──
+function tutoDrawCard(){
+  if(T.currentPlayer!=='me'||T.locked||T.freeplay_iaThinking)return;
+  const top=T.pot&&T.pot.length?T.pot[T.pot.length-1]:null;
+  if(T.pendingDraws>0){
+    for(let i=0;i<T.pendingDraws;i++){
+      if(!T.deck.length) reshufTuto();
+      if(T.deck.length) T.hands.me.push(T.deck.pop());
+    }
+    T.pendingDraws=0;
+  }else{
+    if(!T.deck.length) reshufTuto();
+    if(T.deck.length) T.hands.me.push(T.deck.pop());
+  }
+  T.selected=null;
+  renderTuto();
+  // Check if waiting for draw
+  if(T.waitingFor==='drew'){
+    T.waitingFor=null;
+    setTimeout(()=>runLine(_sceneIdx,_lineIdx+1),500);
+    return;
+  }
+  // In freeplay: advance turn
+  if(T.freeplay) tutoFreePlayNextTurn(false);
+}
+
+function tutoPlayCard(){
+  if(!T.selected||T.currentPlayer!=='me'||T.locked||T.freeplay_iaThinking)return;
+  const card=T.hands.me.find(c=>c.id===T.selected);
+  if(!card)return;
+  const top=T.pot[T.pot.length-1];
+  if(!canPlay(card,top,T.commandedSuit,T.pendingDraws,null))return;
+
+  if(card.r==='J'){
+    tutoPickSuit().then(suit=>{ if(suit) tutoDoPlay(card,suit,null); });
+    return;
+  }
+  if(card.r==='2'){
+    tutoPickTwo().then(pl=>{ if(pl) tutoDoPlay(card,null,pl); });
+    return;
+  }
+  tutoDoPlay(card,null,null);
+}
+
+function tutoDoPlay(card,suit,twoPlace){
+  T.hands.me=T.hands.me.filter(c=>c.id!==card.id);
+  T.selected=null;
+  // Pot
+  if(card.r==='2'&&twoPlace==='bottom'&&T.pot.length>0){
+    const top=T.pot[T.pot.length-1];
+    T.pot=[...T.pot.slice(0,-1),card,top];
+  }else{
+    T.pot.push(card);
+  }
+  // Effects
+  if(card.r==='7') T.pendingDraws+=2;
+  else if(card.r==='JOKER') T.pendingDraws+=4;
+  else if(card.r==='J'){T.commandedSuit=suit;T.pendingDraws=0;}
+  else if(card.r==='2'){/* keep pending */}
+  else if(card.r==='A'){T.pendingDraws=0;}
+  else{T.pendingDraws=0;T.commandedSuit=null;}
+
+  renderTuto();
+
+  // Check win in freeplay
+  if(T.freeplay){
+    if(T.hands.me.length===0){ tutoWin('Toi'); return; }
+    tutoFreePlayNextTurn(card.r==='A');
+    return;
+  }
+
+  // Check waiting
+  const was=T.waitingFor;
+  const exp=T.waitingExpect;
+  T.waitingFor=null; T.waitingExpect=null;
+  if(was==='played'||(was&&was.startsWith('played'))){
+    if(exp&&card.r!==exp){
+      // Wrong card — gently correct
+      T.hands.me.push(card); T.pot.pop();
+      if(card.r==='2'&&twoPlace==='bottom'){T.pot=[...T.pot.slice(0,-1)];T.pot.push(T.pot[T.pot.length-1]);}
+      T.pendingDraws= card.r==='7'?T.pendingDraws-2:card.r==='JOKER'?T.pendingDraws-4:T.pendingDraws;
+      T.waitingFor=was; T.waitingExpect=exp;
+      say(`<em>Pas tout à fait... essaie de jouer le <strong>${exp}</strong> pour voir l'effet de cette carte !</em>`,false);
+      renderTuto();
+      return;
+    }
+    setTimeout(()=>runLine(_sceneIdx,_lineIdx+1),400);
+  }
+}
+
+function reshufTuto(){
+  const keep=T.pot.length?[T.pot[T.pot.length-1]]:[];
+  const rest=T.pot.slice(0,-1);
+  T.pot=keep;
+  for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];}
+  T.deck=[...T.deck,...rest];
+}
+
+// ── IA plays one turn ──
+function iaOneTurn(cb){
+  const uid=T.currentPlayer;
+  if(uid==='me'){ if(cb) cb(); return; }
+  const hand=[...(T.hands[uid]||[])];
+  const top=T.pot[T.pot.length-1];
+  let played=null;
+  if(T.pendingDraws>0) played=hand.find(c=>c.r==='7'||c.r==='JOKER'||c.r==='J');
+  if(!played) played=hand.find(c=>canPlay(c,top,T.commandedSuit,T.pendingDraws,null));
+  if(played){
+    T.hands[uid]=hand.filter(c=>c.id!==played.id);
+    T.pot.push(played);
+    if(played.r==='7') T.pendingDraws+=2;
+    else if(played.r==='JOKER') T.pendingDraws+=4;
+    else if(played.r==='J'){
+      const counts={};
+      T.hands[uid].forEach(c=>{if(c.r!=='JOKER')counts[c.s]=(counts[c.s]||0)+1;});
+      const best=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+      T.commandedSuit=best?best[0]:null;
+      T.pendingDraws=0;
+    }
+    else if(played.r==='A'){T.pendingDraws=0;}
+    else{T.pendingDraws=0;T.commandedSuit=null;}
+  }else{
+    if(T.pendingDraws>0){
+      for(let i=0;i<T.pendingDraws;i++){if(!T.deck.length)reshufTuto();if(T.deck.length)T.hands[uid].push(T.deck.pop());}
+      T.pendingDraws=0;
+    }else{
+      if(!T.deck.length)reshufTuto();
+      if(T.deck.length)T.hands[uid].push(T.deck.pop());
+    }
+  }
+  // Advance to next
+  const order=['me','ia1','ia2'];
+  let next=(order.indexOf(uid)+1)%3;
+  if(played&&played.r==='A') next=(next+1)%3;
+  T.currentPlayer=order[next];
+  renderTuto();
+  setTimeout(()=>{ if(cb) cb(); },600);
+}
+
+function iaForceDrawPenalty(cb){
+  const uid=T.currentPlayer;
+  const hand=[...(T.hands[uid]||[])];
+  // Force draw: no counter
+  if(T.pendingDraws>0){
+    for(let i=0;i<T.pendingDraws;i++){if(!T.deck.length)reshufTuto();if(T.deck.length)T.hands[uid].push(T.deck.pop());}
+    T.pendingDraws=0;
+  }else{
+    if(!T.deck.length)reshufTuto();
+    if(T.deck.length)T.hands[uid].push(T.deck.pop());
+  }
+  const order=['me','ia1','ia2'];
+  T.currentPlayer=order[(order.indexOf(uid)+1)%3];
+  renderTuto();
+  setTimeout(()=>{ if(cb) cb(); },700);
+}
+
+// ── Free play mode ──
+function startFreePlay(){
+  T.freeplay=true;
+  T.freeplay_iaThinking=false;
+  T.currentPlayer='me';
+  say(`🎮 <strong>Joue librement !</strong> Vide ta main avant Alice et Bob pour gagner !`, false);
+  hlOff();
+  renderTuto();
+}
+
+function tutoFreePlayNextTurn(skip){
+  const order=['me','ia1','ia2'];
+  let idx=order.indexOf(T.currentPlayer);
+  let next=(idx+1)%3;
+  if(skip) next=(next+1)%3;
+  T.currentPlayer=order[next];
+  renderTuto();
+  if(T.currentPlayer!=='me'){
+    T.freeplay_iaThinking=true;
+    T._iaTimer=setTimeout(()=>{ iaFreePlayTurn(); },900);
+  }
+}
+
+function iaFreePlayTurn(){
+  const uid=T.currentPlayer;
+  if(!uid||uid==='me'){T.freeplay_iaThinking=false;return;}
+  const hand=[...(T.hands[uid]||[])];
+  const top=T.pot[T.pot.length-1];
+  let played=null;
+  if(T.pendingDraws>0) played=hand.find(c=>c.r==='7'||c.r==='JOKER'||c.r==='J');
+  if(!played) played=hand.find(c=>canPlay(c,top,T.commandedSuit,T.pendingDraws,null));
+  if(played){
+    T.hands[uid]=hand.filter(c=>c.id!==played.id);
+    T.pot.push(played);
+    if(played.r==='7') T.pendingDraws+=2;
+    else if(played.r==='JOKER') T.pendingDraws+=4;
+    else if(played.r==='J'){
+      const counts={};
+      T.hands[uid].forEach(c=>{if(c.r!=='JOKER')counts[c.s]=(counts[c.s]||0)+1;});
+      const best=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+      T.commandedSuit=best?best[0]:null;
+      T.pendingDraws=0;
+    }
+    else if(played.r==='A'){T.pendingDraws=0;}
+    else{T.pendingDraws=0;T.commandedSuit=null;}
+    if(T.hands[uid].length===0){ T.freeplay_iaThinking=false; tutoWin(uid==='ia1'?'Alice':'Bob'); return; }
+  }else{
+    if(T.pendingDraws>0){
+      for(let i=0;i<T.pendingDraws;i++){if(!T.deck.length)reshufTuto();if(T.deck.length)T.hands[uid].push(T.deck.pop());}
+      T.pendingDraws=0;
+    }else{
+      if(!T.deck.length)reshufTuto();
+      if(T.deck.length)T.hands[uid].push(T.deck.pop());
+    }
+  }
+  T.freeplay_iaThinking=false;
+  const order=['me','ia1','ia2'];
+  let next=(order.indexOf(uid)+1)%3;
+  if(played&&played.r==='A') next=(next+1)%3;
+  T.currentPlayer=order[next];
+  renderTuto();
+  if(T.currentPlayer!=='me'){
+    T.freeplay_iaThinking=true;
+    T._iaTimer=setTimeout(iaFreePlayTurn,900);
+  }
+}
+
+function tutoWin(who){
+  hlOff();
+  const fill=document.getElementById('tuto-bar-fill');
+  if(fill) fill.style.width='100%';
+  if(who==='Toi'){
+    say(`🏆 <strong>Tu as gagné !</strong> Bravo, tu maîtrises CHECK !<br><em>Prêt(e) à jouer en ligne ?</em>`,false);
+  }else{
+    say(`<strong>${who} a gagné</strong> cette fois... mais tu connais toutes les règles maintenant !`,false);
+  }
+  const okb=document.getElementById('tuto-ok-btn');
+  if(okb){ okb.textContent='🎲 Jouer en ligne !'; okb.style.display=''; okb.onclick=endTutorial; }
+}
+
+// ── Modals suit/two ──
+function tutoPickSuit(){
+  return new Promise(res=>{
+    const d=document.createElement('div');
+    d.style.cssText='position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);';
+    d.innerHTML='<div style="background:rgba(8,20,10,.98);border:1.5px solid rgba(212,168,67,.4);border-radius:16px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:14px;"><div style="color:var(--gold);font-size:15px;font-weight:700">Quelle couleur commander ?</div><div style="display:flex;gap:12px">'
+      +['♠','♣','♥','♦'].map(s=>`<button style="font-size:26px;background:rgba(255,255,255,.07);border:1.5px solid rgba(212,168,67,.3);border-radius:10px;width:52px;height:52px;cursor:pointer;color:${RED.includes(s)?'#c0392b':'#e8e8e8'}" data-s="${s}">${s}</button>`).join('')
+      +'</div></div>';
+    d.querySelectorAll('button').forEach(b=>{b.onclick=()=>{d.remove();res(b.dataset.s);};});
+    document.body.appendChild(d);
+  });
+}
+function tutoPickTwo(){
+  return new Promise(res=>{
+    const d=document.createElement('div');
+    d.style.cssText='position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);';
+    d.innerHTML='<div style="background:rgba(8,20,10,.98);border:1.5px solid rgba(212,168,67,.4);border-radius:16px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:14px;"><div style="color:var(--gold);font-size:15px;font-weight:700">Où jouer le 2 ?</div><div style="display:flex;gap:12px;"><button style="padding:14px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-d));border:none;border-radius:10px;color:#1a0f00;font-weight:700;font-family:Lato,sans-serif;cursor:pointer" data-p="top">⬆️ Dessus<br><small style=\'font-weight:400;font-size:11px\'>Change la carte active</small></button><button style="padding:14px 20px;background:rgba(255,255,255,.06);border:1.5px solid rgba(212,168,67,.25);border-radius:10px;color:var(--gold);font-family:Lato,sans-serif;cursor:pointer" data-p="bottom">⬇️ Dessous<br><small style=\'font-weight:400;font-size:11px\'>Carte active inchangée</small></button></div><button style="font-size:11px;color:rgba(245,240,232,.3);background:none;border:none;cursor:pointer;font-family:Lato,sans-serif;margin-top:4px" data-p="">Annuler</button></div>';
+    d.querySelectorAll('button').forEach(b=>{b.onclick=()=>{d.remove();res(b.dataset.p||null);};});
+    document.body.appendChild(d);
+  });
+}
+
 // ══ AUTO-CONNECT ══
 async function doConnect(apiKey,dbURL,pid){
   const connecting=document.getElementById('setup-connecting');
@@ -743,45 +1512,60 @@ async function doConnect(apiKey,dbURL,pid){
   }
 }
 
-(function(){
-  const cfg=loadCfg();
-  if(!cfg||!cfg.apiKey){
-    // First time: show firebase panel directly
-    document.getElementById('panel-firebase').style.display='';
+(async function(){
+  const seen = localStorage.getItem('check_seen_v1');
+  const cfg  = loadCfg();
+
+  // ── Pas de config → 1ère fois ou config perdue ──
+  if(!cfg || !cfg.apiKey){
+    if(!seen){ show('s-welcome'); }
+    else {
+      show('s-setup');
+      document.getElementById('panel-firebase').style.display='';
+    }
     return;
   }
-  // Restore name
+
+  // ── A une config ──
+  // Restaurer le nom immédiatement
   if(cfg.name){
     const nf=document.getElementById('f-name');
-    if(nf){nf.value=cfg.name;}
+    if(nf){ nf.value=cfg.name; }
     myName=cfg.name;
   }
-  // Pre-fill firebase fields (hidden)
-  if(document.getElementById('f-apikey'))document.getElementById('f-apikey').value=cfg.apiKey||'';
-  if(document.getElementById('f-dburl'))document.getElementById('f-dburl').value=cfg.databaseURL||'';
-  if(document.getElementById('f-pid'))document.getElementById('f-pid').value=cfg.projectId||'';
-  // Connect silently
+
+  // Première fois (a config mais pas vu tuto) → welcome
+  if(!seen){ show('s-welcome'); return; }
+
+  // ── Connexion silencieuse ──
+  show('s-setup');
+  // Montrer spinner discret, PAS le panel Firebase
   const connecting=document.getElementById('setup-connecting');
-  if(connecting)connecting.style.display='flex';
-  doConnect(cfg.apiKey,cfg.databaseURL,cfg.projectId).then(ok=>{
-    if(ok){
-      checkReady();
-    } else {
-      // Retry once after 3s
-      setTimeout(()=>{
-        doConnect(cfg.apiKey,cfg.databaseURL,cfg.projectId).then(ok2=>{
-          if(!ok2){
-            // Show firebase panel for manual fix
-            document.getElementById('panel-firebase').style.display='';
-            const s=document.getElementById('fb-status');
-            if(s){s.textContent='⚠️ Connexion impossible. Vérifie ta connexion internet ou reconfigure.';s.className='status error';}
-          } else {
-            checkReady();
-          }
-        });
-      },3000);
-    }
-  });
+  const connMsg=document.getElementById('conn-msg');
+  if(connecting) connecting.style.display='flex';
+  if(connMsg) connMsg.textContent='Connexion…';
+  // Panel Firebase reste caché
+  document.getElementById('panel-firebase').style.display='none';
+
+  const ok = await doConnect(cfg.apiKey, cfg.databaseURL, cfg.projectId);
+  if(ok){
+    checkReady();
+    return;
+  }
+  // Retry silencieux après 3s
+  if(connMsg) connMsg.textContent='Reconnexion…';
+  if(connecting) connecting.style.display='flex';
+  await new Promise(r=>setTimeout(r,3000));
+  const ok2 = await doConnect(cfg.apiKey, cfg.databaseURL, cfg.projectId);
+  if(ok2){
+    checkReady();
+    return;
+  }
+  // Echec → montrer panel Firebase avec message
+  if(connecting) connecting.style.display='none';
+  document.getElementById('panel-firebase').style.display='';
+  const s=document.getElementById('fb-status');
+  if(s){ s.textContent='⚠️ Connexion impossible. Vérifie ta connexion internet ou reconfigure.'; s.className='status error'; }
 })();
 
 // ══════════════════════════════════════════
