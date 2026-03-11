@@ -558,6 +558,9 @@ body::before{
       <button class="act-btn act-draw" id="btn-draw">🎴 Piocher</button>
       <button class="act-btn act-play" id="btn-play" disabled>▶ Jouer</button>
     </div>
+    <div style="text-align:center;margin-top:2px">
+      <button id="btn-forfeit" style="background:none;border:none;color:rgba(245,240,232,.2);font-size:11px;cursor:pointer;font-family:Lato,sans-serif;padding:4px 12px;letter-spacing:.3px;transition:color .2s;-webkit-appearance:none" onmouseenter="this.style.color='rgba(255,100,100,.7)'" onmouseleave="this.style.color='rgba(245,240,232,.2)'">🏳 Déclarer forfait</button>
+    </div>
     <div class="hand-section">
       <div class="hand-header">
         <div class="hand-name"><div class="hand-dot"></div><span id="h-name">—</span></div>
@@ -595,6 +598,19 @@ body::before{
   </div>
   <div id="winner-waiting" style="display:none;font-size:12px;color:rgba(245,240,232,.35);margin-top:10px;text-align:center">
     En attente des autres joueurs… <span class="dots"></span>
+  </div>
+</div>
+
+<!-- ══ FORFEIT MODAL ══ -->
+<div class="overlay" id="forfeit-modal">
+  <div class="modal" style="max-width:300px;text-align:center">
+    <div style="font-size:44px;margin-bottom:8px">🏳️</div>
+    <div class="modal-t" style="margin-bottom:8px">Déclarer forfait ?</div>
+    <div style="font-size:13px;color:rgba(245,240,232,.45);margin-bottom:20px;line-height:1.6">Tu quittes la partie en cours.<br>Tes cartes retournent dans la banque.</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline" id="forfeit-cancel" style="flex:1;padding:12px">Annuler</button>
+      <button class="btn" id="forfeit-confirm" style="flex:1;padding:12px;background:rgba(220,50,50,.25);border:1px solid rgba(220,50,50,.5);color:#ff8888">🏳 Confirmer</button>
+    </div>
   </div>
 </div>
 
@@ -800,8 +816,19 @@ function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.ad
 function setStatus(msg,ok){const el=document.getElementById('fb-status');el.textContent=msg;el.className='status '+(ok?'ok':'err');el.style.display=msg?'':'none';}
 function toast(msg,t=''){
   const el=document.getElementById('toast');
-  el.textContent=msg;el.className='toast show'+(t?' t'+t:'');
-  clearTimeout(toastTmr);toastTmr=setTimeout(()=>el.classList.remove('show'),2800);
+  // Si déjà visible : effacer immédiatement puis remplacer
+  if(el.classList.contains('show')){
+    el.classList.remove('show');
+    clearTimeout(toastTmr);
+    setTimeout(()=>{
+      el.textContent=msg;el.className='toast show'+(t?' t'+t:'');
+      toastTmr=setTimeout(()=>el.classList.remove('show'),2600);
+    },120);
+  } else {
+    el.textContent=msg;el.className='toast show'+(t?' t'+t:'');
+    clearTimeout(toastTmr);
+    toastTmr=setTimeout(()=>el.classList.remove('show'),2600);
+  }
 }
 function myTurn(){return gameState&&gameState.playerOrder[gameState.currentPlayerIdx]===myUid;}
 
@@ -1439,7 +1466,11 @@ function renderGame(){
     if(fxKey!==window._lastFXKey){
       window._lastFXKey=fxKey;
       const isMine=fx.by===myUid;
-      if(fx.r==='penalty'){
+      if(fx.r==='forfeit'){
+        const who=fx.s||'?';
+        toast('🏳 '+who+' a déclaré forfait','d');
+        addLog('🏳 '+who+' forfait','special');
+      } else if(fx.r==='penalty'){
         fxPenalty(parseInt(fx.s)||2, isMine);
         (()=>{
           const who=isMine?'Toi':(gameState&&gameState.playerNames[fx.by])||'?';
@@ -1838,7 +1869,10 @@ async function doPlay(card,suit,twoPlace){
 }
 
 async function takePenalty(){
-  const gs=gameState;
+  // Lire la valeur FRAÎCHE depuis Firebase pour éviter le bug de chaîne
+  const freshSnap=await db.ref('rooms/'+roomId+'/game/pendingDraws').once('value');
+  const freshPending=freshSnap.val()||0;
+  const gs={...gameState, pendingDraws: freshPending};
   let deck=[...(gs.deck||[])];
   if(!deck.length)deck=reshuf(gs.pot);
   const n=gs.pendingDraws;
@@ -1877,6 +1911,47 @@ async function takePenalty(){
   pu['lastFX']={r:'penalty',s:''+penN,color:wasJoker?gs.jokerPendingColor:null,by:myUid,ts:Date.now()};
   await db.ref('rooms/'+roomId+'/game').update(pu);
 }
+
+// ── Forfait ──
+document.getElementById('btn-forfeit').onclick=function(){
+  document.getElementById('forfeit-modal').classList.add('show');
+};
+document.getElementById('forfeit-cancel').onclick=function(){
+  document.getElementById('forfeit-modal').classList.remove('show');
+};
+document.getElementById('forfeit-confirm').onclick=async function(){
+  document.getElementById('forfeit-modal').classList.remove('show');
+  if(!db||!roomId||!gameState)return;
+  const gs=gameState;
+  // Rendre les cartes à la banque
+  const myCards=gs.hands[myUid]||[];
+  const newDeck=shuffle([...(gs.deck||[]),...myCards]);
+  const newOrder=gs.playerOrder.filter(u=>u!==myUid);
+  if(newOrder.length<1){
+    // Seul restant = fin de partie
+    await db.ref('rooms/'+roomId+'/game').update({status:'finished'});
+    return;
+  }
+  let newIdx=gs.currentPlayerIdx;
+  const myIdx=gs.playerOrder.indexOf(myUid);
+  if(myIdx<=gs.currentPlayerIdx&&newIdx>0) newIdx--;
+  newIdx=newIdx%newOrder.length;
+  const fu={};
+  fu['playerOrder']=newOrder;
+  fu['deck']=newDeck;
+  fu['hands/'+myUid]=null;
+  fu['currentPlayerIdx']=newIdx;
+  fu['turnStartTs']=Date.now();
+  fu['pendingDraws']=0; // annuler la chaîne
+  fu['lastFX']={r:'forfeit',s:myName,color:null,by:myUid,ts:Date.now()};
+  await db.ref('rooms/'+roomId+'/game').update(fu);
+  await db.ref('rooms/'+roomId+'/players/'+myUid).remove();
+  stopMyTimer();
+  if(gameRef){gameRef.off();gameRef=null;}
+  roomId='';isHost=false;
+  show('s-setup');
+  toast('🏳 Tu as déclaré forfait','i');
+};
 
 // ── Suit picker ──
 function pickSuit(){return new Promise(res=>{suitResolve=res;document.getElementById('suit-modal').classList.add('show');});}
