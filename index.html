@@ -700,7 +700,7 @@ document.getElementById('f-code').oninput=function(){this.value=this.value.toUpp
 function checkReady(){
   const n=(document.getElementById('f-name').value||'').trim();
   document.getElementById('btn-create').disabled=!n||!db;
-  const rc=document.getElementById('f-room-code');
+  const rc=document.getElementById('f-code');
   document.getElementById('btn-join').disabled=!n||!db||!(rc&&rc.value.trim().length===4);
   // Sauvegarder le nom automatiquement
   if(n.length>=2){
