@@ -241,6 +241,62 @@ body::before{
   .cr{font-size:17px;}.cs{font-size:13px;}.cc{font-size:9px;}
   .act-btn{padding:10px 6px;min-height:44px;font-size:12px;}
 }
+
+/* ══ SETUP REDESIGN ══ */
+#s-setup{justify-content:flex-start;overflow-y:auto;}
+.bg-cards{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+.bgc{position:absolute;font-size:120px;opacity:.04;color:var(--gold);animation:bgFloat 20s infinite ease-in-out;font-family:'Playfair Display',serif;user-select:none;}
+.bgc1{left:5%;top:10%;animation-delay:0s;animation-duration:22s;}
+.bgc2{right:8%;top:25%;animation-delay:-7s;animation-duration:18s;color:#8B1A1A;}
+.bgc3{left:20%;bottom:30%;animation-delay:-13s;animation-duration:25s;color:#8B1A1A;}
+.bgc4{right:15%;bottom:15%;animation-delay:-4s;animation-duration:20s;}
+.bgc5{left:50%;top:60%;animation-delay:-10s;animation-duration:28s;}
+.bgc6{right:40%;top:5%;animation-delay:-16s;animation-duration:16s;color:#8B1A1A;}
+@keyframes bgFloat{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-25px) rotate(6deg);}}
+.setup-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:400px;margin:0 auto;padding:48px 20px 80px;gap:18px;min-height:100dvh;justify-content:center;}
+.logo-block{text-align:center;}
+.logo{font-family:'Playfair Display',serif;font-size:68px;font-weight:900;color:var(--gold);letter-spacing:10px;text-shadow:0 0 40px rgba(212,168,67,.5),0 4px 0 rgba(130,90,20,.5);line-height:1;animation:logoGlow 3s infinite alternate;}
+@keyframes logoGlow{from{text-shadow:0 0 30px rgba(212,168,67,.4),0 4px 0 rgba(130,90,20,.5);}to{text-shadow:0 0 70px rgba(212,168,67,.8),0 4px 0 rgba(130,90,20,.5);}}
+.logo-suits{font-size:16px;color:rgba(212,168,67,.4);letter-spacing:12px;margin:10px 0 6px;}
+.logo-sub{font-size:10px;color:rgba(245,240,232,.25);letter-spacing:3px;text-transform:uppercase;}
+.setup-card{width:100%;background:rgba(8,18,10,.85);border:1px solid rgba(212,168,67,.2);border-radius:20px;padding:24px;backdrop-filter:blur(16px);box-shadow:0 20px 60px rgba(0,0,0,.6),inset 0 1px 0 rgba(212,168,67,.08);animation:slideUp .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.setup-input{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(212,168,67,.18);border-radius:12px;padding:14px 16px;color:var(--cream);font-family:'Lato',sans-serif;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s;box-sizing:border-box;margin-bottom:14px;-webkit-appearance:none;}
+.setup-input:focus{border-color:rgba(212,168,67,.6);box-shadow:0 0 0 3px rgba(212,168,67,.08);}
+.setup-input::placeholder{color:rgba(245,240,232,.25);}
+.setup-code{letter-spacing:8px;font-size:22px;font-weight:900;text-align:center;text-transform:uppercase;margin-bottom:0;flex:1;}
+.setup-btn-main{width:100%;background:linear-gradient(160deg,#e8b84b 0%,#c9922a 100%);border:none;border-radius:12px;padding:16px;color:#1a0f00;font-family:'Lato',sans-serif;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:.5px;transition:all .2s;box-shadow:0 4px 24px rgba(212,168,67,.25);margin-bottom:16px;-webkit-appearance:none;}
+.setup-btn-main:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 32px rgba(212,168,67,.4);}
+.setup-btn-main:active:not(:disabled){transform:scale(.97);}
+.setup-btn-main:disabled{opacity:.35;cursor:not-allowed;}
+.btn-icon{font-size:17px;}
+.setup-divider{display:flex;align-items:center;gap:12px;margin:0 0 16px;color:rgba(245,240,232,.2);font-size:11px;letter-spacing:1px;text-transform:uppercase;}
+.setup-divider::before,.setup-divider::after{content:'';flex:1;height:1px;background:rgba(212,168,67,.1);}
+.setup-join-row{display:flex;gap:10px;align-items:center;}
+.setup-btn-join{width:52px;height:52px;background:rgba(212,168,67,.08);border:1.5px solid rgba(212,168,67,.25);border-radius:12px;color:var(--gold);font-size:20px;cursor:pointer;transition:all .2s;flex-shrink:0;-webkit-appearance:none;}
+.setup-btn-join:hover:not(:disabled){background:rgba(212,168,67,.18);transform:translateX(2px);}
+.setup-btn-join:disabled{opacity:.25;cursor:not-allowed;}
+.setup-connecting{display:flex;align-items:center;gap:12px;color:rgba(245,240,232,.4);font-size:13px;animation:fadeIn .3s;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.conn-spinner{width:18px;height:18px;border:2px solid rgba(212,168,67,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.setup-footer{display:flex;align-items:center;gap:8px;}
+.footer-cfg-btn{background:none;border:none;color:rgba(245,240,232,.18);font-size:11px;cursor:pointer;font-family:'Lato',sans-serif;letter-spacing:.5px;padding:4px 8px;transition:color .2s;-webkit-appearance:none;}
+.footer-cfg-btn:hover{color:rgba(245,240,232,.45);}
+.conn-dot-setup{width:6px;height:6px;border-radius:50%;background:#4caf50;opacity:0;transition:opacity .4s;}
+.conn-dot-setup.show{opacity:1;}
+.conn-dot-setup.off{background:#ff5252;}
+.firebase-panel{width:100%;background:rgba(4,12,6,.92);border:1px solid rgba(212,168,67,.12);border-radius:16px;padding:20px;animation:slideUp .3s ease;}
+.fp-title{font-family:'Playfair Display',serif;font-size:13px;color:rgba(212,168,67,.7);margin-bottom:14px;}
+.fp-guide{margin-bottom:14px;border:none;outline:none;}
+.fp-guide summary{color:rgba(212,168,67,.45);font-size:12px;cursor:pointer;padding:6px 0;list-style:none;}
+.fp-guide summary::-webkit-details-marker{display:none;}
+.fp-guide-body{padding:8px 0 2px;font-size:11px;color:rgba(245,240,232,.4);line-height:1.9;}
+.fp-guide-body a{color:rgba(212,168,67,.7);text-decoration:none;}
+.fp-guide-body strong{color:rgba(245,240,232,.6);}
+.fp-guide-body code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;}
+.status.ok{color:#4caf50;}
+.status.error{color:#ff6b6b;}
 </style>
 </head>
 <body>
@@ -251,34 +307,68 @@ body::before{
 
 <!-- ══ SETUP ══ -->
 <div class="screen" id="s-setup">
-  <div class="logo">CHECK</div>
-  <div class="logo-sub">Mau-Mau · Casino</div>
-
-  <div class="panel" id="panel-firebase">
-    <div class="panel-title">🔥 Firebase <span id="fb-ok" style="display:none;margin-left:auto;font-size:11px;color:var(--ok)">✓ Connecté</span></div>
-    <button class="guide-btn" id="guide-btn">📖 Guide pas à pas (clique ici) <span id="guide-arr">▼</span></button>
-    <div class="guide-content" id="guide-body">
-      <div style="height:10px"></div>
-      <div class="step"><div class="step-n">1</div><div class="step-t">Va sur <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → connecte-toi avec Google.</div></div>
-      <div class="step"><div class="step-n">2</div><div class="step-t">Clique <strong>"Ajouter un projet"</strong> → nom quelconque → désactive Analytics → <strong>"Créer"</strong>.</div></div>
-      <div class="step"><div class="step-n">3</div><div class="step-t">Menu gauche → <strong>Realtime Database</strong> → <strong>"Créer une base"</strong> → <strong>Mode test</strong> → Activer.</div></div>
-      <div class="step"><div class="step-n">4</div><div class="step-t">⚙️ Paramètres du projet → onglet <strong>Général</strong> → bas de page → <strong>&lt;/&gt;</strong> → enregistre l'app → copie les 3 valeurs ci-dessous.</div></div>
-    </div>
-    <div style="height:12px"></div>
-    <input class="field" id="f-apikey" placeholder="apiKey  (AIzaSy...)" autocomplete="off" autocorrect="off" spellcheck="false">
-    <input class="field" id="f-dburl" placeholder="databaseURL  (https://xxx.firebaseio.com)" autocomplete="off" autocorrect="off" spellcheck="false">
-    <input class="field" id="f-pid" placeholder="projectId  (mon-projet-12345)" autocomplete="off" autocorrect="off" spellcheck="false">
-    <button class="btn btn-gold" id="btn-connect" style="margin-top:4px">🔗 Connecter Firebase</button>
-    <div class="status" id="fb-status"></div>
+  <!-- Animated background cards -->
+  <div class="bg-cards" aria-hidden="true">
+    <div class="bgc bgc1">♠</div><div class="bgc bgc2">♥</div>
+    <div class="bgc bgc3">♦</div><div class="bgc bgc4">♣</div>
+    <div class="bgc bgc5">♠</div><div class="bgc bgc6">♥</div>
   </div>
 
-  <div class="panel" id="panel-join" style="display:none">
-    <div class="panel-title">👤 Ton nom</div>
-    <input class="field" id="f-name" placeholder="Ton prénom" maxlength="14" autocomplete="given-name">
-    <button class="btn btn-gold" id="btn-create" disabled style="margin-bottom:10px">🎲 Créer une partie</button>
-    <div class="or">ou</div>
-    <input class="field" id="f-code" placeholder="Code (4 lettres)" maxlength="4" style="text-transform:uppercase;letter-spacing:6px;font-size:20px;text-align:center" autocomplete="off" autocorrect="off">
-    <button class="btn btn-outline" id="btn-join" disabled>→ Rejoindre</button>
+  <div class="setup-wrap">
+    <!-- Logo -->
+    <div class="logo-block">
+      <div class="logo">CHECK</div>
+      <div class="logo-suits">♠ ♥ ♦ ♣</div>
+      <div class="logo-sub">Jeu de cartes multijoueur</div>
+    </div>
+
+    <!-- État connexion (invisible si connecté) -->
+    <div id="conn-status-bar" style="display:none"></div>
+
+    <!-- Panel principal : nom + actions -->
+    <div class="setup-card" id="panel-join" style="display:none">
+      <input class="setup-input" id="f-name" placeholder="Ton prénom ou pseudo" maxlength="14" autocomplete="given-name" autocorrect="off" spellcheck="false">
+      <button class="setup-btn-main" id="btn-create" disabled>
+        <span class="btn-icon">🎲</span> Créer une partie
+      </button>
+      <div class="setup-divider"><span>ou rejoindre</span></div>
+      <div class="setup-join-row">
+        <input class="setup-input setup-code" id="f-code" placeholder="CODE" maxlength="4" autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="setup-btn-join" id="btn-join" disabled>→</button>
+      </div>
+    </div>
+
+    <!-- Connexion en cours -->
+    <div class="setup-connecting" id="setup-connecting" style="display:none">
+      <div class="conn-spinner"></div>
+      <span id="conn-msg">Connexion au serveur…</span>
+    </div>
+
+    <!-- Bouton discret config Firebase (en bas) -->
+    <div class="setup-footer">
+      <button class="footer-cfg-btn" id="btn-show-firebase" onclick="toggleFirebasePanel()">⚙ Config serveur</button>
+      <span id="conn-dot-setup" class="conn-dot-setup"></span>
+    </div>
+
+    <!-- Panel Firebase caché par défaut -->
+    <div class="firebase-panel" id="panel-firebase" style="display:none">
+      <div class="fp-title">🔥 Connexion Firebase</div>
+      <details class="fp-guide">
+        <summary>📖 Comment obtenir ces infos ?</summary>
+        <div class="fp-guide-body">
+          <p>1. <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → créer un projet</p>
+          <p>2. Menu → <strong>Realtime Database</strong> → Créer → Mode test</p>
+          <p>3. ⚙️ Paramètres → Général → &lt;/&gt; → copier les 3 valeurs</p>
+          <p>4. Règles DB : <code>{ "rules": { ".read": true, ".write": true } }</code></p>
+        </div>
+      </details>
+      <input class="field" id="f-apikey" placeholder="apiKey  (AIzaSy...)" autocomplete="off" autocorrect="off" spellcheck="false">
+      <input class="field" id="f-dburl" placeholder="databaseURL  (https://xxx.firebaseio.com)" autocomplete="off" autocorrect="off" spellcheck="false">
+      <input class="field" id="f-pid" placeholder="projectId" autocomplete="off" autocorrect="off" spellcheck="false">
+      <button class="btn btn-gold" id="btn-connect" style="margin-top:8px">🔗 Sauvegarder & Connecter</button>
+      <div class="status" id="fb-status"></div>
+      <span id="fb-ok" style="display:none"></span>
+    </div>
   </div>
 </div>
 
@@ -446,19 +536,17 @@ function buildDeck(){
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function canPlay(card,top,cmdSuit,pending,jokerFree){
-  // ── J = universel absolu ──
-  if(card.r==='J')return true;
-
-  // ── 2 = passe-partout MAIS ne contrecarre pas les chaînes (pas de +2/-2 effect) ──
-  // Le 2 joue toujours SAUF pendant une chaîne active (+2/+4) — il joue mais n'annule pas
-  if(card.r==='2')return true;
-
-  // ── Chaîne active (+2 ou +4) : seuls 7 et Joker peuvent contrer ──
+  // ── Chaîne active (+2 ou +4) : SEULEMENT 7, Joker et J peuvent jouer ──
   if(pending>0){
-    if(card.r==='7')return true;     // 7 contre toujours, quelle que soit sa couleur
-    if(card.r==='JOKER')return true; // Joker contre toujours, quelle que soit sa couleur
-    return false; // toute autre carte bloquée
+    if(card.r==='7')return true;
+    if(card.r==='JOKER')return true;
+    if(card.r==='J')return true;
+    return false; // 2 et tout le reste bloqués
   }
+
+  // ── Hors chaîne : J et 2 sont universels ──
+  if(card.r==='J')return true;
+  if(card.r==='2')return true;
 
   // ── Joker sur le pot (sans chaîne) ──
   if(top.r==='JOKER'){
@@ -575,64 +663,37 @@ function ensureDeck(gs){
 // ══════════════════════════════════════════
 // FIREBASE CONNECTION
 // ══════════════════════════════════════════
-function setConnBtn(loading){
-  const btn=document.getElementById('btn-connect');
-  btn.disabled=loading;
-  btn.textContent=loading?'⏳ Connexion...':'🔗 Connecter Firebase';
-}
+
 
 async function connectFirebase(){
   const apiKey=document.getElementById('f-apikey').value.trim();
   const dbURL=document.getElementById('f-dburl').value.trim();
   const pid=document.getElementById('f-pid').value.trim();
-  if(!apiKey||!dbURL||!pid){setStatus('⚠️ Remplis les 3 champs.',false);return;}
+  const s=document.getElementById('fb-status');
+  if(!apiKey||!dbURL||!pid){if(s){s.textContent='⚠️ Remplis les 3 champs.';s.className='status error';}return;}
   if(!dbURL.startsWith('https://')||!dbURL.includes('firebaseio.com')){
-    setStatus('⚠️ databaseURL invalide. Format : https://xxx-default-rtdb.firebaseio.com',false);return;
+    if(s){s.textContent='⚠️ databaseURL invalide.';s.className='status error';}return;
   }
-  setConnBtn(true);
-  setStatus('⏳ Connexion...', true);
-  try{
-    // Clean up old apps
-    const apps=[...firebase.apps];
-    for(const app of apps){try{await app.delete();}catch(e){}}
-    // Init
-    firebase.initializeApp({apiKey,databaseURL:dbURL,projectId:pid,authDomain:pid+'.firebaseapp.com'});
-    db=firebase.database();
-    // Real test
-    await db.ref('__ping__').set(Date.now());
-    await db.ref('__ping__').remove();
-    // Success
-    saveCfg({apiKey,databaseURL:dbURL,projectId:pid,name:document.getElementById('f-name').value.trim()});
-    setStatus('✅ Connecté !',true);
-    document.getElementById('fb-ok').style.display='';
-    document.getElementById('panel-join').style.display='';
-    // Hide Firebase config panel — no need to show it again
-    document.getElementById('panel-firebase').style.display='none';
-    const cd=document.getElementById('conn-dot');cd.classList.add('show');
-    db.ref('.info/connected').on('value',s=>{
-      cd.classList.toggle('off',!s.val());
-      // If disconnected and reconnected, restore db silently
-    });
-  }catch(e){
-    let msg=String(e.message||e);
-    console.error('[FB]',msg);
-    if(/permission|PERMISSION_DENIED/i.test(msg))msg='❌ Accès refusé. Dans Firebase → Realtime Database → Règles, mets ".read":true et ".write":true puis Publier.';
-    else if(/network|fetch|ERR_/i.test(msg))msg='❌ Erreur réseau.';
-    else if(/api.?key|invalid/i.test(msg))msg='❌ apiKey invalide.';
-    else msg='❌ '+msg;
-    setStatus(msg,false);
+  const btn=document.getElementById('btn-connect');
+  btn.disabled=true;btn.textContent='⏳ Connexion...';
+  const ok=await doConnect(apiKey,dbURL,pid);
+  if(ok){
+    saveCfg({apiKey,databaseURL:dbURL,projectId:pid,name:(document.getElementById('f-name').value||'').trim()});
+    if(s){s.textContent='✅ Connecté et sauvegardé !';s.className='status ok';}
+    checkReady();
+    setTimeout(()=>{document.getElementById('panel-firebase').style.display='none';},1200);
+  }else{
+    if(s){s.textContent='❌ Connexion échouée. Vérifie les valeurs et les règles Firebase.';s.className='status error';}
     db=null;
   }
-  setConnBtn(false);
+  btn.disabled=false;btn.textContent='🔗 Sauvegarder & Connecter';
 }
 
 // Events
-document.getElementById('guide-btn').onclick=function(){
-  const b=document.getElementById('guide-body');
-  const a=document.getElementById('guide-arr');
-  b.classList.toggle('open');
-  a.textContent=b.classList.contains('open')?'▲':'▼';
-};
+function toggleFirebasePanel(){
+  const p=document.getElementById('panel-firebase');
+  p.style.display=p.style.display==='none'?'':'none';
+}
 document.getElementById('btn-connect').onclick=connectFirebase;
 document.getElementById('f-name').oninput=checkReady;
 document.getElementById('f-code').oninput=function(){this.value=this.value.toUpperCase();checkReady();};
@@ -650,70 +711,77 @@ function checkReady(){
 }
 
 // Auto-load
+// ══ AUTO-CONNECT ══
+async function doConnect(apiKey,dbURL,pid){
+  const connecting=document.getElementById('setup-connecting');
+  const msgEl=document.getElementById('conn-msg');
+  if(connecting)connecting.style.display='flex';
+  if(msgEl)msgEl.textContent='Connexion au serveur…';
+  try{
+    const apps=[...firebase.apps];
+    for(const app of apps){try{await app.delete();}catch(e){}}
+    firebase.initializeApp({apiKey,databaseURL:dbURL,projectId:pid,authDomain:pid+'.firebaseapp.com'});
+    db=firebase.database();
+    await db.ref('__ping__').set(Date.now());
+    await db.ref('__ping__').remove();
+    // Success
+    if(connecting)connecting.style.display='none';
+    document.getElementById('panel-join').style.display='';
+    document.getElementById('panel-firebase').style.display='none';
+    const ds=document.getElementById('conn-dot-setup');if(ds){ds.classList.add('show');}
+    const cd=document.getElementById('conn-dot');if(cd){cd.classList.add('show');}
+    db.ref('.info/connected').on('value',s=>{
+      const off=!s.val();
+      const ds2=document.getElementById('conn-dot-setup');if(ds2){ds2.classList.toggle('off',off);}
+      const cd2=document.getElementById('conn-dot');if(cd2){cd2.classList.toggle('off',off);}
+    });
+    return true;
+  }catch(e){
+    if(connecting)connecting.style.display='none';
+    console.error('[Firebase]',e);
+    return false;
+  }
+}
+
 (function(){
   const cfg=loadCfg();
-  if(!cfg||!cfg.apiKey)return;
-
-  // Pre-fill fields (they still exist at this point)
-  document.getElementById('f-apikey').value=cfg.apiKey||'';
-  document.getElementById('f-dburl').value=cfg.databaseURL||'';
-  document.getElementById('f-pid').value=cfg.projectId||'';
-  if(cfg.name){document.getElementById('f-name').value=cfg.name;checkReady();}
-
-  // Replace Firebase panel with compact badge
-  const panel=document.getElementById('panel-firebase');
-  panel.style.padding='12px 16px';
-  panel.innerHTML=
-    '<div class="saved-badge" id="saved-badge" style="margin:0">'+
-    '<span id="badge-txt">🔥 Reconnexion Firebase...</span>'+
-    '<button onclick="clearCfg();window.location.reload()" style="margin-left:auto;background:none;border:none;color:rgba(245,240,232,.4);cursor:pointer;font-family:Lato,sans-serif;font-size:11px">Changer</button>'+
-    '</div>';
-
-  // connectFirebase reads from pre-filled fields — they still exist in hidden form
-  // But since we cleared the panel, we call a direct version with stored values
-  const apiKey=cfg.apiKey, dbURL=cfg.databaseURL, pid=cfg.projectId;
-
-  setTimeout(async function(){
-    const badgeTxt=document.getElementById('badge-txt');
-    try{
-      const apps=[...firebase.apps];
-      for(const app of apps){try{await app.delete();}catch(e){}}
-      firebase.initializeApp({apiKey,databaseURL:dbURL,projectId:pid,authDomain:pid+'.firebaseapp.com'});
-      db=firebase.database();
-      await db.ref('__ping__').set(Date.now());
-      await db.ref('__ping__').remove();
-      if(badgeTxt)badgeTxt.textContent='🔥 Firebase connecté ✓';
-      document.getElementById('panel-join').style.display='';
-      const cd=document.getElementById('conn-dot');cd.classList.add('show');
-      db.ref('.info/connected').on('value',s=>{cd.classList.toggle('off',!s.val());});
-      // Restore name and enable buttons immediately
-      if(cfg.name){
-        const nf=document.getElementById('f-name');
-        if(nf){nf.value=cfg.name;checkReady();}
-      }
-      myName=cfg.name||'';
-    }catch(e){
-      console.error('[AutoLoad]',e);
-      if(badgeTxt)badgeTxt.textContent='⚠️ Connexion impossible — vérifie ta connexion internet';
-      // Retry after 3s without clearing config
-      setTimeout(async function(){
-        try{
-          const apps2=[...firebase.apps];
-          for(const app of apps2){try{await app.delete();}catch(e2){}}
-          firebase.initializeApp({apiKey,databaseURL:dbURL,projectId:pid,authDomain:pid+'.firebaseapp.com'});
-          db=firebase.database();
-          await db.ref('__ping__').set(Date.now());
-          await db.ref('__ping__').remove();
-          if(badgeTxt)badgeTxt.textContent='🔥 Firebase connecté ✓';
-          document.getElementById('panel-join').style.display='';
-          const cd=document.getElementById('conn-dot');cd.classList.add('show');
-          db.ref('.info/connected').on('value',s=>{cd.classList.toggle('off',!s.val());});
-        }catch(e2){
-          if(badgeTxt)badgeTxt.textContent='⚠️ Hors ligne — <span style="text-decoration:underline;cursor:pointer" onclick="clearCfg();location.reload()">Changer la config</span>';
-        }
+  if(!cfg||!cfg.apiKey){
+    // First time: show firebase panel directly
+    document.getElementById('panel-firebase').style.display='';
+    return;
+  }
+  // Restore name
+  if(cfg.name){
+    const nf=document.getElementById('f-name');
+    if(nf){nf.value=cfg.name;}
+    myName=cfg.name;
+  }
+  // Pre-fill firebase fields (hidden)
+  if(document.getElementById('f-apikey'))document.getElementById('f-apikey').value=cfg.apiKey||'';
+  if(document.getElementById('f-dburl'))document.getElementById('f-dburl').value=cfg.databaseURL||'';
+  if(document.getElementById('f-pid'))document.getElementById('f-pid').value=cfg.projectId||'';
+  // Connect silently
+  const connecting=document.getElementById('setup-connecting');
+  if(connecting)connecting.style.display='flex';
+  doConnect(cfg.apiKey,cfg.databaseURL,cfg.projectId).then(ok=>{
+    if(ok){
+      checkReady();
+    } else {
+      // Retry once after 3s
+      setTimeout(()=>{
+        doConnect(cfg.apiKey,cfg.databaseURL,cfg.projectId).then(ok2=>{
+          if(!ok2){
+            // Show firebase panel for manual fix
+            document.getElementById('panel-firebase').style.display='';
+            const s=document.getElementById('fb-status');
+            if(s){s.textContent='⚠️ Connexion impossible. Vérifie ta connexion internet ou reconfigure.';s.className='status error';}
+          } else {
+            checkReady();
+          }
+        });
       },3000);
     }
-  },300);
+  });
 })();
 
 // ══════════════════════════════════════════
@@ -1273,13 +1341,15 @@ async function doPlay(card,suit,twoPlace){
     // jokerPendingColor will be read by takePenalty and set as jokerFreeColor
   }
   else if(card.r==='J'){cmdSuit=suit;toast('🃏 Valet ! '+suit+' commandé','i');pending=0;}
-  else if(card.r==='2'&&twoPlace!=='bottom'){toast('✨ Passe-partout (dessus)','i');pending=0;}
-  else if(card.r==='2'&&twoPlace==='bottom'){
-    // 2 joué en dessous : la carte du dessus reste active
-    // On conserve exactement l'état actuel du pot (pending, cmdSuit inchangés)
-    pending=gs.pendingDraws;
-    cmdSuit=gs.commandedSuit;
-    // Pas d'effet spécial du 2 — il est juste glissé sous le pot
+  else if(card.r==='2'){
+    // 2 = passe-partout : ne touche PAS à la chaîne en cours (pending reste intact)
+    // Ne remet jamais pending à 0 — le 7 et le Joker continuent à faire effet
+    pending=gs.pendingDraws; // conserve la chaîne
+    if(twoPlace==='bottom'){
+      cmdSuit=gs.commandedSuit; // carte du dessous : état du pot inchangé
+    }
+    // pas de toast si bottom (déjà fait dans newPot)
+    if(twoPlace!=='bottom') toast('✨ 2 joué — chaîne conservée !','i');
   }
   else if(card.r==='A'){skip=true;toast('🚫 As ! Joueur suivant bloqué','i');pending=0;}
   else{pending=0;}
