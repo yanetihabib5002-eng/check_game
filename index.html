@@ -438,7 +438,13 @@ body::before{
   <div class="win-name" id="w-name">—</div>
   <div class="win-sub">a remporté la partie !</div>
   <div class="scores" id="w-scores"></div>
-  <button class="btn btn-gold" id="btn-replay" style="max-width:340px;margin-top:8px">🎲 Rejouer</button>
+  <div style="display:flex;gap:10px;width:100%;max-width:340px;margin-top:8px">
+    <button class="btn btn-gold" id="btn-replay" style="flex:2">🎲 Rejouer</button>
+    <button class="btn btn-outline" id="btn-quit-winner" style="flex:1">🚪 Quitter</button>
+  </div>
+  <div id="winner-waiting" style="display:none;font-size:12px;color:rgba(245,240,232,.35);margin-top:10px;text-align:center">
+    En attente des autres joueurs… <span class="dots"></span>
+  </div>
 </div>
 
 <!-- ══ SUIT MODAL ══ -->
@@ -1675,8 +1681,25 @@ function renderWinner(){
   }
   show('s-winner');
 }
-document.getElementById('btn-replay').onclick=function(){
+document.getElementById('btn-replay').onclick=async function(){
   if(gameRef){gameRef.off();gameRef=null;}
+  // Si on a encore un roomId valide, retourner directement au lobby
+  if(db && roomId){
+    const snap = await db.ref('rooms/'+roomId+'/players/'+myUid).once('value');
+    if(snap.val()){
+      // Remettre le statut lobby et retourner dans le salon
+      if(isHost) await db.ref('rooms/'+roomId+'/status').set('lobby');
+      enterLobby();
+      return;
+    }
+  }
+  show('s-setup');
+};
+
+document.getElementById('btn-quit-winner').onclick=function(){
+  if(gameRef){gameRef.off();gameRef=null;}
+  if(db && roomId) db.ref('rooms/'+roomId+'/players/'+myUid).remove();
+  roomId=''; isHost=false;
   show('s-setup');
 };
 
