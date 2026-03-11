@@ -98,7 +98,7 @@ body::before{
 .tb-sub{font-size:11px;color:rgba(245,240,232,.4);margin-top:1px;}
 .tb-room{font-size:11px;color:rgba(212,168,67,.35);letter-spacing:1px;}
 /* opponents */
-.opp-row{display:flex;justify-content:center;gap:8px;padding:4px 10px;flex-shrink:0;}
+.opp-row{display:flex;justify-content:center;gap:8px;padding:6px 10px;flex-shrink:0;}
 .opp-chip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 10px;border-radius:12px;background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.08);transition:all .3s;min-width:58px;}
 .opp-chip.active{border-color:var(--gold);background:rgba(212,168,67,.1);}
 .opp-chip.done{border-color:var(--ok);}
@@ -174,8 +174,8 @@ body::before{
 .hand-scroll::-webkit-scrollbar{display:none;}
 .hand-cards{display:flex;gap:7px;min-width:max-content;align-items:flex-end;}
 /* actions */
-.action-row{display:flex;gap:8px;padding:4px 12px 6px;flex-shrink:0;}
-.act-btn{flex:1;padding:14px 6px;min-height:52px;border-radius:14px;border:none;cursor:pointer;font-family:'Lato',sans-serif;font-weight:900;font-size:13px;letter-spacing:.5px;text-transform:uppercase;transition:transform .15s,opacity .2s;-webkit-appearance:none;}
+.action-row{display:flex;gap:8px;padding:6px 12px 10px;flex-shrink:0;}
+.act-btn{flex:1;padding:16px 6px;min-height:56px;border-radius:14px;border:none;cursor:pointer;font-family:'Lato',sans-serif;font-weight:900;font-size:14px;letter-spacing:.5px;text-transform:uppercase;transition:transform .15s,opacity .2s;-webkit-appearance:none;}
 .act-btn:active{transform:scale(.94);}
 .act-btn:disabled{opacity:.3;cursor:default;}
 .act-play{background:linear-gradient(135deg,#44bb66,#228844);color:#fff;box-shadow:0 3px 12px rgba(34,136,68,.4);}
@@ -1957,10 +1957,16 @@ function renderGame(){
   const turnChanged=curUid!==lastTurnUid;
   lastTurnUid=curUid;
 
-  if(mine&&(!lastMyTurn||turnChanged)){
-    if(TIMER_SEC>0) startMyTimer(); else stopMyTimer();
-    if(turnChanged) db.ref('rooms/'+roomId+'/game/turnStartTs').set(Date.now());
-  } else if(!mine){
+  if(mine){
+    if(turnChanged){
+      // Nouveau tour : écrire turnStartTs UNE SEULE FOIS
+      db.ref('rooms/'+roomId+'/game/turnStartTs').set(Date.now());
+      if(TIMER_SEC>0) startMyTimer(); else stopMyTimer();
+    } else if(!lastMyTurn){
+      // Tour en cours (re-render sans changement de joueur)
+      if(TIMER_SEC>0 && !timerInterval) startMyTimer();
+    }
+  } else {
     stopMyTimer();
   }
 
@@ -1980,8 +1986,9 @@ function renderGame(){
     }
   }
 
-  // Turn FX
+  // Turn FX (lastMyTurn mis à jour dans checkTurnFX)
   checkTurnFX(mine);
+  lastMyTurn=mine;
 
   // Topbar
   const myTimerSec=mine?getTimerLeft(gs):null;
@@ -2588,11 +2595,10 @@ function checkTurnFX(mine){
     const hs=document.querySelector('.hand-section');
     if(hs){hs.classList.remove('my-turn-fx');void hs.offsetWidth;hs.classList.add('my-turn-fx');}
     spawn(window.innerWidth/2,window.innerHeight-80,16,['#f0c040','#d4a843','#fff8dc'],60,0.2);
-    // Re-trigger banner animation
     const banner=document.getElementById('your-turn-banner');
     if(banner){banner.style.animation='none';void banner.offsetWidth;banner.style.animation='';}
   }
-  lastMyTurn=mine;
+  // NB: lastMyTurn est mis à jour par renderGame() APRES cet appel
 }
 
 function getPotXY(){
