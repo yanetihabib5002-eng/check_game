@@ -113,8 +113,9 @@ body::before{
   padding:5px 10px;border-radius:12px;
   background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.08);
   transition:all .3s,transform .3s;min-width:58px;
-  transform-style:preserve-3d;
-  perspective:200px;
+  will-change:transform;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
 }
 .opp-chip.active{border-color:var(--gold);background:rgba(212,168,67,.1);}
 .opp-chip.done{border-color:var(--ok);}
@@ -188,7 +189,6 @@ body::before{
   flex:1;display:flex;align-items:center;justify-content:center;gap:28px;
   position:relative;overflow:hidden;
   perspective:900px;
-  transform-style:preserve-3d;
 }
 .table-center::before{
   content:'';position:absolute;width:88%;height:72%;
@@ -214,10 +214,12 @@ body::before{
   box-shadow:2px 3px 10px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.8);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   position:relative;cursor:pointer;
-  transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;
+  transition:transform .18s cubic-bezier(.34,1.4,.64,1),box-shadow .18s;
   user-select:none;flex-shrink:0;font-family:'Playfair Display',serif;
-  transform-style:preserve-3d;
   backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  will-change:transform;
+  isolation:isolate;
 }
 /* Hover 3D sur les cartes jouables en main */
 #h-cards .card.playable:hover{
@@ -255,10 +257,10 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
 .draw-stack:active .card{transform:scale(.93);}
 /* card states */
 .card.playable{box-shadow:2px 3px 8px rgba(0,0,0,.4),0 0 0 2px var(--gold),0 0 18px rgba(212,168,67,.5);animation:glowPulse 2s infinite;}
-.card.selected{transform:translateY(-13px) scale(1.06);box-shadow:2px 3px 16px rgba(0,0,0,.5),0 0 0 3px var(--gold-l),0 0 30px rgba(212,168,67,.6);animation:none !important;}
+.card.selected{transform:translateY(-13px) scale(1.06) translateZ(0);box-shadow:2px 3px 16px rgba(0,0,0,.5),0 0 0 3px var(--gold-l),0 0 30px rgba(212,168,67,.6);animation:none !important;}
 .card.dim{opacity:.45;cursor:default;}
 .card.noturn{opacity:.65;cursor:default;}
-@keyframes glowPulse{0%,100%{box-shadow:2px 3px 8px rgba(0,0,0,.4),0 0 0 2px var(--gold),0 0 10px rgba(212,168,67,.4);}50%{box-shadow:2px 3px 8px rgba(0,0,0,.4),0 0 0 2px var(--gold),0 0 24px rgba(212,168,67,.7);}}
+@keyframes glowPulse{0%,100%{box-shadow:2px 3px 8px rgba(0,0,0,.4),0 0 0 2px var(--gold),0 0 10px rgba(212,168,67,.4);}50%{box-shadow:2px 3px 8px rgba(0,0,0,.4),0 0 0 2px var(--gold),0 0 22px rgba(212,168,67,.65);}}
 /* special card glows */
 .card.playable[data-r="7"]{animation:sevenGlow 1s infinite;}
 @keyframes sevenGlow{0%,100%{box-shadow:0 0 0 2px #ff4444,0 0 15px #ff222266;}50%{box-shadow:0 0 0 3px #ff6666,0 0 30px #ff444488,0 0 50px #ff000044;}}
@@ -270,8 +272,8 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
 @keyframes jokerRedGlow{0%,100%{box-shadow:0 0 0 2px #ff4040,0 0 20px #ff4040,0 0 40px #ff000055;}50%{box-shadow:0 0 0 3px #ff8800,0 0 30px #ff4400,0 0 60px #ff220077;}}
 .card.jb.playable{animation:jokerBlkGlow 1.5s infinite !important;}
 @keyframes jokerBlkGlow{0%,100%{box-shadow:0 0 0 2px #aaaaff,0 0 20px #5555ff,0 0 40px #2200ff55;}50%{box-shadow:0 0 0 3px #ccccff,0 0 30px #8888ff,0 0 60px #4400ff77;}}
-.card.lastcard{animation:lastCardWarn .65s infinite !important;}
-@keyframes lastCardWarn{0%,100%{transform:scale(1);}50%{transform:scale(1.1);box-shadow:0 0 0 3px #ffdd00,0 0 22px #ffdd0088;}}
+.card.lastcard{animation:lastCardWarn .8s infinite !important;}
+@keyframes lastCardWarn{0%,100%{box-shadow:2px 3px 10px rgba(0,0,0,.45),0 0 0 2px #ffdd00,0 0 14px #ffdd0066;}50%{box-shadow:2px 3px 10px rgba(0,0,0,.45),0 0 0 3px #ffdd00,0 0 22px #ffdd0088;}}
 /* suit indicator */
 .suit-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.5);border:1px solid rgba(212,168,67,.3);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:900;}
 .pending-badge{background:var(--danger);color:#fff;font-weight:900;font-size:13px;border-radius:8px;padding:4px 10px;box-shadow:0 2px 8px rgba(204,51,51,.4);}
@@ -280,12 +282,10 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
 .hand-header{display:flex;align-items:center;justify-content:space-between;padding:7px 14px 0;}
 .hand-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:8px;}
 .hand-dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok);}
-.hand-scroll{overflow-x:auto;scrollbar-width:none;padding:8px 12px;-webkit-overflow-scrolling:touch;}
+.hand-scroll{overflow-x:auto;scrollbar-width:none;padding:8px 12px;-webkit-overflow-scrolling:touch;contain:layout style;}
 .hand-scroll::-webkit-scrollbar{display:none;}
 .hand-cards{
   display:flex;gap:7px;min-width:max-content;align-items:flex-end;
-  perspective:600px;
-  transform-style:preserve-3d;
 }
 /* actions */
 .action-row{display:flex;gap:8px;padding:6px 12px 8px;flex-shrink:0;}
@@ -491,6 +491,77 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
   animation:curseIn .4s ease-out forwards,curseFlash 0.8s ease-in-out infinite;}
 .card-fx-curse::before{content:'💀';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:18px;}
 
+/* ── SANG (Roi/K) — dégoulinement rouge ── */
+@keyframes bloodDrip{0%{transform:translateY(-100%);}100%{transform:translateY(200%);}}
+@keyframes bloodPulse{0%,100%{box-shadow:0 0 14px rgba(180,0,0,.8),inset 0 0 10px rgba(200,0,0,.4);}50%{box-shadow:0 0 26px rgba(220,0,0,1),inset 0 0 18px rgba(255,0,0,.6);}}
+@keyframes bloodIn{0%{opacity:0;transform:scaleY(.4) scaleX(.85);}60%{opacity:1;transform:scaleY(1.03);}100%{opacity:1;transform:scale(1);}}
+@keyframes bloodOut{0%{opacity:1;}100%{opacity:0;transform:scaleY(1.1);}}
+.card-fx-blood{
+  position:absolute;inset:-2px;border-radius:11px;pointer-events:none;z-index:15;overflow:hidden;
+  background:linear-gradient(180deg,rgba(180,0,0,.55) 0%,rgba(220,20,20,.45) 30%,rgba(160,0,0,.3) 70%,rgba(100,0,0,.15) 100%);
+  border:2px solid rgba(200,0,0,.9);
+  animation:bloodIn .4s ease-out forwards,bloodPulse 1.1s ease-in-out infinite;}
+.card-fx-blood::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(180deg,transparent 0px,transparent 8px,rgba(200,0,0,.18) 8px,rgba(200,0,0,.18) 9px);
+  border-radius:9px;}
+.card-fx-blood::after{content:'🩸';position:absolute;bottom:1px;right:3px;font-size:12px;}
+.card-fx-blood .blood-drop{position:absolute;width:4px;background:rgba(200,0,0,.8);border-radius:0 0 4px 4px;animation:bloodDrip 1.4s ease-in infinite;}
+.card-fx-blood.fx-out{animation:bloodOut .35s ease-in forwards!important;}
+
+/* ── TORNADE (10) — tourbillon spirale ── */
+@keyframes tornadoSpin{0%{transform:translate(-50%,-50%) rotate(0deg) scaleX(1);}50%{transform:translate(-50%,-50%) rotate(180deg) scaleX(.85);}100%{transform:translate(-50%,-50%) rotate(360deg) scaleX(1);}}
+@keyframes tornadoPulse{0%,100%{box-shadow:0 0 14px rgba(140,180,255,.6),inset 0 0 10px rgba(100,140,220,.4);}50%{box-shadow:0 0 26px rgba(180,210,255,1),0 0 40px rgba(120,160,240,.5),inset 0 0 16px rgba(140,180,255,.6);}}
+@keyframes tornadoIn{0%{opacity:0;transform:scale(.5) rotate(-90deg);}60%{opacity:1;transform:scale(1.06) rotate(5deg);}100%{opacity:1;transform:scale(1) rotate(0);}}
+@keyframes tornadoOut{0%{opacity:1;}100%{opacity:0;transform:scale(.7) rotate(60deg);}}
+@keyframes cardShiver{0%,100%{transform:rotate(0deg);}15%{transform:rotate(-1.5deg);}45%{transform:rotate(1.5deg);}75%{transform:rotate(-.8deg);}}
+.card-fx-tornado{
+  position:absolute;inset:-2px;border-radius:11px;pointer-events:none;z-index:15;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 60%,rgba(100,140,220,.3) 0%,rgba(60,100,200,.25) 40%,transparent 75%);
+  border:2px solid rgba(160,200,255,.85);
+  animation:tornadoIn .4s ease-out forwards,tornadoPulse 1.3s ease-in-out infinite;}
+.card-fx-tornado::before{content:'🌪️';position:absolute;top:50%;left:50%;font-size:22px;transform:translate(-50%,-50%);animation:tornadoSpin 1.8s linear infinite;}
+.card-fx-tornado::after{content:'';position:absolute;inset:0;
+  background:repeating-conic-gradient(rgba(100,160,255,.08) 0deg,transparent 20deg,rgba(100,160,255,.08) 40deg);
+  border-radius:9px;animation:tornadoSpin 4s linear infinite;}
+.card-fx-tornado.fx-out{animation:tornadoOut .35s ease-in forwards!important;}
+
+/* ── FANTÔME (5) — effet hante semi-transparent ── */
+@keyframes ghostFloat{0%,100%{transform:translateY(0) scaleY(1);}30%{transform:translateY(-3px) scaleY(1.03);}70%{transform:translateY(2px) scaleY(.98);}}
+@keyframes ghostPulse{0%,100%{box-shadow:0 0 16px rgba(220,240,255,.5),inset 0 0 12px rgba(180,220,255,.3);opacity:.82;}50%{box-shadow:0 0 28px rgba(240,248,255,.9),inset 0 0 20px rgba(200,230,255,.55);opacity:.55;}}
+@keyframes ghostIn{0%{opacity:0;transform:scale(.7);}50%{opacity:.9;transform:scale(1.04);}100%{opacity:.75;transform:scale(1);}}
+@keyframes ghostOut{0%{opacity:.75;}100%{opacity:0;transform:scale(1.15) translateY(-10px);}}
+@keyframes ghostDrift{0%{transform:translate(-50%,-50%) rotate(0deg);}100%{transform:translate(-50%,-50%) rotate(360deg);}}
+.card-fx-ghost{
+  position:absolute;inset:-2px;border-radius:11px;pointer-events:none;z-index:15;overflow:hidden;
+  background:linear-gradient(135deg,rgba(220,235,255,.45) 0%,rgba(180,210,255,.38) 50%,rgba(230,245,255,.5) 100%);
+  border:2px solid rgba(200,230,255,.75);
+  animation:ghostIn .5s ease-out forwards,ghostPulse 1.8s ease-in-out infinite,ghostFloat 2.2s ease-in-out infinite;}
+.card-fx-ghost::before{content:'👻';position:absolute;top:50%;left:50%;font-size:20px;transform:translate(-50%,-50%);animation:ghostDrift 6s linear infinite;opacity:.9;}
+.card-fx-ghost::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.22) 0%,transparent 65%);
+  border-radius:9px;}
+.card-fx-ghost.fx-out{animation:ghostOut .4s ease-out forwards!important;}
+
+/* ── ÉCLIPSE (9/Q) — assombrissement lunaire argenté ── */
+@keyframes eclipseBreath{0%,100%{box-shadow:0 0 16px rgba(100,100,160,.7),inset 0 0 14px rgba(60,60,120,.5);}50%{box-shadow:0 0 30px rgba(140,140,200,1),0 0 50px rgba(80,80,160,.4),inset 0 0 22px rgba(100,100,180,.7);}}
+@keyframes eclipseIn{0%{opacity:0;transform:scale(.6);}55%{opacity:1;transform:scale(1.05);}100%{opacity:1;transform:scale(1);}}
+@keyframes eclipseOrbit{0%{transform:translate(-50%,-50%) rotate(0deg) translateX(14px) rotate(0deg);}100%{transform:translate(-50%,-50%) rotate(360deg) translateX(14px) rotate(-360deg);}}
+@keyframes eclipseOut{0%{opacity:1;}100%{opacity:0;transform:scale(1.15);}}
+.card-fx-eclipse{
+  position:absolute;inset:-2px;border-radius:11px;pointer-events:none;z-index:15;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 50%,rgba(20,20,60,.7) 0%,rgba(40,40,90,.55) 45%,rgba(60,60,100,.3) 75%,transparent 100%);
+  border:2px solid rgba(140,140,220,.85);
+  animation:eclipseIn .5s ease-out forwards,eclipseBreath 2s ease-in-out infinite;}
+.card-fx-eclipse::before{content:'🌑';position:absolute;top:50%;left:50%;font-size:18px;transform:translate(-50%,-50%);}
+.card-fx-eclipse::after{content:'⭐';position:absolute;top:50%;left:50%;font-size:10px;animation:eclipseOrbit 3s linear infinite;}
+.card-fx-eclipse.fx-out{animation:eclipseOut .4s ease-out forwards!important;}
+
+/* ── Chips adversaires nouveaux états ── */
+.opp-chip.chip-blood{border-color:rgba(200,0,0,.8)!important;background:rgba(80,0,0,.25)!important;box-shadow:0 0 12px rgba(200,0,0,.5)!important;}
+.opp-chip.chip-tornado{border-color:rgba(160,200,255,.8)!important;background:rgba(30,60,120,.2)!important;box-shadow:0 0 12px rgba(100,160,255,.5)!important;}
+.opp-chip.chip-ghost{border-color:rgba(200,230,255,.7)!important;background:rgba(180,210,255,.1)!important;box-shadow:0 0 12px rgba(200,230,255,.4)!important;}
+.opp-chip.chip-eclipse{border-color:rgba(120,120,200,.8)!important;background:rgba(20,20,80,.3)!important;box-shadow:0 0 14px rgba(80,80,160,.6)!important;}
+
 /* ── Banière "GELÉ" sous la main ── */
 .hand-status-banner{
   text-align:center;padding:4px 0 2px;font-size:11px;font-weight:900;letter-spacing:2px;
@@ -499,6 +570,10 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
 .hand-status-banner.burning{color:#ff8844;text-shadow:0 0 8px rgba(255,100,0,.8);animation:fireFlicker 1s ease-in-out infinite;}
 .hand-status-banner.zapped{color:#ffee44;text-shadow:0 0 8px rgba(255,220,0,.8);animation:zapPersist .8s ease-in-out infinite;}
 .hand-status-banner.voided{color:#bb88ff;text-shadow:0 0 8px rgba(140,60,255,.8);animation:voidBreath 1.2s ease-in-out infinite;}
+.hand-status-banner.blood{color:#ff4444;text-shadow:0 0 8px rgba(200,0,0,.8);animation:bloodPulse 1s ease-in-out infinite;}
+.hand-status-banner.tornado{color:#99bbff;text-shadow:0 0 8px rgba(100,160,255,.8);animation:tornadoPulse 1.1s ease-in-out infinite;}
+.hand-status-banner.ghost{color:#ccddf0;text-shadow:0 0 8px rgba(180,215,255,.7);animation:ghostPulse 1.6s ease-in-out infinite;}
+.hand-status-banner.eclipsed{color:#aaaadd;text-shadow:0 0 8px rgba(80,80,160,.8);animation:eclipseBreath 1.8s ease-in-out infinite;}
 
 /* ── Chip adversaire avec effet persistant ── */
 .opp-chip.chip-frozen{border-color:rgba(120,220,255,.8)!important;background:rgba(30,90,160,.25)!important;box-shadow:0 0 12px rgba(80,180,255,.5)!important;}
@@ -1154,6 +1229,19 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
         </div>
       </div>
 
+      <div style="background:rgba(180,80,255,.06);border:1px solid rgba(180,80,255,.18);border-radius:12px;padding:12px 14px">
+        <div style="font-size:13px;font-weight:900;color:#cc88ff;margin-bottom:8px">✨ Effets combo (x2 ou x3)</div>
+        <div style="font-size:11px;color:rgba(245,240,232,.45);margin-bottom:8px">Joue 2 ou 3 cartes identiques pour déclencher un effet visuel sur le joueur suivant !</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px">
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:18px;min-width:32px;text-align:center">🩸</span><div><strong style="color:var(--cream)">Roi (K) x2/x3 — Saigne</strong><br><span style="color:rgba(245,240,232,.55)">Les cartes du joueur suivant se couvrent de sang jusqu'à son tour.</span></div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:18px;min-width:32px;text-align:center">🌪️</span><div><strong style="color:var(--cream)">10 x2/x3 — Tornade</strong><br><span style="color:rgba(245,240,232,.55)">Un tourbillon s'empare des cartes du joueur suivant jusqu'à son tour.</span></div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:18px;min-width:32px;text-align:center">👻</span><div><strong style="color:var(--cream)">5 x2/x3 — Hante</strong><br><span style="color:rgba(245,240,232,.55)">Les cartes du joueur suivant deviennent fantomatiques jusqu'à son tour.</span></div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:18px;min-width:32px;text-align:center">🌑</span><div><strong style="color:var(--cream)">9 / Dame (Q) x2/x3 — Éclipse</strong><br><span style="color:rgba(245,240,232,.55)">Une éclipse lunaire assombrit les cartes du joueur suivant jusqu'à son tour.</span></div></div>
+        </div>
+      </div>
+        </div>
+      </div>
+
       <div style="background:rgba(50,200,100,.06);border:1px solid rgba(50,200,100,.18);border-radius:12px;padding:12px 14px">
         <div style="font-size:13px;font-weight:900;color:#60ee90;margin-bottom:6px">✅ Déroulement</div>
         <div style="font-size:12px;color:rgba(245,240,232,.7);line-height:1.7">
@@ -1734,31 +1822,11 @@ async function loadOnlinePlayers(){
   }
 }
 
-// ── CHECK timer visual ──
+// ── CHECK timer visuel (remplacé par startCheckCountdown) ──
 let _checkTimerSec=15;
 let _checkTimerInt=null;
-function startCheckTimer(){
-  const fill=document.getElementById('check-timer-fill');
-  if(!fill)return;
-  if(_checkTimerInt)return; // already running
-  _checkTimerSec=15;
-  fill.style.transform='scaleX(1)';
-  _checkTimerInt=setInterval(()=>{
-    _checkTimerSec--;
-    if(fill)fill.style.transform='scaleX('+Math.max(0,_checkTimerSec/15)+')';
-    if(_checkTimerSec<=0){
-      clearInterval(_checkTimerInt);_checkTimerInt=null;
-      // Faire trembler le bouton pour urgence
-      const btn=document.getElementById('btn-check');
-      if(btn)btn.style.animation='checkPulse .3s ease-in-out infinite';
-    }
-  },1000);
-}
-function stopCheckTimer(){
-  if(_checkTimerInt){clearInterval(_checkTimerInt);_checkTimerInt=null;}
-  const fill=document.getElementById('check-timer-fill');
-  if(fill)fill.style.transform='scaleX(1)';
-}
+function startCheckTimer(){} // legacy no-op
+function stopCheckTimer(){} // legacy no-op
 
 function handleInviteClick(btn){
   const uid=btn.dataset.uid;
@@ -2684,47 +2752,98 @@ function updateCheckButton(gs){
   const myCount=Array.isArray(myHandSize)?myHandSize.length:localHand.length;
   const checkSaidMap=gs.checkSaid||{};
   const iSaid=checkSaidMap[myUid];
+  const checkTs=gs.checkTs&&gs.checkTs[myUid]; // timestamp quand j'ai dit CHECK
 
   // Afficher CHECK si j'ai exactement 1 carte
   if(myCount===1&&!mySpectator){
-    if(wrap)wrap.style.display='flex';
     if(iSaid){
-      btn.classList.add('said');
-      btn.textContent='✅ CHECK dit';
-      stopCheckTimer();
+      // CHECK dit → cacher le bouton, afficher juste le timer 6s
+      if(wrap)wrap.style.display='flex';
+      btn.style.display='none';
+      startCheckCountdown(checkTs);
     } else {
+      if(wrap)wrap.style.display='flex';
+      btn.style.display='';
       btn.classList.remove('said');
       btn.textContent='⚡ CHECK !';
-      startCheckTimer();
+      stopCheckTimer();
+      stopCheckCountdown();
     }
     _myCheckNeeded=!iSaid;
   } else {
     if(wrap)wrap.style.display='none';
+    btn.style.display='';
     _myCheckNeeded=false;
     stopCheckTimer();
+    stopCheckCountdown();
   }
 
-  // Ajouter bouton Dénoncer sur les chips adversaires qui ont 1 carte sans avoir dit CHECK
+  // Ajouter bouton Dénoncer sur les chips adversaires
+  // Visible seulement pendant la fenêtre de 6 secondes après que l'adversaire a dit CHECK
+  const now=Date.now();
   document.querySelectorAll('.opp-chip').forEach(chip=>{
     const uid=chip.dataset.uid;
     if(!uid||uid===myUid)return;
     const oppHand=gs.hands&&gs.hands[uid]||[];
     const oppCount=Array.isArray(oppHand)?oppHand.length:0;
     const oppSaid=checkSaidMap[uid];
-    // Remove existing snitch btn
+    const oppCheckTs=gs.checkTs&&gs.checkTs[uid];
     chip.querySelectorAll('.btn-snitch').forEach(b=>b.remove());
-    // Add snitch btn if opp has 1 card and hasn't said CHECK
-    if(oppCount===1&&!oppSaid&&!mySpectator){
-      const snitch=document.createElement('button');
-      snitch.className='btn-snitch';
-      snitch.textContent='😤 CHECK ?';
-      snitch.title="Dénoncer — il a 1 carte et n'a pas dit CHECK !";
-      snitch.onclick=(e)=>{e.stopPropagation();reportCheck(uid,gs.playerNames[uid]||'?');};
-      // Insert into the name/count div
-      const nameDiv=chip.querySelector('.opp-name');
-      if(nameDiv)nameDiv.appendChild(snitch);
+
+    if(oppCount===1&&!mySpectator){
+      if(!oppSaid){
+        // N'a pas dit CHECK — peut être dénoncé immédiatement
+        const snitch=document.createElement('button');
+        snitch.className='btn-snitch';
+        snitch.textContent='😤 CHECK ?';
+        snitch.title="Dénoncer — il a 1 carte et n'a pas dit CHECK !";
+        snitch.onclick=(e)=>{e.stopPropagation();reportCheck(uid,gs.playerNames[uid]||'?');};
+        const nameDiv=chip.querySelector('.opp-name');
+        if(nameDiv)nameDiv.appendChild(snitch);
+      } else if(oppCheckTs&&(now-oppCheckTs)<6000){
+        // A dit CHECK depuis moins de 6 secondes — fenêtre de dénonciation ouverte
+        const remaining=Math.ceil((6000-(now-oppCheckTs))/1000);
+        const snitch=document.createElement('button');
+        snitch.className='btn-snitch';
+        snitch.style.background='rgba(255,140,0,.25)';
+        snitch.style.borderColor='rgba(255,140,0,.5)';
+        snitch.style.color='#ffaa55';
+        snitch.textContent='🕵️ Dénoncer ('+remaining+'s)';
+        snitch.title='Dénoncer pendant la fenêtre CHECK !';
+        snitch.onclick=(e)=>{e.stopPropagation();reportCheck(uid,gs.playerNames[uid]||'?');};
+        const nameDiv=chip.querySelector('.opp-name');
+        if(nameDiv)nameDiv.appendChild(snitch);
+      }
     }
   });
+}
+
+// Timer visuel de la fenêtre 6s côté moi (après avoir dit CHECK)
+let _checkCountdownInt=null;
+function startCheckCountdown(checkTs){
+  const fill=document.getElementById('check-timer-fill');
+  const bar=document.getElementById('check-timer-bar');
+  if(!fill||!bar)return;
+  if(_checkCountdownInt)return;
+  bar.style.display='block';
+  function update(){
+    const elapsed=checkTs?Date.now()-checkTs:0;
+    const left=Math.max(0,6000-elapsed);
+    const pct=left/6000;
+    fill.style.transform='scaleX('+pct+')';
+    fill.style.background=pct>.5?'linear-gradient(90deg,#33aa55,#44cc66)':'linear-gradient(90deg,#ff8800,#ffcc00)';
+    if(left<=0){
+      stopCheckCountdown();
+      if(bar)bar.style.display='none';
+    }
+  }
+  update();
+  _checkCountdownInt=setInterval(update,200);
+}
+function stopCheckCountdown(){
+  if(_checkCountdownInt){clearInterval(_checkCountdownInt);_checkCountdownInt=null;}
+  const bar=document.getElementById('check-timer-bar');
+  if(bar)bar.style.display='none';
 }
 
 async function sayCheck(){
@@ -2734,16 +2853,21 @@ async function sayCheck(){
   if(myCount!==1){toast('Tu dois avoir 1 carte pour dire CHECK !','d');return;}
   const checkSaidMap=gs.checkSaid||{};
   if(checkSaidMap[myUid]){return;} // déjà dit
-  // Sauvegarder dans Firebase
-  await db.ref('rooms/'+roomId+'/game/checkSaid/'+myUid).set(true);
-  // Notifier les autres
+  const now=Date.now();
+  // Sauvegarder dans Firebase avec timestamp pour la fenêtre de 6s
+  const upd={};
+  upd['checkSaid/'+myUid]=true;
+  upd['checkTs/'+myUid]=now;
+  await db.ref('rooms/'+roomId+'/game').update(upd);
   // FX local immédiat
   fxCheckSaid();
-  await db.ref('rooms/'+roomId+'/game/lastFX').set({r:'check',s:myName,color:null,by:myUid,ts:Date.now()});
-  sfxMyTurn(); // petit son de confirmation
+  await db.ref('rooms/'+roomId+'/game/lastFX').set({r:'check',s:myName,color:null,by:myUid,ts:now});
+  sfxMyTurn();
   vibrate([30,20,60]);
-  toast('✅ CHECK dit !','g');
+  toast('✅ CHECK dit ! 6s pour être dénoncé...','g');
   addLog('✅ '+myName+' dit CHECK !','me');
+  // Démarrer le countdown local immédiatement
+  startCheckCountdown(now);
 }
 
 async function reportCheck(targetUid, targetName){
@@ -3242,6 +3366,22 @@ function renderGame(){
             if(!victimIsMe&&victimUid) setChipEffect(victimUid,'chip-void');
           } else if(fx.r==='7'){
             if(!victimIsMe&&victimUid) setChipEffect(victimUid,'chip-zap');
+          } else if((fx.combo||1)>=2){
+            // Effets combo (double/triple) — s'active sur n'importe quelle carte x2+
+            const comboRank=fx.r;
+            if(comboRank==='K'){
+              if(victimIsMe){activeHandEffect={fxClass:'blood',chipClass:'chip-blood',label:'🩸  SAIGNE — blessure du Roi',labelClass:'blood'};fxBloodTakeover();}
+              else if(victimUid) setChipEffect(victimUid,'chip-blood');
+            } else if(comboRank==='10'){
+              if(victimIsMe){activeHandEffect={fxClass:'tornado',chipClass:'chip-tornado',label:'🌪️  TOURBILLON — attend ton tour',labelClass:'tornado'};fxTornadoTakeover();}
+              else if(victimUid) setChipEffect(victimUid,'chip-tornado');
+            } else if(comboRank==='5'){
+              if(victimIsMe){activeHandEffect={fxClass:'ghost',chipClass:'chip-ghost',label:'👻  HANTÉ — attend ton tour',labelClass:'ghost'};fxGhostTakeover();}
+              else if(victimUid) setChipEffect(victimUid,'chip-ghost');
+            } else if(comboRank==='9'||comboRank==='Q'){
+              if(victimIsMe){activeHandEffect={fxClass:'eclipse',chipClass:'chip-eclipse',label:'🌑  ÉCLIPSE — attend ton tour',labelClass:'eclipsed'};fxEclipseTakeover();}
+              else if(victimUid) setChipEffect(victimUid,'chip-eclipse');
+            }
           }
         },200);
       }
@@ -3382,6 +3522,75 @@ function renderGame(){
   else{bd.textContent='🎴 Piocher';bd.disabled=!mine;}
 }
 
+// ── Mise à jour légère de la sélection (sans reconstruire le DOM des cartes) ──
+function updateHandSelection(){
+  if(!gameState)return;
+  const gs=gameState;
+  const top=gs.pot&&gs.pot[gs.pot.length-1];
+  const mine=gs.playerOrder&&gs.playerOrder[gs.currentPlayerIdx]===myUid&&!mySpectator;
+  const jfc=(mine&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
+  const comboEnabled=gs.mode&&gs.mode.combo;
+  const comboFirst=comboEnabled&&selCards.length>0?localHand.find(c=>c.id===selCards[0]):null;
+
+  // Mettre à jour chaque carte existante sans recréer le DOM
+  const cardEls=document.querySelectorAll('#h-cards .card');
+  cardEls.forEach(el=>{
+    const id=el.dataset.id;
+    if(!id)return;
+    const card=localHand.find(c=>c.id===id);
+    if(!card)return;
+    const plNormal=mine&&top&&canPlay(card,top,gs.commandedSuit,gs.pendingDraws,jfc);
+    const alreadySel=selCards.includes(id);
+    const plCombo=comboEnabled&&comboFirst&&!alreadySel&&
+      card.r===comboFirst.r&&(card.r==='JOKER'?card.color===comboFirst.color:true);
+    const pl=plNormal||plCombo;
+    const selIdx=selCards.indexOf(id);
+
+    // Retirer les classes d'état
+    el.classList.remove('playable','dim','noturn','selected','lastcard');
+    if(selIdx>=0){el.classList.add('selected');}
+    else if(pl){el.classList.add('playable');}
+    else if(!mine){el.classList.add('noturn');}
+    else{el.classList.add('dim');}
+    if(localHand.length===1)el.classList.add('lastcard');
+
+    // Badge combo (position dans sélection)
+    const existBadge=el.querySelector('.combo-badge');
+    if(existBadge)existBadge.remove();
+    if(selIdx>=0&&selCards.length>1){
+      const badge=document.createElement('div');
+      badge.className='combo-badge';
+      badge.style.cssText='position:absolute;top:-8px;left:50%;transform:translateX(-50%);'+
+        'background:var(--gold);color:#1a0f00;border-radius:50%;width:16px;height:16px;'+
+        'font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;z-index:20;';
+      badge.textContent=selIdx+1;
+      el.style.position='relative';
+      el.appendChild(badge);
+    }
+  });
+
+  // Mettre à jour le bouton jouer
+  const playBtn=document.getElementById('btn-play');
+  if(!playBtn)return;
+  if(mine&&selCards.length>1){playBtn.textContent='▶ Jouer x'+selCards.length;}
+  else if(mine&&selCards.length===1){playBtn.textContent='▶ Jouer';}
+  else{playBtn.textContent='▶ Jouer';}
+
+  // Recalculer si le bouton jouer est actif
+  const canPl=(()=>{
+    if(!selCards.length||!mine||!top)return false;
+    const firstCard=localHand.find(c=>c.id===selCards[0]);
+    if(!firstCard)return false;
+    return selCards.every((sid,i)=>{
+      const c=localHand.find(x=>x.id===sid);
+      if(!c)return false;
+      if(i===0)return canPlay(c,top,gs.commandedSuit,gs.pendingDraws,jfc);
+      return comboEnabled&&c.r===firstCard.r&&(c.r==='JOKER'?c.color===firstCard.color:true);
+    });
+  })();
+  playBtn.disabled=!canPl;
+}
+
 function renderHand(top,cmdSuit,pending,mine,gs){
   if(!gs)return;
   const hc=document.getElementById('h-cards');if(!hc)return;hc.innerHTML='';
@@ -3446,21 +3655,21 @@ function renderHand(top,cmdSuit,pending,mine,gs){
           }
         }
         addRipple(el);vibrate(18);
-        renderGame();
+        // Mise à jour légère: juste les classes des cartes + bouton jouer (évite le flash DOM complet)
+        updateHandSelection();
       });
     }
-    // Tilt 3D au survol/touch
-    if(mine){
+    // Tilt 3D au survol/touch — desktop uniquement
+    if(mine && window.matchMedia('(hover: hover)').matches){
       el.addEventListener('mousemove',function(e){
         if(this.classList.contains('selected'))return;
         const r=this.getBoundingClientRect();
-        const nx=(e.clientX-r.left)/r.width-.5;  // -0.5 à 0.5
+        const nx=(e.clientX-r.left)/r.width-.5;
         const ny=(e.clientY-r.top)/r.height-.5;
-        const rx=ny*-18; // tilt vertical
-        const ry=nx*18;  // tilt horizontal
+        const rx=ny*-14;
+        const ry=nx*14;
         this.style.transform='translateY(-6px) rotateX('+rx+'deg) rotateY('+ry+'deg) scale(1.04)';
-        this.style.boxShadow='0 14px 28px rgba(0,0,0,.6),'+
-          (nx>0?'':`0 0 0 2px var(--gold)`);
+        this.style.boxShadow='0 14px 28px rgba(0,0,0,.6)'+(nx>0?'':',0 0 0 2px var(--gold)');
       });
       el.addEventListener('mouseleave',function(){
         if(this.classList.contains('selected'))return;
@@ -3651,7 +3860,7 @@ async function doPlayCombo(cardIds, jfcCheck){
   upd['jokerPendingColor']=jokerColor||null;upd['jokerFreeColor']=null;
   upd['turnStartTs']=Date.now();
   upd['checkSaid/'+myUid]=null;
-  upd['lastFX']={r:first.r,s:first.s+(cards.length>1?' x'+cards.length:''),color:first.color||null,by:myUid,ts:Date.now()};
+  upd['lastFX']={r:first.r,s:first.s,color:first.color||null,by:myUid,combo:cards.length,ts:Date.now()};
   if(over)upd['status']='finished';
   if(roundOver&&isElim){
     const loserUid=stillIn.length===1?stillIn[0]:[...stillIn].sort((a,b)=>(gs.hands[b]||[]).length-(gs.hands[a]||[]).length)[0];
@@ -4470,6 +4679,60 @@ const FX={
       spawn(x,y,18,['#00ff88','#88ffaa','#fff','#aaffdd'],55,0.14,{shapes:['c','s'],spin:true});
       combo('🍀 JOKER2!','#33ff88');floatE('🍀',x,y-15);},
   ],
+  // ── ROI (K) — sang / brutaux ──
+  KING:[
+    ()=>{const{x,y}=getPotXY();vibrate([80,40,120]);flash('rgba(160,0,0,.35)',400);
+      spawn(x,y,30,['#cc0000','#ff3300','#ff6600','#fff','#880000'],90,0.28,{shapes:['c','r'],upBias:2,dec:0.02});
+      shockwave(x,y,'#cc0000',2);
+      combo('🩸 ROI SANG!','#ff2222');floatE('🩸',x,y-15,{big:true});shakeEl('.opp-row');},
+    ()=>{const{x,y}=getPotXY();vibrate([60,30,80,30,100]);flash('rgba(180,0,0,.3)',350);
+      for(let i=0;i<4;i++)setTimeout(()=>spawnP({x:x+(Math.random()-.5)*30,y:y-10,vx:(Math.random()-.5)*1.5,vy:4+Math.random()*3,color:'#cc0000',sz:5+Math.random()*4,life:1,dec:0.014,grav:0.3,shape:'c'}),i*80);
+      ring(x,y,10,22,['#cc0000','#ff4400','#fff'],{sp:3,grav:0.2,sz:4,dec:0.022});
+      combo('👑 BRUTAL!','#ff3300');floatE('👑',x-10,y-20);floatE('🩸',x+15,y-10);},
+    ()=>{const{x,y}=getPotXY();vibrate([100,50,150]);flash('rgba(200,0,0,.4)',450);
+      laserBurst(x,y,'#cc0000',8,55);spawn(x,y,25,['#880000','#cc0000','#ff4400','#fff'],80,0.25,{shapes:['r','t'],spin:true});
+      combo('⚔️ DÉCAPITE!','#ff1100');floatE('⚔️',x,y-20,{big:true});},
+  ],
+  // ── 10 — tornade / désorientation ──
+  TEN:[
+    ()=>{const{x,y}=getPotXY();vibrate([40,20,60]);flash('rgba(80,120,200,.22)',300);
+      spawn(x,y,25,['#88aaff','#aaccff','#6688cc','#fff','#4466bb'],75,0.15,{shapes:['s','d','c'],spin:true,upBias:3,dec:0.014});
+      combo('🌪️ TORNADE!','#88aaff');floatE('🌪️',x,y-10,{big:true});shakeEl('.opp-row');},
+    ()=>{const{x,y}=getPotXY();vibrate([30,20,50,20,70]);flash('rgba(60,100,180,.25)',320);
+      for(let i=0;i<12;i++){const a=(i/12)*Math.PI*2,r=15+Math.random()*25;spawnP({x:x+Math.cos(a)*r,y:y+Math.sin(a)*r,vx:Math.cos(a+Math.PI/2)*3,vy:Math.sin(a+Math.PI/2)*3-2,color:['#88aaff','#aaccff','#fff'][i%3],sz:4+Math.random()*3,life:1,dec:0.016,grav:0.06,shape:'c',spin:.1,rot:a});}
+      combo('💨 SOUFFLE!','#99bbff');floatE('💨',x+15,y-25);floatE('🌀',x-15,y-15);},
+    ()=>{const{x,y}=getPotXY();vibrate([50,30,80]);flash('rgba(100,140,220,.28)',350);
+      shockwave(x,y,'#7799cc',2);ring(x,y,14,35,['#6688cc','#aabbff','#fff'],{sp:3,grav:0.08,sz:5,dec:0.013,upBias:2});
+      combo('🌊 SPIRALE!','#8899ff');floatE('🌪️',x,y-15,{big:true});floatE('💨',x+30,y-30);},
+  ],
+  // ── 5 — fantôme / hante ──
+  FIVE:[
+    ()=>{const{x,y}=getPotXY();vibrate([15,25,15,25,30]);flash('rgba(200,220,255,.18)',400);
+      spawn(x,y,20,['#ccddff','#eef0ff','#fff','#aabbee','#ddeeFF'],65,0.06,{shapes:['c','s'],spin:true,upBias:4,dec:0.009,minSz:3,maxSz:8});
+      combo('👻 HANTE!','#cce0ff');floatE('👻',x,y-15,{big:true});},
+    ()=>{const{x,y}=getPotXY();vibrate([10,20,10,20,40]);
+      for(let i=0;i<6;i++)setTimeout(()=>floatE('👻',x+(Math.random()-.5)*100,y+(Math.random()-.5)*60,{size:18+Math.random()*14,dur:1200+Math.random()*800}),i*150);
+      ring(x,y,8,28,['#ccddff','#eef2ff','#fff'],{sp:2,grav:0.02,sz:4,dec:0.008,upBias:2});
+      combo('🌫️ HANTISE!','#bbccff');},
+    ()=>{const{x,y}=getPotXY();vibrate([20,30,40]);flash('rgba(180,210,255,.22)',500);
+      spawn(x,y,18,['#ddeeff','#fff','#aabbdd'],60,0.04,{shapes:['s','c'],spin:true,upBias:5,dec:0.007});
+      laserBurst(x,y,'#aaccee',6,45);
+      combo('💀 SPECTRE!','#ccddf0');floatE('💀',x+20,y-30);floatE('👻',x-15,y-20,{big:true});},
+  ],
+  // ── 9 / Q — éclipse / mystère ──
+  ECLIPSE:[
+    ()=>{const{x,y}=getPotXY();vibrate([30,20,50]);flash('rgba(40,40,100,.35)',500);
+      spawn(x,y,25,['#8888cc','#aaaaee','#4444aa','#fff','#6666bb'],75,0.1,{shapes:['s','d','star'],spin:true,upBias:3,dec:0.011});
+      combo('🌑 ÉCLIPSE!','#9999dd');floatE('🌑',x,y-10,{big:true});shakeEl('.opp-row');},
+    ()=>{const{x,y}=getPotXY();vibrate([40,20,60,20,80]);flash('rgba(30,30,90,.4)',450);
+      ring(x,y,12,32,['#6666aa','#aaaacc','#ddddf0','#fff'],{sp:2.5,grav:0.04,sz:6,dec:0.01,upBias:2});
+      for(let i=0;i<4;i++)setTimeout(()=>floatE('⭐',x+(Math.random()-.5)*80,y+(Math.random()-.5)*50,{size:14+Math.random()*12,dur:1400}),i*120);
+      combo('🌙 LUNAR!','#bbbbee');floatE('🌙',x-10,y-25,{big:true});},
+    ()=>{const{x,y}=getPotXY();vibrate([50,30,70]);flash('rgba(20,20,80,.5)',550);
+      laserBurst(x,y,'#8888cc',8,60);shockwave(x,y,'#6666aa',2);
+      spawn(x,y,20,['#4444aa','#8888cc','#ccccee','#fff'],70,0.08,{shapes:['star','d'],spin:true,dec:0.01});
+      combo('🔮 COSMOS!','#aaaadd');floatE('🔮',x,y-20,{big:true});floatE('✨',x+30,y-35);},
+  ],
   NORMAL_RED:[
     ()=>{const{x,y}=getPotXY();vibrate(12);spawn(x,y,10,['#ff8888','#ff5555','#ffcccc'],40,0.2,{shapes:['c'],dec:0.025});},
     ()=>{const{x,y}=getPotXY();vibrate(10);spawn(x,y,8,['#ff6666','#ff9999','#fff'],35,0.18);},
@@ -4592,11 +4855,11 @@ function clearHandEffect(){
 function setChipEffect(uid, chipClass){
   const chip=document.querySelector('.opp-chip[data-uid="'+uid+'"]');
   if(!chip)return;
-  ['chip-frozen','chip-fire','chip-zap','chip-void'].forEach(c=>chip.classList.remove(c));
+  ['chip-frozen','chip-fire','chip-zap','chip-void','chip-blood','chip-tornado','chip-ghost','chip-eclipse'].forEach(c=>chip.classList.remove(c));
   chip.classList.add(chipClass);
 
   // 3D hit animation
-  const typeMap={'chip-frozen':'freeze','chip-fire':'burn','chip-zap':'zap','chip-void':'void'};
+  const typeMap={'chip-frozen':'freeze','chip-fire':'burn','chip-zap':'zap','chip-void':'void','chip-blood':'freeze','chip-tornado':'zap','chip-ghost':'void','chip-eclipse':'void'};
   const hit3D=typeMap[chipClass];
   if(hit3D) fxHitChip(uid, hit3D);
 
@@ -4605,7 +4868,7 @@ function setChipEffect(uid, chipClass){
   if(badge)badge.remove();
   badge=document.createElement('div');
   badge.className='chip-fx-badge';
-  const icons={frozen:'❄️',fire:'🔥',zap:'⚡',void:'🌀'};
+  const icons={frozen:'❄️',fire:'🔥',zap:'⚡',void:'🌀',blood:'🩸',tornado:'🌪️',ghost:'👻',eclipse:'🌑'};
   const key=chipClass.replace('chip-','');
   badge.style.cssText='position:absolute;top:-8px;right:-6px;font-size:14px;z-index:20;filter:drop-shadow(0 0 4px rgba(255,255,255,.6));animation:crystalFloat 1.5s ease-in-out infinite;';
   badge.textContent=icons[key]||'✨';
@@ -4616,7 +4879,7 @@ function setChipEffect(uid, chipClass){
 function clearChipEffect(uid){
   const chip=document.querySelector('.opp-chip[data-uid="'+uid+'"]');
   if(!chip)return;
-  ['chip-frozen','chip-fire','chip-zap','chip-void'].forEach(c=>chip.classList.remove(c));
+  ['chip-frozen','chip-fire','chip-zap','chip-void','chip-blood','chip-tornado','chip-ghost','chip-eclipse'].forEach(c=>chip.classList.remove(c));
   const badge=chip.querySelector('.chip-fx-badge');
   if(badge)badge.remove();
 }
@@ -4728,6 +4991,102 @@ function fxVoidBurstOpp(uid){
   },650);
 }
 
+// ── SANG (K) — takeover sur ma main ──
+function fxBloodTakeover(){
+  const hc=document.getElementById('h-cards');if(!hc)return;
+  const hs=document.querySelector('.hand-section');
+  if(hs){hs.style.transition='background .3s';hs.style.background='rgba(80,0,0,.4)';setTimeout(()=>{hs.style.background='';hs.style.transition='';},700);}
+  const rect=hc.getBoundingClientRect();
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;pointer-events:none;z-index:300;border-radius:14px;'+
+    'left:'+(rect.left-8)+'px;top:'+(rect.top-8)+'px;'+
+    'width:'+(rect.width+16)+'px;height:'+(rect.height+16)+'px;'+
+    'background:linear-gradient(180deg,rgba(180,0,0,.65) 0%,rgba(220,10,10,.5) 40%,rgba(140,0,0,.3) 80%);'+
+    'border:3px solid rgba(200,0,0,.9);'+
+    'box-shadow:0 0 30px rgba(180,0,0,.7),inset 0 0 20px rgba(200,0,0,.5);'+
+    'display:flex;align-items:center;justify-content:center;font-size:40px;'+
+    'animation:bloodIn .5s ease-out forwards;';
+  el.textContent='🩸';
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(()=>el.remove(),400);},750);
+  const cx=window.innerWidth/2,cy=window.innerHeight*.65;
+  vibrate([80,40,120]);flash('rgba(160,0,0,.4)',500);
+  shockwave(cx,cy,'#cc0000',3);spawn(cx,cy,30,['#cc0000','#ff3300','#fff'],80,0.25,{shapes:['c','r'],upBias:3});
+  combo('🩸 BLESSÉ!','#ff2222');
+}
+
+// ── TORNADE (10) — takeover sur ma main ──
+function fxTornadoTakeover(){
+  const hc=document.getElementById('h-cards');if(!hc)return;
+  const hs=document.querySelector('.hand-section');
+  if(hs){hs.style.transition='background .3s';hs.style.background='rgba(30,60,120,.35)';setTimeout(()=>{hs.style.background='';hs.style.transition='';},700);}
+  const rect=hc.getBoundingClientRect();
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;pointer-events:none;z-index:300;border-radius:14px;'+
+    'left:'+(rect.left-8)+'px;top:'+(rect.top-8)+'px;'+
+    'width:'+(rect.width+16)+'px;height:'+(rect.height+16)+'px;'+
+    'background:radial-gradient(ellipse at 50% 60%,rgba(80,120,200,.45) 0%,rgba(40,80,160,.3) 50%,transparent 80%);'+
+    'border:3px solid rgba(140,190,255,.85);'+
+    'box-shadow:0 0 30px rgba(100,160,255,.7),inset 0 0 16px rgba(120,170,255,.4);'+
+    'display:flex;align-items:center;justify-content:center;font-size:40px;'+
+    'animation:tornadoIn .5s ease-out forwards;';
+  el.textContent='🌪️';
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(()=>el.remove(),400);},750);
+  const cx=window.innerWidth/2,cy=window.innerHeight*.65;
+  vibrate([40,20,60]);flash('rgba(60,100,180,.3)',400);
+  shockwave(cx,cy,'#7799cc',2);spawn(cx,cy,25,['#88aaff','#aaccff','#fff'],70,0.12,{shapes:['s','c'],spin:true,upBias:4});
+  combo('🌪️ TORNADE!','#88aaff');
+}
+
+// ── FANTÔME (5) — takeover sur ma main ──
+function fxGhostTakeover(){
+  const hc=document.getElementById('h-cards');if(!hc)return;
+  const hs=document.querySelector('.hand-section');
+  if(hs){hs.style.transition='background .4s';hs.style.background='rgba(180,210,255,.12)';setTimeout(()=>{hs.style.background='';hs.style.transition='';},800);}
+  const rect=hc.getBoundingClientRect();
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;pointer-events:none;z-index:300;border-radius:14px;'+
+    'left:'+(rect.left-8)+'px;top:'+(rect.top-8)+'px;'+
+    'width:'+(rect.width+16)+'px;height:'+(rect.height+16)+'px;'+
+    'background:linear-gradient(135deg,rgba(210,230,255,.5),rgba(180,210,255,.42),rgba(230,245,255,.55));'+
+    'border:3px solid rgba(190,225,255,.8);'+
+    'box-shadow:0 0 28px rgba(180,215,255,.6),inset 0 0 18px rgba(200,230,255,.4);'+
+    'display:flex;align-items:center;justify-content:center;font-size:40px;'+
+    'animation:ghostIn .55s ease-out forwards;';
+  el.textContent='👻';
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.transition='opacity .5s';el.style.opacity='0';setTimeout(()=>el.remove(),500);},800);
+  const cx=window.innerWidth/2,cy=window.innerHeight*.65;
+  vibrate([15,25,15,25,30]);flash('rgba(180,210,255,.2)',600);
+  spawn(cx,cy,18,['#ccddff','#eef0ff','#fff'],60,0.05,{shapes:['c','s'],spin:true,upBias:5,dec:0.009});
+  combo('👻 HANTÉ!','#cce0ff');
+}
+
+// ── ÉCLIPSE (9/Q) — takeover sur ma main ──
+function fxEclipseTakeover(){
+  const hc=document.getElementById('h-cards');if(!hc)return;
+  const hs=document.querySelector('.hand-section');
+  if(hs){hs.style.transition='background .4s';hs.style.background='rgba(20,20,70,.4)';setTimeout(()=>{hs.style.background='';hs.style.transition='';},800);}
+  const rect=hc.getBoundingClientRect();
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;pointer-events:none;z-index:300;border-radius:14px;'+
+    'left:'+(rect.left-8)+'px;top:'+(rect.top-8)+'px;'+
+    'width:'+(rect.width+16)+'px;height:'+(rect.height+16)+'px;'+
+    'background:radial-gradient(ellipse at center,rgba(30,30,90,.75),rgba(20,20,70,.6) 50%,rgba(40,40,80,.3) 80%);'+
+    'border:3px solid rgba(120,120,210,.85);'+
+    'box-shadow:0 0 35px rgba(80,80,170,.8),inset 0 0 22px rgba(60,60,140,.6);'+
+    'display:flex;align-items:center;justify-content:center;font-size:40px;'+
+    'animation:eclipseIn .55s ease-out forwards;';
+  el.textContent='🌑';
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(()=>el.remove(),400);},800);
+  const cx=window.innerWidth/2,cy=window.innerHeight*.65;
+  vibrate([30,20,50]);flash('rgba(30,30,100,.45)',550);
+  shockwave(cx,cy,'#6666aa',2);spawn(cx,cy,20,['#8888cc','#aaaaee','#fff'],65,0.08,{shapes:['star','d'],spin:true,dec:0.011,upBias:3});
+  combo('🌑 ÉCLIPSE!','#9999dd');
+}
+
 // ── CHECK dit — effet spectacle ──
 function fxCheckSaid(){
   vibrate([20,15,30,15,60]);
@@ -4795,6 +5154,10 @@ function triggerFX(card){
   else if(card.r==='A'){pick(FX.ACE)();}
   else if(card.r==='J'){pick(FX.JACK)();}
   else if(card.r==='2'){pick(FX.TWO)();}
+  else if(card.r==='K'){pick(FX.KING)();}
+  else if(card.r==='10'){pick(FX.TEN)();}
+  else if(card.r==='5'){pick(FX.FIVE)();}
+  else if(card.r==='9'||card.r==='Q'){pick(FX.ECLIPSE)();}
   else if(card.r==='draw'||card.r==='timeout'){vibrate(12);}
   else{pick(isRed(card)?FX.NORMAL_RED:FX.NORMAL_BLK)();}
 }
