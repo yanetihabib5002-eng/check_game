@@ -108,9 +108,65 @@ body::before{
 .tb-room{font-size:11px;color:rgba(212,168,67,.35);letter-spacing:1px;}
 /* opponents */
 .opp-row{display:flex;justify-content:center;gap:8px;padding:8px 10px;flex-shrink:0;}
-.opp-chip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 10px;border-radius:12px;background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.08);transition:all .3s;min-width:58px;}
+.opp-chip{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:5px 10px;border-radius:12px;
+  background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.08);
+  transition:all .3s,transform .3s;min-width:58px;
+  transform-style:preserve-3d;
+  perspective:200px;
+}
 .opp-chip.active{border-color:var(--gold);background:rgba(212,168,67,.1);}
 .opp-chip.done{border-color:var(--ok);}
+
+/* Effets 3D sur chip adversaire frappé */
+@keyframes chipFreeze3D{
+  0%  {transform:rotateX(0) scale(1);}
+  20% {transform:rotateX(-25deg) scale(.92) translateY(-4px);}
+  50% {transform:rotateX(12deg) scale(.95) translateY(2px);}
+  70% {transform:rotateX(-8deg) scale(.97);}
+  100%{transform:rotateX(0) scale(1);}
+}
+@keyframes chipBurn3D{
+  0%  {transform:rotateY(0) scale(1);}
+  15% {transform:rotateY(20deg) scale(1.08) translateX(4px);}
+  40% {transform:rotateY(-15deg) scale(1.06) translateX(-3px);}
+  65% {transform:rotateY(8deg) scale(1.03);}
+  100%{transform:rotateY(0) scale(1);}
+}
+@keyframes chipZap3D{
+  0%,100%{transform:rotate(0) scale(1);}
+  10%{transform:rotate(-4deg) scale(1.06) translateX(-3px);}
+  25%{transform:rotate(5deg) scale(1.08) translateX(4px);}
+  40%{transform:rotate(-3deg) scale(1.05) translateX(-2px);}
+  60%{transform:rotate(3deg) scale(1.04) translateX(2px);}
+  75%{transform:rotate(-2deg) scale(1.02);}
+}
+@keyframes chipVoid3D{
+  0%  {transform:scale(1) rotateZ(0);}
+  30% {transform:scale(.8) rotateZ(8deg) rotateY(20deg);}
+  60% {transform:scale(.85) rotateZ(-5deg) rotateY(-10deg);}
+  80% {transform:scale(.95) rotateZ(2deg);}
+  100%{transform:scale(1) rotateZ(0);}
+}
+.chip-hit-freeze{animation:chipFreeze3D .8s ease-out;border-color:#44ccff !important;box-shadow:0 0 20px #44ccff88,0 0 40px #44ccff44;}
+.chip-hit-burn  {animation:chipBurn3D .7s ease-out;border-color:#ff5500 !important;box-shadow:0 0 20px #ff550088,0 0 40px #ff330044;}
+.chip-hit-zap   {animation:chipZap3D .6s ease-out;border-color:#ffdd00 !important;box-shadow:0 0 16px #ffdd0088;}
+.chip-hit-void  {animation:chipVoid3D .9s ease-out;border-color:#8844ff !important;box-shadow:0 0 24px #8844ff88,0 0 50px #4400ff44;}
+
+/* Overlay effet sur chip */
+.chip-fx-overlay{
+  position:absolute;inset:-2px;border-radius:14px;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;z-index:5;
+  animation:chipFxOverlay .8s ease-out forwards;
+}
+@keyframes chipFxOverlay{
+  0%  {opacity:0;transform:scale(.4) translateY(4px);}
+  35% {opacity:1;transform:scale(1.2) translateY(-4px);}
+  70% {opacity:.9;transform:scale(1);}
+  100%{opacity:0;transform:scale(.8) translateY(-8px);}
+}
 /* Timer ring */
 .timer-ring{position:relative;width:28px;height:28px;flex-shrink:0;}
 .timer-ring svg{transform:rotate(-90deg);}
@@ -128,12 +184,51 @@ body::before{
 .opp-minis{display:flex;gap:2px;}
 .mini-card{width:9px;height:13px;border-radius:2px;background:linear-gradient(135deg,#2a6a3a,#1a4a2a);border:1px solid rgba(212,168,67,.25);}
 /* table center */
-.table-center{flex:1;display:flex;align-items:center;justify-content:center;gap:28px;position:relative;overflow:hidden;}
-.table-center::before{content:'';position:absolute;width:82%;height:68%;border:2px solid rgba(212,168,67,.1);border-radius:50%;box-shadow:inset 0 0 50px rgba(0,0,0,.2);}
+.table-center{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:28px;
+  position:relative;overflow:hidden;
+  perspective:900px;
+  transform-style:preserve-3d;
+}
+.table-center::before{
+  content:'';position:absolute;width:88%;height:72%;
+  border:2px solid rgba(212,168,67,.12);border-radius:50%;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.25),inset 0 8px 30px rgba(212,168,67,.05);
+  transform:rotateX(12deg) translateZ(-10px);
+  transform-style:preserve-3d;
+}
+/* Reflet de table */
+.table-center::after{
+  content:'';position:absolute;width:80%;height:5px;bottom:20%;
+  background:radial-gradient(ellipse,rgba(212,168,67,.12) 0%,transparent 70%);
+  border-radius:50%;
+  transform:rotateX(10deg);
+}
 .pile-zone{display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1;}
 .pile-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(212,168,67,.45);font-weight:700;}
 /* cards */
-.card{width:clamp(54px,14vw,68px);height:clamp(78px,20vw,98px);border-radius:9px;background:var(--card-bg);border:1px solid rgba(0,0,0,.15);box-shadow:2px 3px 10px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s;user-select:none;flex-shrink:0;font-family:'Playfair Display',serif;}
+.card{
+  width:clamp(54px,14vw,68px);height:clamp(78px,20vw,98px);
+  border-radius:9px;background:var(--card-bg);
+  border:1px solid rgba(0,0,0,.15);
+  box-shadow:2px 3px 10px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.8);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;cursor:pointer;
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;
+  user-select:none;flex-shrink:0;font-family:'Playfair Display',serif;
+  transform-style:preserve-3d;
+  backface-visibility:hidden;
+}
+/* Hover 3D sur les cartes jouables en main */
+#h-cards .card.playable:hover{
+  transform:translateY(-16px) rotateX(8deg) rotateY(-4deg) scale(1.08) !important;
+  box-shadow:4px 18px 28px rgba(0,0,0,.6),0 0 0 2px var(--gold),0 0 30px rgba(212,168,67,.6);
+}
+/* Pile du pot légèrement inclinée */
+#pot-zone .card{
+  transform:rotateX(6deg) rotateZ(var(--pot-rot,0deg));
+  transform-style:preserve-3d;
+}
 .card::after{content:'';position:absolute;inset:3px;border:1px solid rgba(0,0,0,.06);border-radius:6px;pointer-events:none;}
 .cr{font-size:22px;font-weight:900;line-height:1;}
 .cs{font-size:18px;line-height:1;margin-top:1px;}
@@ -187,7 +282,11 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
 .hand-dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok);}
 .hand-scroll{overflow-x:auto;scrollbar-width:none;padding:8px 12px;-webkit-overflow-scrolling:touch;}
 .hand-scroll::-webkit-scrollbar{display:none;}
-.hand-cards{display:flex;gap:7px;min-width:max-content;align-items:flex-end;}
+.hand-cards{
+  display:flex;gap:7px;min-width:max-content;align-items:flex-end;
+  perspective:600px;
+  transform-style:preserve-3d;
+}
 /* actions */
 .action-row{display:flex;gap:8px;padding:6px 12px 8px;flex-shrink:0;}
 .act-btn{flex:1;padding:14px 6px;min-height:52px;border-radius:14px;border:none;cursor:pointer;font-family:'Lato',sans-serif;font-weight:900;font-size:13px;letter-spacing:.5px;text-transform:uppercase;transition:transform .15s,opacity .2s;-webkit-appearance:none;}
@@ -285,17 +384,18 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
 }
 .ripple{position:absolute;border-radius:50%;background:rgba(212,168,67,.35);transform:scale(0);animation:rippleA .6s ease-out forwards;pointer-events:none;}
 @keyframes rippleA{0%{transform:scale(0);opacity:.8;}100%{transform:scale(6);opacity:0;}}
-@keyframes cardBurst{0%{transform:translateY(-90px) scale(.5) rotate(-15deg);opacity:0;}50%{transform:translateY(8px) scale(1.12) rotate(3deg);opacity:1;}75%{transform:translateY(-4px) scale(.97) rotate(-1deg);opacity:1;}100%{transform:translateY(0) scale(1) rotate(0);opacity:1;}}
-.card-fly{animation:cardBurst .5s cubic-bezier(.34,1.4,.64,1) forwards;}
+@keyframes cardBurst3D{
+  0%  {transform:rotateX(6deg) rotateY(-60deg) translateY(-60px) scale(.5);opacity:0;}
+  45% {transform:rotateX(6deg) rotateY(8deg) translateY(6px) scale(1.1);opacity:1;}
+  75% {transform:rotateX(6deg) rotateY(-3deg) translateY(-2px) scale(.98);opacity:1;}
+  100%{transform:rotateX(6deg) rotateY(0deg) translateY(0) scale(1);opacity:1;}
+}
+.card-fly{animation:cardBurst3D .5s cubic-bezier(.34,1.4,.64,1) forwards;}
 /* Animation carte adversaire */
 .opp-card-fly{
   position:fixed;z-index:350;pointer-events:none;
-  animation:oppCardFly .55s cubic-bezier(.4,0,.2,1) forwards;
-}
-@keyframes oppCardFly{
-  0%{opacity:1;transform:scale(.7) translateY(0);}
-  40%{opacity:1;transform:scale(1.1) translateY(30px);}
-  100%{opacity:0;transform:scale(.9) translateY(120px);}
+  transform-style:preserve-3d;
+  backface-visibility:hidden;
 }
 @keyframes shakeX{0%,100%{transform:translateX(0);}20%{transform:translateX(-8px) rotate(-2deg);}40%{transform:translateX(8px) rotate(2deg);}60%{transform:translateX(-5px);}80%{transform:translateX(5px);}}
 .shake{animation:shakeX .5s ease-in-out;}
@@ -2486,30 +2586,92 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
 // ══════════════════════════════════════════
 
 // ── Animation carte adversaire ──
+// Applique un effet 3D sur le chip d'un adversaire
+function fxHitChip(uid, type){
+  const chip=document.querySelector('.opp-chip[data-uid="'+uid+'"]');
+  if(!chip)return;
+  // Retirer anciens effets
+  chip.classList.remove('chip-hit-freeze','chip-hit-burn','chip-hit-zap','chip-hit-void');
+  chip.querySelectorAll('.chip-fx-overlay').forEach(e=>e.remove());
+
+  // Forcer reflow pour relancer l'animation
+  void chip.offsetWidth;
+  chip.classList.add('chip-hit-'+type);
+
+  const emojis={freeze:'❄️',burn:'🔥',zap:'⚡',void:'🌀'};
+  const ov=document.createElement('div');
+  ov.className='chip-fx-overlay';
+  ov.textContent=emojis[type]||'💥';
+  chip.style.position='relative';
+  chip.appendChild(ov);
+  setTimeout(()=>{
+    chip.classList.remove('chip-hit-'+type);
+    ov.remove();
+  },900);
+}
+
 function animOppCardPlay(fx){
   if(!gameState)return;
-  // Trouver le chip de l'adversaire pour l'origine
   const chip=document.querySelector('.opp-chip[data-uid="'+fx.by+'"]');
   const pot=document.getElementById('pot-zone');
   if(!chip||!pot)return;
   const cr=chip.getBoundingClientRect();
   const pr=pot.getBoundingClientRect();
-  // Créer une mini carte fantôme à l'origine
+
+  const isRed3D=fx.color==='red'||fx.s==='♥'||fx.s==='♦';
   const ghost=document.createElement('div');
-  ghost.className='card opp-card-fly '+(fx.color==='red'||fx.s==='♥'||fx.s==='♦'?'red':'blk');
-  ghost.style.cssText='left:'+cr.left+'px;top:'+cr.top+'px;width:40px;height:58px;font-size:14px;';
-  ghost.innerHTML='<span class="cc tl" style="font-size:10px">'+(fx.r||'?')+'</span>';
+  ghost.className='card opp-card-fly '+(isRed3D?'red':'blk');
+
+  // Taille initiale depuis le chip
+  const startX=cr.left+cr.width/2-22;
+  const startY=cr.top+cr.height/2-30;
+  const endX=pr.left+pr.width/2-22;
+  const endY=pr.top+pr.height/2-30;
+
+  ghost.style.cssText=
+    'position:fixed;z-index:350;pointer-events:none;'+
+    'left:'+startX+'px;top:'+startY+'px;'+
+    'width:44px;height:62px;font-size:13px;'+
+    'transform:scale(.5) rotateY(90deg) rotateZ(-15deg);'+
+    'transform-origin:center center;'+
+    'transform-style:preserve-3d;'+
+    'box-shadow:0 8px 24px rgba(0,0,0,.7);';
+
+  ghost.innerHTML=
+    '<div class="cc tl" style="font-size:9px">'+
+      (fx.r||'?')+(fx.s?'<br>'+fx.s:'')+'</div>'+
+    '<div class="cr" style="font-size:14px;color:inherit">'+(fx.r||'?')+'</div>';
+
   document.body.appendChild(ghost);
-  // Déplacer vers le pot
-  const dx=pr.left+pr.width/2-cr.left-cr.width/2;
-  const dy=pr.top+pr.height/2-cr.top-cr.height/2;
-  ghost.style.transform='translate(0,0)';
-  requestAnimationFrame(()=>{
-    ghost.style.transition='transform .5s cubic-bezier(.4,0,.2,1),opacity .5s';
-    ghost.style.transform='translate('+dx+'px,'+dy+'px) scale(1.2)';
-    ghost.style.opacity='0';
-  });
-  setTimeout(()=>ghost.remove(),600);
+
+  const dur=520;
+  const startTime=performance.now();
+
+  // Animation requestAnimationFrame — arc parabolique 3D
+  function animStep(now){
+    const t=Math.min((now-startTime)/dur,1);
+    const ease=t<.5?4*t*t*t:(t-1)*(2*t-2)*(2*t-2)+1; // ease in-out cubic
+
+    // Arc parabolique — point culminant au milieu
+    const arc=Math.sin(t*Math.PI)*-80; // monte puis descend
+
+    const x=startX+(endX-startX)*ease;
+    const y=startY+(endY-startY)*ease+arc;
+
+    // Rotation 3D : flip en y pendant le vol + rotation z qui s'annule
+    const rotY=90-ease*90;  // 90→0 : la carte se retourne face visible
+    const rotZ=-15+ease*15; // inclinée puis droite
+    const sc=0.5+ease*0.65; // scale 0.5→1.15
+
+    ghost.style.left=x+'px';
+    ghost.style.top=y+'px';
+    ghost.style.transform='scale('+sc+') rotateY('+rotY+'deg) rotateZ('+rotZ+'deg)';
+    ghost.style.opacity=t>0.85?(1-(t-0.85)/0.15)+'':1;
+
+    if(t<1){requestAnimationFrame(animStep);}
+    else{ghost.remove();}
+  }
+  requestAnimationFrame(animStep);
 }
 
 let _checkTimerInterval=null;
@@ -3148,6 +3310,9 @@ function renderGame(){
   const potEl=makeCard(top);
   if(isNew){
     potEl.classList.add('card-fly');
+    // Petite rotation aléatoire sur le pot — effet casino naturel
+    const rot=(Math.random()-.5)*10;
+    potEl.style.setProperty('--pot-rot',rot+'deg');
     pz.dataset.lid=newId;
     // Show opp card preview
     if(!mine&&prevId){
@@ -3282,6 +3447,25 @@ function renderHand(top,cmdSuit,pending,mine,gs){
         }
         addRipple(el);vibrate(18);
         renderGame();
+      });
+    }
+    // Tilt 3D au survol/touch
+    if(mine){
+      el.addEventListener('mousemove',function(e){
+        if(this.classList.contains('selected'))return;
+        const r=this.getBoundingClientRect();
+        const nx=(e.clientX-r.left)/r.width-.5;  // -0.5 à 0.5
+        const ny=(e.clientY-r.top)/r.height-.5;
+        const rx=ny*-18; // tilt vertical
+        const ry=nx*18;  // tilt horizontal
+        this.style.transform='translateY(-6px) rotateX('+rx+'deg) rotateY('+ry+'deg) scale(1.04)';
+        this.style.boxShadow='0 14px 28px rgba(0,0,0,.6),'+
+          (nx>0?'':`0 0 0 2px var(--gold)`);
+      });
+      el.addEventListener('mouseleave',function(){
+        if(this.classList.contains('selected'))return;
+        this.style.transform='';
+        this.style.boxShadow='';
       });
     }
     hc.appendChild(el);
@@ -4406,12 +4590,17 @@ function clearHandEffect(){
 
 // Set persistent effect on an OPP chip
 function setChipEffect(uid, chipClass){
-  // Remove all effects from this chip first
   const chip=document.querySelector('.opp-chip[data-uid="'+uid+'"]');
   if(!chip)return;
   ['chip-frozen','chip-fire','chip-zap','chip-void'].forEach(c=>chip.classList.remove(c));
   chip.classList.add(chipClass);
-  // Add icon badge on chip
+
+  // 3D hit animation
+  const typeMap={'chip-frozen':'freeze','chip-fire':'burn','chip-zap':'zap','chip-void':'void'};
+  const hit3D=typeMap[chipClass];
+  if(hit3D) fxHitChip(uid, hit3D);
+
+  // Badge flottant permanent
   let badge=chip.querySelector('.chip-fx-badge');
   if(badge)badge.remove();
   badge=document.createElement('div');
