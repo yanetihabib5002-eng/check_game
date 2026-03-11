@@ -346,7 +346,7 @@ body::before{
 
     <!-- Bouton discret config Firebase (en bas) -->
     <div class="setup-footer">
-      <button class="footer-cfg-btn" id="btn-show-firebase" onclick="toggleFirebasePanel()">⚙ Config serveur</button>
+      <button class="footer-cfg-btn" id="btn-show-firebase" onclick="toggleFirebasePanel()" style="display:none">⚙ Config serveur</button>
       <span id="conn-dot-setup" class="conn-dot-setup"></span>
     </div>
 
@@ -743,38 +743,40 @@ async function doConnect(apiKey,dbURL,pid){
   }
 }
 
+// ── Config Firebase intégrée (connexion automatique) ──
+const DEFAULT_FB_CFG = {
+  apiKey: 'AIzaSyBr3JXo0m7bmen-3i4ZkyGs8OfPbUl6298',
+  databaseURL: 'https://check-6faca-default-rtdb.firebaseio.com',
+  projectId: 'check-6faca'
+};
+
 (function(){
-  const cfg=loadCfg();
-  if(!cfg||!cfg.apiKey){
-    // First time: show firebase panel directly
-    document.getElementById('panel-firebase').style.display='';
-    return;
-  }
-  // Restore name
+  let cfg = loadCfg() || {};
+  // Toujours utiliser la config intégrée
+  cfg.apiKey      = DEFAULT_FB_CFG.apiKey;
+  cfg.databaseURL = DEFAULT_FB_CFG.databaseURL;
+  cfg.projectId   = DEFAULT_FB_CFG.projectId;
+  saveCfg(cfg);
+
+  // Restaurer le nom sauvegardé
   if(cfg.name){
     const nf=document.getElementById('f-name');
     if(nf){nf.value=cfg.name;}
     myName=cfg.name;
   }
-  // Pre-fill firebase fields (hidden)
-  if(document.getElementById('f-apikey'))document.getElementById('f-apikey').value=cfg.apiKey||'';
-  if(document.getElementById('f-dburl'))document.getElementById('f-dburl').value=cfg.databaseURL||'';
-  if(document.getElementById('f-pid'))document.getElementById('f-pid').value=cfg.projectId||'';
-  // Connect silently
+  // Connexion silencieuse automatique
   const connecting=document.getElementById('setup-connecting');
   if(connecting)connecting.style.display='flex';
   doConnect(cfg.apiKey,cfg.databaseURL,cfg.projectId).then(ok=>{
     if(ok){
       checkReady();
     } else {
-      // Retry once after 3s
       setTimeout(()=>{
         doConnect(cfg.apiKey,cfg.databaseURL,cfg.projectId).then(ok2=>{
           if(!ok2){
-            // Show firebase panel for manual fix
             document.getElementById('panel-firebase').style.display='';
             const s=document.getElementById('fb-status');
-            if(s){s.textContent='⚠️ Connexion impossible. Vérifie ta connexion internet ou reconfigure.';s.className='status error';}
+            if(s){s.textContent='⚠️ Connexion impossible. Vérifie ta connexion internet.';s.className='status error';}
           } else {
             checkReady();
           }
