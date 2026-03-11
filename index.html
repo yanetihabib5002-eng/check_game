@@ -394,6 +394,45 @@ body::before{
 .fp-guide-body code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;}
 .status.ok{color:#4caf50;}
 .status.error{color:#ff6b6b;}
+
+/* ══ OFFLINE OVERLAY ══ */
+#offline-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;backdrop-filter:blur(8px);pointer-events:all;}
+#offline-overlay .off-icon{font-size:54px;animation:shakeX .6s ease-in-out infinite;}
+#offline-overlay .off-title{font-family:'Playfair Display',serif;font-size:22px;color:#ff6b6b;font-weight:700;}
+#offline-overlay .off-sub{font-size:13px;color:rgba(245,240,232,.45);text-align:center;max-width:260px;line-height:1.6;}
+#offline-overlay .off-spinner{width:22px;height:22px;border:2px solid rgba(255,100,100,.2);border-top-color:#ff6b6b;border-radius:50%;animation:spin .8s linear infinite;}
+
+/* ══ GAME LOG ══ */
+#game-log{position:fixed;bottom:160px;right:10px;width:190px;max-height:140px;overflow:hidden;display:flex;flex-direction:column;gap:3px;pointer-events:none;z-index:100;}
+.log-entry{font-size:10.5px;color:rgba(245,240,232,.7);background:rgba(0,0,0,.55);border:1px solid rgba(212,168,67,.12);border-radius:7px;padding:4px 8px;line-height:1.4;backdrop-filter:blur(4px);animation:logIn .25s ease-out;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.log-entry.log-me{border-color:rgba(212,168,67,.35);color:var(--gold);}
+.log-entry.log-special{border-color:rgba(255,100,50,.3);color:#ffaa88;}
+@keyframes logIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+/* ══ RÉACTIONS RAPIDES ══ */
+#react-btn{position:fixed;bottom:170px;left:10px;z-index:200;background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.25);border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;-webkit-appearance:none;}
+#react-btn:hover{background:rgba(212,168,67,.2);transform:scale(1.1);}
+#react-panel{position:fixed;bottom:218px;left:6px;z-index:201;background:rgba(8,18,10,.95);border:1px solid rgba(212,168,67,.2);border-radius:14px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;width:180px;backdrop-filter:blur(12px);animation:slideUp .2s ease;}
+#react-panel.hidden{display:none;}
+.react-opt{background:none;border:1px solid rgba(255,255,255,.1);border-radius:10px;font-size:22px;padding:6px 10px;cursor:pointer;transition:all .15s;-webkit-appearance:none;}
+.react-opt:hover{background:rgba(255,255,255,.08);transform:scale(1.15);}
+.react-float{position:fixed;pointer-events:none;z-index:500;font-size:28px;animation:reactUp 2s ease-out forwards;}
+@keyframes reactUp{0%{opacity:1;transform:translateY(0) scale(1);}80%{opacity:1;}100%{opacity:0;transform:translateY(-120px) scale(1.4);}}
+.react-popup{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:500;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:6px 14px;font-size:13px;color:rgba(245,240,232,.8);animation:fadeInUp .3s ease;pointer-events:none;white-space:nowrap;}
+@keyframes fadeInUp{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+
+/* ══ BADGE HÔTE ══ */
+.host-badge{font-size:9px;background:rgba(212,168,67,.2);border:1px solid rgba(212,168,67,.4);color:var(--gold);border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:middle;}
+
+/* ══ SCORE SESSION ══ */
+#session-score{position:fixed;top:44px;right:10px;z-index:150;font-size:10px;color:rgba(212,168,67,.6);text-align:right;pointer-events:none;line-height:1.5;}
+
+/* ══ DRAW CARD ANIMATION ══ */
+@keyframes cardDraw{0%{opacity:0;transform:translateY(-40px) scale(.7) rotate(-8deg);}60%{opacity:1;transform:translateY(4px) scale(1.06) rotate(1deg);}100%{opacity:1;transform:translateY(0) scale(1) rotate(0);}}
+.card-draw-anim{animation:cardDraw .4s cubic-bezier(.34,1.4,.64,1) forwards;}
+
+/* ══ REJOUER — banner attente ══ */
+#replay-wait-banner{display:none;font-size:12px;color:rgba(245,240,232,.4);text-align:center;margin-top:10px;padding:8px 16px;background:rgba(212,168,67,.06);border:1px solid rgba(212,168,67,.12);border-radius:10px;}
 </style>
 </head>
 <body>
@@ -529,6 +568,21 @@ body::before{
   </div>
 </div>
 
+<!-- ══ GAME EXTRAS ══ -->
+<div id="game-log"></div>
+<div id="session-score"></div>
+<button id="react-btn" style="display:none">😄</button>
+<div id="react-panel" class="hidden">
+  <button class="react-opt" data-e="👍">👍</button>
+  <button class="react-opt" data-e="😂">😂</button>
+  <button class="react-opt" data-e="🔥">🔥</button>
+  <button class="react-opt" data-e="😤">😤</button>
+  <button class="react-opt" data-e="🤯">🤯</button>
+  <button class="react-opt" data-e="👑">👑</button>
+  <button class="react-opt" data-e="💀">💀</button>
+  <button class="react-opt" data-e="🫡">🫡</button>
+</div>
+
 <!-- ══ WINNER ══ -->
 <div class="screen off" id="s-winner">
   <div class="trophy">🏆</div>
@@ -560,6 +614,13 @@ body::before{
 </div>
 
 <div class="toast" id="toast"></div>
+<!-- ══ OFFLINE OVERLAY ══ -->
+<div id="offline-overlay" style="display:none">
+  <div class="off-icon">📡</div>
+  <div class="off-title">Connexion perdue</div>
+  <div class="off-sub">Reconnexion en cours…<br>La partie vous attend !</div>
+  <div class="off-spinner"></div>
+</div>
 
 <!-- ══ GAME MODE MODAL ══ -->
 <div class="overlay" id="mode-modal">
@@ -728,6 +789,8 @@ let myUid='u_'+Math.random().toString(36).slice(2,10);
 let myName='', roomId='', isHost=false;
 let localHand=[], gameState=null;
 let selCard=null, suitResolve=null, toastTmr=null;
+// Session score (in-memory only)
+let sessionWins=0, sessionGames=0;
 let lastMyTurn=false, lobbyRef=null, gameRef=null;
 
 // ══════════════════════════════════════════
@@ -741,6 +804,85 @@ function toast(msg,t=''){
   clearTimeout(toastTmr);toastTmr=setTimeout(()=>el.classList.remove('show'),2800);
 }
 function myTurn(){return gameState&&gameState.playerOrder[gameState.currentPlayerIdx]===myUid;}
+
+// ── Sound Engine (Web Audio API) ──
+let _ac=null;
+function getAC(){if(!_ac){try{_ac=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}return _ac;}
+function playTone(freq,type,dur,vol,delay=0){
+  const ac=getAC();if(!ac)return;
+  try{
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.connect(g);g.connect(ac.destination);
+    o.type=type;o.frequency.setValueAtTime(freq,ac.currentTime+delay);
+    g.gain.setValueAtTime(0,ac.currentTime+delay);
+    g.gain.linearRampToValueAtTime(vol,ac.currentTime+delay+0.01);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+delay+dur);
+    o.start(ac.currentTime+delay);o.stop(ac.currentTime+delay+dur+0.05);
+  }catch(e){}
+}
+function sfxCard(){playTone(520,'sine',.08,.15);playTone(680,'sine',.06,.08,.04);}
+function sfxJoker(){
+  [0,.06,.12,.18,.24].forEach((d,i)=>playTone(300+i*120,'sawtooth',.12,.18,d));
+  setTimeout(()=>playTone(900,'sine',.3,.12),350);
+}
+function sfxAce(){[0,.05,.1].forEach((d,i)=>playTone(220+i*80,'square',.15,.12,d));}
+function sfxSeven(){playTone(440,'square',.05,.15);playTone(550,'square',.05,.15,.06);}
+function sfxPenalty(){[0,.08,.16,.24].forEach((d,i)=>playTone(180-i*20,'sawtooth',.18,.2,d));}
+function sfxWin(){
+  [523,659,784,1047].forEach((f,i)=>playTone(f,'sine',.25,.18,i*.15));
+  setTimeout(()=>[523,659,784,1047,1319].forEach((f,i)=>playTone(f,'sine',.4,.15,i*.1)),800);
+}
+function sfxMyTurn(){playTone(660,'sine',.12,.1);playTone(880,'sine',.1,.1,.1);}
+function sfxDraw(){playTone(350,'triangle',.1,.1);}
+
+// ── Reactions ──
+document.getElementById('react-btn').onclick=function(){
+  const p=document.getElementById('react-panel');
+  p.classList.toggle('hidden');
+};
+document.querySelectorAll('.react-opt').forEach(btn=>{
+  btn.onclick=function(){
+    const e=this.dataset.e;
+    document.getElementById('react-panel').classList.add('hidden');
+    // Show floating emoji locally
+    const rb=document.getElementById('react-btn');
+    if(rb){const r=rb.getBoundingClientRect();showReactFloat(e,r.left+20,r.top);}
+    // Broadcast to Firebase
+    if(db&&roomId){
+      db.ref('rooms/'+roomId+'/reactions').push({uid:myUid,name:myName,e,ts:Date.now()});
+    }
+  };
+});
+function showReactFloat(e,x,y){
+  const el=document.createElement('div');
+  el.className='react-float';
+  el.textContent=e;
+  el.style.left=x+'px';el.style.top=y+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),2000);
+}
+function showReactPopup(name,e){
+  const el=document.createElement('div');
+  el.className='react-popup';
+  el.textContent=name+' '+e;
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .4s';},1400);
+  setTimeout(()=>el.remove(),1800);
+}
+
+// ── Game Log ──
+const MAX_LOG=8;
+function addLog(msg, type=''){
+  const log=document.getElementById('game-log');
+  if(!log)return;
+  const e=document.createElement('div');
+  e.className='log-entry'+(type?' log-'+type:'');
+  e.textContent=msg;
+  log.appendChild(e);
+  while(log.children.length>MAX_LOG)log.removeChild(log.firstChild);
+  // auto-scroll
+  setTimeout(()=>e.scrollIntoView({behavior:'smooth',block:'end'}),50);
+}
 function advIdx(order,cur,finished){
   let n=(cur+1)%order.length,loops=0;
   while(finished.includes(order[n])&&loops<order.length){n=(n+1)%order.length;loops++;}
@@ -837,6 +979,12 @@ async function doConnect(apiKey,dbURL,pid){
       const off=!s.val();
       const ds2=document.getElementById('conn-dot-setup');if(ds2){ds2.classList.toggle('off',off);}
       const cd2=document.getElementById('conn-dot');if(cd2){cd2.classList.toggle('off',off);}
+      // Show offline overlay only during a game
+      const ov=document.getElementById('offline-overlay');
+      if(ov){
+        const inGame=!document.getElementById('s-game').classList.contains('off');
+        ov.style.display=(off&&inGame)?'flex':'none';
+      }
     });
     return true;
   }catch(e){
@@ -917,7 +1065,18 @@ document.getElementById('btn-join').onclick=async function(){
   try{
     const s=await db.ref('rooms/'+roomId+'/status').once('value');
     if(!s.val()){toast('❌ Code invalide','d');this.disabled=false;this.textContent='→ Rejoindre';return;}
-    if(s.val()!=='lobby'){toast('❌ Partie déjà commencée','d');this.disabled=false;this.textContent='→ Rejoindre';return;}
+    if(s.val()==='playing'){
+      // Check if player was already in this game (reconnect)
+      const psnap=await db.ref('rooms/'+roomId+'/players/'+myUid).once('value');
+      if(psnap.val()){
+        // Joueur déjà inscrit → reconnecter directement
+        toast('🔄 Reconnexion à la partie…','i');
+        enterLobby(); // will redirect to game if status=playing
+        this.disabled=false;this.textContent='→ Rejoindre';return;
+      }
+      toast('❌ Partie déjà commencée','d');this.disabled=false;this.textContent='→ Rejoindre';return;
+    }
+    if(s.val()!=='lobby'&&s.val()!=='playing'){toast('❌ Partie introuvable','d');this.disabled=false;this.textContent='→ Rejoindre';return;}
     await db.ref('rooms/'+roomId+'/players/'+myUid).set({name:myName,uid:myUid,host:false});
     enterLobby();
   }catch(e){toast('❌ '+e.message,'d');}
@@ -1031,6 +1190,7 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
   const game={
     playerOrder:order,
     playerNames:Object.fromEntries(players.map(p=>[p.uid,p.name])),
+    hostUid:myUid,
     deck:fullDeck,pot:[pot],hands,
     currentPlayerIdx:0,commandedSuit:null,pendingDraws:0,finished:[],
     status:'playing',lastFX:null,turnStartTs:Date.now(),
@@ -1046,6 +1206,17 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
 // GAME
 // ══════════════════════════════════════════
 function startGame(g){
+  // Listen for reactions
+  if(db&&roomId){
+    db.ref('rooms/'+roomId+'/reactions').limitToLast(1).on('child_added',snap=>{
+      const d=snap.val();if(!d)return;
+      if(Date.now()-d.ts>4000)return; // ignore old
+      if(d.uid===myUid)return; // already shown locally
+      const x=window.innerWidth/2;const y=window.innerHeight*0.6;
+      showReactFloat(d.e,x,y);
+      showReactPopup(d.name,d.e);
+    });
+  }
   // Normalize arrays
   if(g.pot&&!Array.isArray(g.pot)) g.pot=Object.values(g.pot);
   if(g.deck&&!Array.isArray(g.deck)) g.deck=Object.values(g.deck);
@@ -1064,6 +1235,9 @@ function startGame(g){
   if(!Array.isArray(localHand)) localHand=Object.values(localHand);
   selCard=null; lastMyTurn=false; lastTurnUid='';
   show('s-game');
+  document.getElementById('react-btn').style.display='flex';
+  const ss=document.getElementById('session-score');
+  if(ss&&sessionGames>0)ss.textContent='🏆 '+sessionWins+'/'+sessionGames+' parties';
   startGlobalRingTick();
   renderGame(); // immediate render before Firebase listener
   if(gameRef){gameRef.off();}
@@ -1090,7 +1264,7 @@ function startGame(g){
       lastMyTurn=false;
       stopMyTimer();
     }
-    if(data.status==='finished'){renderWinner();return;}
+    if(data.status==='finished'){stopMyTimer();renderWinner();return;}
     if(data.status==='elim_round_end'){
       handleElimRound(data);
       return;
@@ -1267,6 +1441,10 @@ function renderGame(){
       const isMine=fx.by===myUid;
       if(fx.r==='penalty'){
         fxPenalty(parseInt(fx.s)||2, isMine);
+        (()=>{
+          const who=isMine?'Toi':(gameState&&gameState.playerNames[fx.by])||'?';
+          addLog(who+' prend +'+fx.s+' carte'+(fx.s>1?'s':'')+(fx.color?' (Joker)':''), isMine?'special':'');
+        })();
         const penN=parseInt(fx.s)||2;
         if(isMine){
           fxCurseMyHand();
@@ -1300,6 +1478,17 @@ function renderGame(){
         }
       } else {
         triggerFX({r:fx.r,s:fx.s,color:fx.color||null});
+        // ── Log de l'action ──
+        (()=>{
+          const who=fx.by===myUid?'Toi':(gameState&&gameState.playerNames[fx.by])||'?';
+          const isMe=fx.by===myUid;
+          const cardLabel={
+            'JOKER':'Joker '+(fx.color==='red'?'🔴':'⚫')+' (+4)',
+            '7':'7 ⚡ (+2)','A':'As 🚫 (bloque)','J':'Valet 🃏','2':'2 ✨ (passe)',
+            'draw':'pioche une carte'
+          }[fx.r]||(fx.r+' '+fx.s);
+          addLog(who+' joue '+cardLabel, isMe?'me':(fx.r==='JOKER'||fx.r==='A'||fx.r==='7')?'special':'');
+        })();
         // ── Effets sur les cartes selon la logique ──
         const byUid=fx.by;
         const byIdx=gameState?gameState.playerOrder.indexOf(byUid):-1;
@@ -1369,10 +1558,10 @@ function renderGame(){
     const afkData=(gs.afk&&gs.afk[uid])||null;
     const afkCount=afkData?afkData.count:0;
     const afkBadge=afkCount>0?'<span style="font-size:9px;background:rgba(255,100,0,.2);border:1px solid rgba(255,100,0,.4);color:#ff8844;border-radius:6px;padding:1px 5px;margin-left:4px" title="Tours passés automatiquement">💤'+afkCount+'</span>':'';
-    const canKick=isHost&&afkCount>=3&&!done;
-    const kickHtml=canKick?'<button onclick="kickAfk(&quot;'+uid+'&quot;)" style="font-size:10px;padding:3px 7px;background:rgba(255,50,50,.15);border:1px solid rgba(255,50,50,.35);color:#ff7777;border-radius:7px;cursor:pointer;font-family:Lato,sans-serif;white-space:nowrap">✕ Expulser</button>':'';
+    const canKick=isHost&&!done;
+    const kickHtml=canKick?'<button onclick="kickAfk(&quot;'+uid+'&quot;)" style="font-size:10px;padding:3px 7px;background:rgba(255,50,50,.15);border:1px solid rgba(255,50,50,.35);color:#ff7777;border-radius:7px;cursor:pointer;font-family:Lato,sans-serif;white-space:nowrap">✕ Retirer</button>':'';
     d.innerHTML='<div style="display:flex;align-items:center;gap:5px;width:100%">'+
-      '<div style="flex:1;min-width:0"><div class="opp-name">'+gs.playerNames[uid]+afkBadge+'</div>'+
+      '<div style="flex:1;min-width:0"><div class="opp-name">'+gs.playerNames[uid]+afkBadge+(gs.hostUid===uid?'<span class="host-badge">👑</span>':'')+'</div>'+
       '<div class="opp-count">'+(done?'🏆':hand.length)+'</div></div>'+
       (kickHtml||timerHtml)+'</div>'+
       '<div class="opp-minis">'+minis+'</div>';
@@ -1499,9 +1688,26 @@ document.getElementById('btn-draw').onclick=async function(){
   bdu2['lastFX']={r:'draw',s:'',color:null,by:myUid,ts:Date.now()};
   await db.ref('rooms/'+roomId+'/game').update(bdu2);
   stopMyTimer();
+  sfxDraw();
   toast('🎴 Pioché — tour passé','i');
+  // Animate the new card appearing in hand
+  setTimeout(()=>{
+    const cards=document.querySelectorAll('#h-cards .card');
+    if(cards.length){
+      const last=cards[cards.length-1];
+      last.classList.add('card-draw-anim');
+      setTimeout(()=>last.classList.remove('card-draw-anim'),500);
+    }
+  },150);
 };
 document.getElementById('draw-stack').onclick=function(){document.getElementById('btn-draw').click();};
+document.addEventListener('click',function(e){
+  const rp=document.getElementById('react-panel');
+  const rb=document.getElementById('react-btn');
+  if(rp&&rb&&!rp.contains(e.target)&&!rb.contains(e.target)){
+    rp.classList.add('hidden');
+  }
+});
 document.getElementById('btn-play').onclick=tryPlay;
 
 async function tryPlay(){
@@ -1534,6 +1740,11 @@ async function tryPlay(){
 }
 
 async function doPlay(card,suit,twoPlace){
+  // Sound on play
+  if(card.r==='JOKER')sfxJoker();
+  else if(card.r==='A')sfxAce();
+  else if(card.r==='7')sfxSeven();
+  else sfxCard();
   const gs=gameState;
   const newHand=localHand.filter(c=>c.id!==card.id);
   // 2 placement: 'bottom' = insert under top card, 'top' = normal push
@@ -1592,7 +1803,7 @@ async function doPlay(card,suit,twoPlace){
 
   // ELIMINATION MODE: when someone finishes a round, eliminate the loser(s)
   // "over" in elim mode = the round is done, not the whole game
-  const roundOver=stillIn.length<=1||(newHand.length===0&&stillIn.length===1);
+  const roundOver=stillIn.length<=1;
   const over=roundOver&&!isElim; // classic: game over
 
   selCard=null;
@@ -1637,7 +1848,19 @@ async function takePenalty(){
     h.push(deck.pop());
   }
   stopMyTimer();
+  sfxPenalty();
   toast('😬 Tu prends '+n+' cartes — mais tu peux jouer librement !','d');
+  // Animate each new card with staggered delay
+  setTimeout(()=>{
+    const cards=document.querySelectorAll('#h-cards .card');
+    const start=Math.max(0,cards.length-n);
+    for(let i=start;i<cards.length;i++){
+      setTimeout(()=>{
+        cards[i].classList.add('card-draw-anim');
+        setTimeout(()=>cards[i].classList.remove('card-draw-anim'),500);
+      },(i-start)*120);
+    }
+  },200);
   const nextIdx=advIdx(gs.playerOrder,gs.currentPlayerIdx,gs.finished||[]);
   const penN=n;
   // If the penalty came from a joker, give the FREE COLOR bonus to the NEXT player
@@ -1718,6 +1941,8 @@ async function kickAfk(uid){
   ku['playerNames/'+uid]=gs.playerNames[uid]; // keep name for display
   ku['currentPlayerIdx']=newIdx;
   ku['turnStartTs']=Date.now();
+  // Si le joueur retiré avait une chaîne en cours, l'annuler
+  if(gs.playerOrder[gs.currentPlayerIdx]===uid) ku['pendingDraws']=0;
   await db.ref('rooms/'+roomId+'/game').update(ku);
   await db.ref('rooms/'+roomId+'/kicked/'+uid).set(true);
   toast('💀 '+name+' a été expulsé pour inactivité','d');
@@ -1823,8 +2048,14 @@ function fxElim(){
 
 function renderWinner(){
   if(!gameState)return;
-  fxWin();
+  fxWin();sfxWin();
+  sessionGames++;
   const gs=gameState;
+  const winnerUid=(gs.finished&&gs.finished[0])||gs.playerOrder[0];
+  if(winnerUid===myUid) sessionWins++;
+  // Update session score display
+  const ss=document.getElementById('session-score');
+  if(ss&&sessionGames>0) ss.textContent='🏆 '+sessionWins+'/'+sessionGames+' parties';
   const isElim=gs.mode&&gs.mode.gametype==='elim';
 
   if(isElim){
@@ -1852,21 +2083,44 @@ function renderWinner(){
       '<div class="score-row"><span>'+(m[i]||'#'+(i+1))+' '+gs.playerNames[u]+'</span>'+
       '<span class="score-dim">'+((gs.hands[u]||[]).length)+' carte'+((gs.hands[u]||[]).length!==1?'s':'')+' rest.</span></div>').join('');
   }
+  document.getElementById('react-btn').style.display='none';
+  document.getElementById('react-panel').classList.add('hidden');
   show('s-winner');
 }
 document.getElementById('btn-replay').onclick=async function(){
-  if(gameRef){gameRef.off();gameRef=null;}
-  // Si on a encore un roomId valide, retourner directement au lobby
-  if(db && roomId){
-    const snap = await db.ref('rooms/'+roomId+'/players/'+myUid).once('value');
-    if(snap.val()){
-      // Remettre le statut lobby et retourner dans le salon
-      if(isHost) await db.ref('rooms/'+roomId+'/status').set('lobby');
-      enterLobby();
-      return;
-    }
+  if(!db||!roomId){show('s-setup');return;}
+  const snap=await db.ref('rooms/'+roomId+'/players/'+myUid).once('value');
+  if(!snap.val()){show('s-setup');return;}
+  // Signal que ce joueur est prêt à rejouer
+  await db.ref('rooms/'+roomId+'/replayReady/'+myUid).set(true);
+  // Montrer le banner d'attente
+  const ww=document.getElementById('winner-waiting');
+  if(ww)ww.style.display='block';
+  this.disabled=true;this.textContent='⏳ En attente...';
+  // Si hôte, surveiller quand tous sont prêts
+  if(isHost){
+    db.ref('rooms/'+roomId+'/replayReady').on('value',async snap2=>{
+      const ready=snap2.val()||{};
+      const players=Object.keys((await db.ref('rooms/'+roomId+'/players').once('value')).val()||{});
+      const allReady=players.every(uid=>ready[uid]);
+      if(allReady){
+        db.ref('rooms/'+roomId+'/replayReady').off();
+        await db.ref('rooms/'+roomId+'/replayReady').remove();
+        if(gameRef){gameRef.off();gameRef=null;}
+        await db.ref('rooms/'+roomId+'/status').set('lobby');
+        enterLobby();
+      }
+    });
+  } else {
+    // Non-hôte : surveiller le status du room
+    if(gameRef){gameRef.off();gameRef=null;}
+    db.ref('rooms/'+roomId+'/status').on('value',s=>{
+      if(s.val()==='lobby'){
+        db.ref('rooms/'+roomId+'/status').off();
+        enterLobby();
+      }
+    });
   }
-  show('s-setup');
 };
 
 document.getElementById('btn-quit-winner').onclick=function(){
@@ -2040,6 +2294,7 @@ function checkTurnFX(mine){
   if(mine&&!lastMyTurn){
     // Clear any persistent effect on my hand when my turn starts
     clearHandEffect();
+    sfxMyTurn();
     const vx=Math.floor(Math.random()*4);
     const cx=window.innerWidth/2,cy=window.innerHeight-80;
     if(vx===0){vibrate([20,30,60,20,80]);flash('rgba(212,168,67,.18)',500);spawn(cx,cy,20,['#f0c040','#d4a843','#fff8dc','#fff'],65,0.18,{shapes:['c','s']});}
