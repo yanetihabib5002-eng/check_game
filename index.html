@@ -3,9 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<!-- ══ PWA / iPhone ══ -->
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CHECK">
+<meta name="application-name" content="CHECK">
 <meta name="theme-color" content="#0d2e14">
+<meta name="description" content="Jeu de cartes CHECK — multijoueur en temps réel">
+<meta name="format-detection" content="telephone=no">
+
+<!-- Icône iPhone (générée inline en SVG→PNG via canvas au runtime) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230d2e14'/><text x='50%25' y='54%25' font-size='260' text-anchor='middle' dominant-baseline='middle' fill='%23d4a843'>🃏</text><text x='50%25' y='88%25' font-size='80' text-anchor='middle' dominant-baseline='middle' fill='%23d4a843' font-family='serif' font-weight='900' letter-spacing='8'>CHECK</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230d2e14'/><text x='50%25' y='54%25' font-size='260' text-anchor='middle' dominant-baseline='middle' fill='%23d4a843'>🃏</text></svg>">
+
+<!-- Manifest inline -->
+<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22CHECK%20%F0%9F%83%8F%22,%22short_name%22:%22CHECK%22,%22description%22:%22Jeu%20de%20cartes%20multijoueur%20en%20temps%20r%C3%A9el%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230d2e14%22,%22theme_color%22:%22%230d2e14%22,%22orientation%22:%22portrait-primary%22,%22categories%22:[%22games%22,%22entertainment%22],%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20512%20512'%3E%3Crect%20width%3D'512'%20height%3D'512'%20rx%3D'80'%20fill%3D'%230d2e14'%2F%3E%3Ctext%20x%3D'50%25'%20y%3D'54%25'%20font-size%3D'300'%20text-anchor%3D'middle'%20dominant-baseline%3D'middle'%20fill%3D'%23d4a843'%3E%F0%9F%83%8F%3C%2Ftext%3E%3C%2Fsvg%3E%22,%22sizes%22:%22any%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%20maskable%22}]}">
+
 <title>CHECK 🃏</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -72,6 +87,8 @@ body::before{
 #s-lobby{background:rgba(5,15,8,.95);backdrop-filter:blur(12px);gap:14px;}
 .room-code{font-family:'Playfair Display',serif;font-size:54px;font-weight:900;color:var(--gold);letter-spacing:12px;text-shadow:0 0 30px rgba(212,168,67,.5);}
 .room-code-lbl{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(212,168,67,.45);}
+.max-p-opt{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:4px 10px;color:rgba(245,240,232,.5);font-size:12px;font-weight:700;cursor:pointer;-webkit-appearance:none;transition:all .15s;}
+.max-p-opt.sel{background:rgba(212,168,67,.2);border-color:var(--gold);color:var(--gold);}
 .lobby-player{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;margin-bottom:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);}
 .lobby-av{width:32px;height:32px;border-radius:50%;background:var(--gold);color:#1a0e00;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .lobby-nm{font-weight:700;font-size:14px;}
@@ -402,6 +419,55 @@ body::before{
 #offline-overlay .off-sub{font-size:13px;color:rgba(245,240,232,.45);text-align:center;max-width:260px;line-height:1.6;}
 #offline-overlay .off-spinner{width:22px;height:22px;border:2px solid rgba(255,100,100,.2);border-top-color:#ff6b6b;border-radius:50%;animation:spin .8s linear infinite;}
 
+/* ══ CHECK BUTTON ══ */
+#btn-check{
+  display:none;
+  position:fixed;bottom:180px;right:10px;z-index:250;
+  background:linear-gradient(135deg,#d4a843,#9a7520);
+  border:none;border-radius:18px;
+  padding:12px 22px;
+  font-family:'Playfair Display',serif;font-size:18px;font-weight:900;
+  color:#1a0f00;letter-spacing:1px;
+  cursor:pointer;-webkit-appearance:none;
+  box-shadow:0 4px 20px rgba(212,168,67,.5);
+  animation:checkPulse 0.9s ease-in-out infinite;
+}
+@keyframes checkPulse{
+  0%,100%{transform:scale(1);box-shadow:0 4px 20px rgba(212,168,67,.5);}
+  50%{transform:scale(1.08);box-shadow:0 6px 30px rgba(212,168,67,.8);}
+}
+#btn-check.said{
+  background:linear-gradient(135deg,#44bb66,#228844);
+  animation:none;
+  box-shadow:0 4px 20px rgba(34,136,68,.4);
+}
+
+/* Bouton dénoncer sur les chips adversaires */
+.btn-snitch{
+  font-size:10px;padding:3px 8px;
+  background:rgba(255,50,50,.2);border:1px solid rgba(255,50,50,.4);
+  color:#ff8888;border-radius:8px;cursor:pointer;
+  font-family:Lato,sans-serif;white-space:nowrap;
+  animation:snitchPulse 1s ease-in-out infinite;
+  -webkit-appearance:none;
+}
+@keyframes snitchPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,50,50,.4);}
+  50%{box-shadow:0 0 0 5px rgba(255,50,50,0);}
+}
+
+/* ══ CARD PREVIEW ══ */
+#card-preview{position:fixed;z-index:500;pointer-events:none;opacity:0;transition:opacity .15s;transform:scale(1);display:flex;flex-direction:column;align-items:center;gap:8px;}
+#card-preview.show{opacity:1;}
+#card-preview .preview-card{transform:scale(2.5);transform-origin:center bottom;box-shadow:0 20px 60px rgba(0,0,0,.7);}
+#card-preview .preview-label{font-size:11px;color:rgba(245,240,232,.5);background:rgba(0,0,0,.7);border-radius:20px;padding:4px 12px;white-space:nowrap;}
+/* ══ AVATAR PICKER ══ */
+.avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:10px 0;}
+.avatar-opt{background:rgba(255,255,255,.06);border:2px solid transparent;border-radius:12px;padding:8px 4px;font-size:22px;cursor:pointer;text-align:center;transition:all .15s;-webkit-appearance:none;}
+.avatar-opt:hover,.avatar-opt.sel{border-color:var(--gold);background:rgba(212,168,67,.15);}
+.color-grid{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;}
+.color-opt{width:32px;height:32px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:all .15s;-webkit-appearance:none;}
+.color-opt.sel{border-color:#fff;transform:scale(1.2);}
 /* ══ GAME LOG ══ */
 #game-log{position:fixed;top:54px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:100;white-space:nowrap;}
 .log-entry{display:inline-block;font-size:12px;color:rgba(245,240,232,.85);background:rgba(0,0,0,.72);border:1px solid rgba(212,168,67,.2);border-radius:20px;padding:5px 14px;line-height:1.4;backdrop-filter:blur(6px);animation:logIn .2s ease-out;}
@@ -410,6 +476,19 @@ body::before{
 @keyframes logIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
 
 /* ══ RÉACTIONS RAPIDES ══ */
+/* ══ CHAT ══ */
+#chat-btn{position:fixed;bottom:220px;left:10px;z-index:200;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:50%;width:40px;height:40px;font-size:17px;cursor:pointer;display:none;align-items:center;justify-content:center;transition:all .2s;-webkit-appearance:none;}
+#chat-btn:hover{background:rgba(255,255,255,.15);}
+#chat-unread{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:900;display:none;align-items:center;justify-content:center;}
+#chat-panel{position:fixed;bottom:270px;left:10px;width:230px;background:rgba(8,20,12,.96);border:1px solid rgba(212,168,67,.2);border-radius:16px;z-index:300;display:none;flex-direction:column;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.5);}
+#chat-msgs{max-height:140px;overflow-y:auto;padding:8px 10px;display:flex;flex-direction:column;gap:4px;scrollbar-width:none;}
+#chat-msgs::-webkit-scrollbar{display:none;}
+.chat-msg{font-size:11px;line-height:1.4;word-break:break-word;}
+.chat-msg .chat-who{font-weight:900;color:var(--gold);}
+.chat-msg.me .chat-who{color:#80ee99;}
+#chat-input-row{display:flex;border-top:1px solid rgba(255,255,255,.08);padding:6px 8px;gap:6px;}
+#chat-input{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--cream);font-size:11px;padding:5px 8px;font-family:Lato,sans-serif;outline:none;}
+#chat-send{background:rgba(212,168,67,.2);border:1px solid rgba(212,168,67,.35);border-radius:8px;color:var(--gold);font-size:12px;cursor:pointer;padding:4px 9px;-webkit-appearance:none;}
 #react-btn{position:fixed;bottom:170px;left:10px;z-index:200;background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.25);border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;-webkit-appearance:none;}
 #react-btn:hover{background:rgba(212,168,67,.2);transform:scale(1.1);}
 #react-panel{position:fixed;bottom:218px;left:6px;z-index:201;background:rgba(8,18,10,.95);border:1px solid rgba(212,168,67,.2);border-radius:14px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;width:180px;backdrop-filter:blur(12px);animation:slideUp .2s ease;}
@@ -436,9 +515,35 @@ body::before{
 </style>
 </head>
 <body>
+<!-- ══ iOS INSTALL BANNER ══ -->
+<div id="ios-install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:rgba(8,18,10,.97);border-top:1px solid rgba(212,168,67,.3);padding:12px 16px 20px;backdrop-filter:blur(12px);">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="font-size:32px">🃏</div>
+    <div style="flex:1">
+      <div style="font-family:'Playfair Display',serif;font-size:14px;color:var(--gold);font-weight:700">Installer CHECK</div>
+      <div style="font-size:11px;color:rgba(245,240,232,.5);margin-top:2px;line-height:1.5">Appuie sur <strong style="color:rgba(245,240,232,.7)">⬆️ Partager</strong> puis <strong style="color:rgba(245,240,232,.7)">Sur l'écran d'accueil</strong></div>
+    </div>
+    <button onclick="document.getElementById('ios-install-banner').style.display='none'" style="background:none;border:1px solid rgba(255,255,255,.15);border-radius:50%;width:28px;height:28px;color:rgba(245,240,232,.4);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
+  </div>
+</div>
+
+<!-- ══ ANDROID INSTALL BANNER ══ -->
+<div id="android-install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9997;background:rgba(8,18,10,.97);border-top:1px solid rgba(212,168,67,.3);padding:12px 16px 16px;backdrop-filter:blur(12px);">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="font-size:32px">🃏</div>
+    <div style="flex:1">
+      <div style="font-family:'Playfair Display',serif;font-size:14px;color:var(--gold);font-weight:700">Installer CHECK</div>
+      <div style="font-size:11px;color:rgba(245,240,232,.5);margin-top:2px">Joue hors-ligne, comme une vraie app</div>
+    </div>
+    <button id="android-install-btn" style="background:linear-gradient(135deg,#d4a843,#9a7520);border:none;border-radius:10px;padding:8px 14px;color:#1a0f00;font-size:12px;font-weight:900;cursor:pointer;font-family:Lato,sans-serif;white-space:nowrap">Installer</button>
+    <button id="android-dismiss-btn" style="background:none;border:1px solid rgba(255,255,255,.15);border-radius:50%;width:28px;height:28px;color:rgba(245,240,232,.4);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
+  </div>
+</div>
+
 <canvas id="fx-canvas"></canvas>
 <div id="fx-flash"></div>
 <div id="fx-combo"></div>
+<div id="card-preview"></div>
 <div id="conn-dot"></div>
 
 <!-- ══ SETUP ══ -->
@@ -456,6 +561,7 @@ body::before{
       <div class="logo">CHECK</div>
       <div class="logo-suits">♠ ♥ ♦ ♣</div>
       <div class="logo-sub">Jeu de cartes multijoueur</div>
+      <button onclick="document.getElementById('rules-modal').classList.add('show')" style="margin-top:8px;background:none;border:1px solid rgba(212,168,67,.25);border-radius:20px;color:rgba(212,168,67,.6);font-size:11px;padding:5px 14px;cursor:pointer;font-family:Lato,sans-serif;letter-spacing:.5px;transition:all .2s" onmouseenter="this.style.borderColor='rgba(212,168,67,.6)'" onmouseleave="this.style.borderColor='rgba(212,168,67,.25)'">📖 Règles du jeu</button>
     </div>
 
     <!-- État connexion (invisible si connecté) -->
@@ -463,11 +569,17 @@ body::before{
 
     <!-- Panel principal : nom + actions -->
     <div class="setup-card" id="panel-join" style="display:none">
-      <input class="setup-input" id="f-name" placeholder="Ton prénom ou pseudo" maxlength="14" autocomplete="given-name" autocorrect="off" spellcheck="false">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:4px">
+        <button id="my-avatar-btn" onclick="document.getElementById('avatar-modal').classList.add('show')" style="width:48px;height:48px;background:rgba(212,168,67,.1);border:2px solid rgba(212,168,67,.3);border-radius:14px;font-size:24px;cursor:pointer;-webkit-appearance:none;flex-shrink:0;transition:all .2s" title="Changer avatar">😊</button>
+        <input class="setup-input" id="f-name" placeholder="Ton prénom ou pseudo" maxlength="14" autocomplete="given-name" autocorrect="off" spellcheck="false" style="margin:0;flex:1">
+      </div>
       <button class="setup-btn-main" id="btn-create" disabled>
         <span class="btn-icon">🎲</span> Créer une partie
       </button>
-      <div class="setup-divider"><span>ou rejoindre</span></div>
+      <button class="setup-btn-main" id="btn-public-rooms" disabled style="background:rgba(100,150,255,.15);border:1px solid rgba(100,150,255,.3);color:#aaccff;margin-top:0">
+        <span class="btn-icon">🌐</span> Salons publics
+      </button>
+      <div class="setup-divider"><span>ou rejoindre avec code</span></div>
       <div class="setup-join-row">
         <input class="setup-input setup-code" id="f-code" placeholder="CODE" maxlength="4" autocomplete="off" autocorrect="off" spellcheck="false">
         <button class="setup-btn-join" id="btn-join" disabled>→</button>
@@ -483,6 +595,7 @@ body::before{
     <!-- Bouton discret config Firebase (en bas) -->
     <div class="setup-footer">
       <button class="footer-cfg-btn" id="btn-show-firebase" onclick="toggleFirebasePanel()" style="display:none">⚙ Config serveur</button>
+      <button onclick="document.getElementById('stats-modal').classList.add('show')" style="background:none;border:none;color:rgba(212,168,67,.4);font-size:11px;cursor:pointer;font-family:Lato,sans-serif;padding:4px 8px;letter-spacing:.5px;-webkit-appearance:none">📊 Stats</button>
       <span id="conn-dot-setup" class="conn-dot-setup"></span>
     </div>
 
@@ -512,14 +625,33 @@ body::before{
 <div class="screen off" id="s-lobby">
   <div class="room-code-lbl">Partage ce code !</div>
   <div class="room-code" id="lb-code">----</div>
-  <div style="color:rgba(245,240,232,.4);font-size:12px;margin:-6px 0 14px;text-align:center">Chacun ouvre le lien et entre ce code</div>
+  <div style="color:rgba(245,240,232,.4);font-size:12px;margin:-6px 0 10px;text-align:center">Chacun ouvre le lien et entre ce code</div>
+  <div id="lb-host-opts" style="display:none;width:100%;max-width:340px;background:rgba(212,168,67,.05);border:1px solid rgba(212,168,67,.15);border-radius:12px;padding:10px 12px;margin-bottom:10px;gap:8px;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;color:rgba(212,168,67,.6);min-width:80px">🔒 Mot de passe</span>
+      <input id="lb-password" placeholder="Optionnel" maxlength="12" style="flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--cream);font-size:12px;padding:5px 8px;font-family:Lato,sans-serif;outline:none;min-width:0">
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;color:rgba(212,168,67,.6);min-width:80px">👥 Max joueurs</span>
+      <div style="display:flex;gap:4px">
+        <button class="max-p-opt sel" data-v="6">6</button>
+        <button class="max-p-opt" data-v="4">4</button>
+        <button class="max-p-opt" data-v="3">3</button>
+        <button class="max-p-opt" data-v="2">2</button>
+        <button class="max-p-opt" data-v="8">8</button>
+      </div>
+    </div>
+  </div>
   <div style="width:100%;max-width:340px" id="lb-players"></div>
   <div class="lobby-wait" id="lb-wait">En attente <span class="dots"></span></div>
   <div style="display:flex;gap:10px;width:100%;max-width:340px;margin-top:12px">
     <button class="btn btn-gold" id="btn-launch" disabled style="flex:2">▶ Lancer</button>
     <button class="btn btn-outline" id="btn-leave" style="flex:1">✕</button>
   </div>
-  <div style="font-size:11px;color:rgba(245,240,232,.25);margin-top:8px">2 à 6 joueurs</div>
+  <div id="lb-pw-join" style="display:none;width:100%;max-width:340px;margin-top:8px">
+    <input id="lb-pw-input" placeholder="🔒 Mot de passe de la salle" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(212,168,67,.3);border-radius:10px;color:var(--cream);font-size:13px;padding:10px 12px;font-family:Lato,sans-serif;outline:none;text-align:center">
+  </div>
+  <div style="font-size:11px;color:rgba(245,240,232,.25);margin-top:8px">2 à 8 joueurs</div>
 </div>
 
 <!-- ══ GAME ══ -->
@@ -534,7 +666,10 @@ body::before{
   <div class="game-wrap">
     <div class="topbar">
       <div><div class="tb-turn" id="tb-turn">—</div><div class="tb-sub" id="tb-sub"></div></div>
-      <div class="tb-room" id="tb-room"></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button id="btn-sound" onclick="toggleSound()" style="background:none;border:none;color:rgba(245,240,232,.4);font-size:16px;cursor:pointer;padding:2px 4px;-webkit-appearance:none;line-height:1" title="Son on/off">🔊</button>
+        <div class="tb-room" id="tb-room"></div>
+      </div>
     </div>
     <div id="my-timer-wrap" style="display:none"><div id="my-timer-bar"></div></div>
     <div class="opp-row" id="opp-row"></div>
@@ -572,9 +707,18 @@ body::before{
 </div>
 
 <!-- ══ GAME EXTRAS ══ -->
+<button id="btn-check" onclick="sayCheck()">CHECK !</button>
 <div id="game-log"></div>
 <div id="session-score"></div>
 <button id="react-btn" style="display:none">😄</button>
+<button id="chat-btn" style="display:none"><span style="position:relative">💬<span id="chat-unread"></span></span></button>
+<div id="chat-panel">
+  <div id="chat-msgs"></div>
+  <div id="chat-input-row">
+    <input id="chat-input" placeholder="Message…" maxlength="60" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button id="chat-send">↑</button>
+  </div>
+</div>
 <div id="react-panel" class="hidden">
   <button class="react-opt" data-e="👍">👍</button>
   <button class="react-opt" data-e="😂">😂</button>
@@ -611,6 +755,107 @@ body::before{
       <button class="btn btn-outline" id="forfeit-cancel" style="flex:1;padding:12px">Annuler</button>
       <button class="btn" id="forfeit-confirm" style="flex:1;padding:12px;background:rgba(220,50,50,.25);border:1px solid rgba(220,50,50,.5);color:#ff8888">🏳 Confirmer</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ AVATAR MODAL ══ -->
+<div class="overlay" id="avatar-modal">
+  <div class="modal" style="max-width:340px">
+    <button onclick="document.getElementById('avatar-modal').classList.remove('show')" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50%;width:30px;height:30px;color:rgba(245,240,232,.6);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-appearance:none">✕</button>
+    <div class="modal-t">Ton avatar</div>
+    <div style="font-size:12px;color:rgba(245,240,232,.4);margin-bottom:10px">Choisis un emoji</div>
+    <div class="avatar-grid" id="avatar-grid"></div>
+    <div style="font-size:12px;color:rgba(245,240,232,.4);margin:10px 0 6px">Couleur de ta carte</div>
+    <div class="color-grid" id="color-grid"></div>
+    <button class="btn btn-gold" onclick="saveAvatar()" style="margin-top:12px">✓ Confirmer</button>
+  </div>
+</div>
+
+<!-- ══ STATS MODAL ══ -->
+<div class="overlay" id="stats-modal">
+  <div class="modal" style="max-width:340px">
+    <button onclick="document.getElementById('stats-modal').classList.remove('show')" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50%;width:30px;height:30px;color:rgba(245,240,232,.6);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-appearance:none">✕</button>
+    <div class="modal-t">📊 Mon profil</div>
+    <div id="stats-avatar-display" style="font-size:52px;text-align:center;margin:8px 0"></div>
+    <div id="stats-name-display" style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--gold);text-align:center;margin-bottom:16px">—</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:rgba(212,168,67,.08);border:1px solid rgba(212,168,67,.15);border-radius:12px;padding:12px 8px;text-align:center">
+        <div id="stat-wins" style="font-size:28px;font-weight:900;color:var(--gold)">0</div>
+        <div style="font-size:10px;color:rgba(245,240,232,.4);margin-top:2px">Victoires</div>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 8px;text-align:center">
+        <div id="stat-games" style="font-size:28px;font-weight:900;color:var(--cream)">0</div>
+        <div style="font-size:10px;color:rgba(245,240,232,.4);margin-top:2px">Parties</div>
+      </div>
+      <div style="background:rgba(100,200,255,.06);border:1px solid rgba(100,200,255,.15);border-radius:12px;padding:12px 8px;text-align:center">
+        <div id="stat-rate" style="font-size:28px;font-weight:900;color:#80ccff">0%</div>
+        <div style="font-size:10px;color:rgba(245,240,232,.4);margin-top:2px">Taux</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px 12px;font-size:12px;color:rgba(245,240,232,.5)">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>🔥 Meilleure série</span><span id="stat-streak" style="color:var(--cream)">0</span></div>
+      <div style="display:flex;justify-content:space-between"><span>⚡ Cartes jouées</span><span id="stat-cards" style="color:var(--cream)">0</span></div>
+    </div>
+    <button onclick="if(confirm('Réinitialiser les stats ?')){resetStats();}" style="background:none;border:none;color:rgba(255,100,100,.3);font-size:10px;cursor:pointer;font-family:Lato,sans-serif;margin-top:12px;width:100%;-webkit-appearance:none">Réinitialiser</button>
+  </div>
+</div>
+
+<!-- ══ PUBLIC ROOMS MODAL ══ -->
+<div class="overlay" id="public-modal">
+  <div class="modal" style="max-width:380px;max-height:88vh;display:flex;flex-direction:column">
+    <button onclick="document.getElementById('public-modal').classList.remove('show')" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50%;width:30px;height:30px;color:rgba(245,240,232,.6);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-appearance:none">✕</button>
+    <div class="modal-t" style="font-size:18px">🌐 Salons publics</div>
+    <div style="font-size:11px;color:rgba(245,240,232,.35);margin-bottom:12px;text-align:center">Rejoins une partie ouverte</div>
+    <div id="public-list" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;min-height:80px">
+      <div style="text-align:center;color:rgba(245,240,232,.3);font-size:13px;padding:20px">Recherche en cours…</div>
+    </div>
+    <button class="btn btn-outline" onclick="loadPublicRooms()" style="margin-top:12px;font-size:12px">🔄 Actualiser</button>
+  </div>
+</div>
+
+<!-- ══ RULES MODAL ══ -->
+<div class="overlay" id="rules-modal">
+  <div class="modal" style="max-width:400px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
+    <button onclick="document.getElementById('rules-modal').classList.remove('show')" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50%;width:30px;height:30px;color:rgba(245,240,232,.6);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-appearance:none">✕</button>
+    <div class="modal-t" style="font-size:20px">📖 Règles du jeu</div>
+    <div style="font-size:12px;color:rgba(245,240,232,.5);margin-bottom:16px;text-align:center">Jeu de 2 à 8 joueurs</div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="background:rgba(212,168,67,.06);border:1px solid rgba(212,168,67,.18);border-radius:12px;padding:12px 14px">
+        <div style="font-size:13px;font-weight:900;color:var(--gold);margin-bottom:6px">🎯 Objectif</div>
+        <div style="font-size:12px;color:rgba(245,240,232,.7);line-height:1.7">Être le premier à poser toutes tes cartes. Tu peux jouer une carte si elle a le même <strong style="color:var(--cream)">rang</strong> ou la même <strong style="color:var(--cream)">couleur (♥♦ ou ♠♣)</strong> que la carte du dessus du pot.</div>
+      </div>
+
+      <div style="background:rgba(255,200,50,.06);border:1px solid rgba(255,200,50,.18);border-radius:12px;padding:12px 14px">
+        <div style="font-size:13px;font-weight:900;color:#ffd060;margin-bottom:8px">🃏 Cartes spéciales</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px">
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:20px;min-width:32px;text-align:center">7</span><div><strong style="color:var(--cream)">+2 cartes</strong><br><span style="color:rgba(245,240,232,.55)">Le joueur suivant doit piocher 2 cartes. On peut enchaîner plusieurs 7 (+2, +4, +6…). Un Valet annule la chaîne.</span></div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:16px;min-width:32px;text-align:center">JKR</span><div><strong style="color:var(--cream)">Joker +4</strong><br><span style="color:rgba(245,240,232,.55)">Le suivant pioche 4 cartes ou renvoie avec un autre Joker. Joker rouge = cartes rouges. Joker noir = cartes noires.</span></div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:20px;min-width:32px;text-align:center">A</span><div><strong style="color:var(--cream)">As — Bloque</strong><br><span style="color:rgba(245,240,232,.55)">Le joueur suivant passe son tour. En chaîne, l'As annule la chaîne.</span></div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:20px;min-width:32px;text-align:center">J</span><div><strong style="color:var(--cream)">Valet — Commande</strong><br><span style="color:rgba(245,240,232,.55)">Joue sur n'importe quelle carte. Tu choisis la couleur que le suivant devra jouer. En chaîne, annule la chaîne.</span></div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:20px;min-width:32px;text-align:center">2</span><div><strong style="color:var(--cream)">2 — Passe-partout</strong><br><span style="color:rgba(245,240,232,.55)">Se joue sur n'importe quelle carte. Tu choisis de le mettre dessus (normal) ou dessous (la carte précédente reste active).</span></div></div>
+        </div>
+      </div>
+
+      <div style="background:rgba(50,200,100,.06);border:1px solid rgba(50,200,100,.18);border-radius:12px;padding:12px 14px">
+        <div style="font-size:13px;font-weight:900;color:#60ee90;margin-bottom:6px">✅ Déroulement</div>
+        <div style="font-size:12px;color:rgba(245,240,232,.7);line-height:1.7">
+          À ton tour : joue une carte valide ou pioche (tu passes alors ton tour).<br>
+          <strong style="color:var(--cream)">Si tu ne peux pas jouer</strong> : pioche une carte, ton tour passe.<br>
+          <strong style="color:var(--cream)">Chaîne active</strong> : tu dois renvoyer (7→7, Joker→Joker) ou piocher toutes les cartes.
+        </div>
+      </div>
+
+      <div style="background:rgba(150,100,255,.06);border:1px solid rgba(150,100,255,.18);border-radius:12px;padding:12px 14px">
+        <div style="font-size:13px;font-weight:900;color:#bb99ff;margin-bottom:6px">⚙️ Modes de jeu</div>
+        <div style="font-size:12px;color:rgba(245,240,232,.7);line-height:1.7">
+          <strong style="color:var(--cream)">🏆 Classique</strong> : le premier à poser toutes ses cartes gagne.<br>
+          <strong style="color:var(--cream)">💀 Élimination</strong> : celui qui a encore des cartes quand quelqu'un finit est éliminé. On redistribue et on continue jusqu'au dernier !
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-gold" onclick="document.getElementById('rules-modal').classList.remove('show')" style="margin-top:16px">Compris ! 👍</button>
   </div>
 </div>
 
@@ -814,6 +1059,12 @@ let myUid='u_'+Math.random().toString(36).slice(2,10);
 let myName='', roomId='', isHost=false;
 let localHand=[], gameState=null;
 let selCard=null, selCards=[], suitResolve=null, toastTmr=null;
+let mySpectator=false; // true si on regarde sans jouer
+// ── CHECK state ──
+// checkSaid[uid] = true si ce joueur a dit CHECK quand il avait 1 carte
+// checkExposed = true si moi j'ai 1 carte et pas encore dit CHECK
+let _checkSaid={}; // uid→bool : a dit check pour ce tour à 1 carte
+let _myCheckNeeded=false; // j'ai 1 carte et pas encore dit CHECK
 // selCards = tableau de card.id sélectionnées (même rang = combo si option activée)
 function getSelCardObj(){return selCards.length?localHand.find(c=>c.id===selCards[0]):null;}
 // Session score (in-memory only)
@@ -845,8 +1096,172 @@ function myTurn(){return gameState&&gameState.playerOrder[gameState.currentPlaye
 
 // ── Sound Engine (Web Audio API) ──
 let _ac=null;
+let _soundOn=true;
+function toggleSound(){
+  _soundOn=!_soundOn;
+  const btn=document.getElementById('btn-sound');
+  if(btn)btn.textContent=_soundOn?'🔊':'🔇';
+  try{localStorage.setItem('check_sound',_soundOn?'1':'0');}catch(e){}
+}
+// Restore sound preference
+try{const s=localStorage.getItem('check_sound');if(s==='0'){_soundOn=false;setTimeout(()=>{const b=document.getElementById('btn-sound');if(b)b.textContent='🔇';},500);}}catch(e){}
+
+// ══════════════════════════════════════════
+// AVATAR & PROFIL
+// ══════════════════════════════════════════
+const AVATARS=['😊','😎','🤩','😈','👻','🤖','🦊','🐯','🦁','🐸','🎭','👑','🔥','⚡','🌟','💎','🃏','🎲','🎯','♠️','♥️','♦️','♣️','🏆'];
+const COLORS=['#d4a843','#e05c5c','#5cb8e0','#5ce07a','#c05ce0','#e07a5c','#5c8be0','#e0c45c','#aaaaaa','#ff88cc'];
+let myAvatar=null, myColor=null, myMaxPlayers=6;
+
+function initAvatarModal(){
+  const grid=document.getElementById('avatar-grid');
+  const cgrid=document.getElementById('color-grid');
+  if(!grid||!cgrid)return;
+  grid.innerHTML='';cgrid.innerHTML='';
+  AVATARS.forEach(e=>{
+    const b=document.createElement('button');
+    b.className='avatar-opt'+(e===myAvatar?' sel':'');
+    b.textContent=e;
+    b.onclick=()=>{grid.querySelectorAll('.avatar-opt').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');myAvatar=e;updateAvatarBtn();};
+    grid.appendChild(b);
+  });
+  COLORS.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='color-opt'+(c===myColor?' sel':'');
+    b.style.background=c;
+    b.onclick=()=>{cgrid.querySelectorAll('.color-opt').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');myColor=c;};
+    cgrid.appendChild(b);
+  });
+}
+
+function updateAvatarBtn(){
+  const btn=document.getElementById('my-avatar-btn');
+  if(btn&&myAvatar)btn.textContent=myAvatar;
+  if(btn&&myColor)btn.style.borderColor=myColor;
+}
+
+function saveAvatar(){
+  document.getElementById('avatar-modal').classList.remove('show');
+  updateAvatarBtn();
+  try{localStorage.setItem('check_avatar',JSON.stringify({a:myAvatar,c:myColor}));}catch(e){}
+}
+
+// Restore avatar
+try{
+  const av=JSON.parse(localStorage.getItem('check_avatar')||'null');
+  if(av){myAvatar=av.a||'😊';myColor=av.c||'#d4a843';}
+  else{myAvatar='😊';myColor='#d4a843';}
+}catch(e){myAvatar='😊';myColor='#d4a843';}
+setTimeout(()=>{updateAvatarBtn();initAvatarModal();},300);
+
+document.getElementById('avatar-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+
+// ══════════════════════════════════════════
+// STATISTIQUES PERSISTANTES
+// ══════════════════════════════════════════
+let stats={wins:0,games:0,streak:0,bestStreak:0,cards:0};
+try{stats=JSON.parse(localStorage.getItem('check_stats')||'{}');
+  stats.wins=stats.wins||0;stats.games=stats.games||0;
+  stats.streak=stats.streak||0;stats.bestStreak=stats.bestStreak||0;
+  stats.cards=stats.cards||0;
+}catch(e){}
+
+function saveStats(){try{localStorage.setItem('check_stats',JSON.stringify(stats));}catch(e){}}
+function resetStats(){stats={wins:0,games:0,streak:0,bestStreak:0,cards:0};saveStats();renderStats();}
+
+function recordWin(){stats.wins++;stats.games++;stats.streak++;if(stats.streak>stats.bestStreak)stats.bestStreak=stats.streak;saveStats();}
+function recordLoss(){stats.games++;stats.streak=0;saveStats();}
+function recordCards(n){stats.cards+=(n||0);saveStats();}
+
+function renderStats(){
+  document.getElementById('stat-wins').textContent=stats.wins;
+  document.getElementById('stat-games').textContent=stats.games;
+  const r=stats.games>0?Math.round(stats.wins/stats.games*100):0;
+  document.getElementById('stat-rate').textContent=r+'%';
+  document.getElementById('stat-streak').textContent=stats.bestStreak;
+  document.getElementById('stat-cards').textContent=stats.cards;
+  const n=document.getElementById('f-name');
+  document.getElementById('stats-name-display').textContent=n?n.value||'—':'—';
+  document.getElementById('stats-avatar-display').textContent=myAvatar||'😊';
+}
+document.getElementById('stats-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+document.getElementById('stats-modal').querySelector('button[onclick*="stats-modal"]').addEventListener('click',renderStats);
+
+// ══════════════════════════════════════════
+// LOBBY — host opts + max players
+// ══════════════════════════════════════════
+document.querySelectorAll('.max-p-opt').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('.max-p-opt').forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel');myMaxPlayers=parseInt(b.dataset.v)||6;
+  };
+});
+
+// ══════════════════════════════════════════
+// NETTOYAGE FIREBASE — rooms > 3h
+// ══════════════════════════════════════════
+async function cleanOldRooms(){
+  if(!db)return;
+  try{
+    const snap=await db.ref('rooms').orderByChild('createdAt').endAt(Date.now()-3*60*60*1000).limitToFirst(10).once('value');
+    const updates={};
+    snap.forEach(child=>{updates[child.key]=null;});
+    if(Object.keys(updates).length>0)await db.ref('rooms').update(updates);
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════
+// ROOMS PUBLIQUES
+// ══════════════════════════════════════════
+document.getElementById('btn-public-rooms').onclick=function(){
+  const name=(document.getElementById('f-name').value||'').trim();
+  if(!name){toast('Entre ton nom d\'abord','d');return;}
+  myName=name;
+  document.getElementById('public-modal').classList.add('show');
+  loadPublicRooms();
+};
+
+async function loadPublicRooms(){
+  if(!db)return;
+  const list=document.getElementById('public-list');
+  list.innerHTML='<div style="text-align:center;color:rgba(245,240,232,.3);font-size:13px;padding:20px">Recherche…</div>';
+  try{
+    const snap=await db.ref('rooms').orderByChild('status').equalTo('lobby').limitToFirst(20).once('value');
+    const rooms=[];
+    snap.forEach(child=>{
+      const d=child.val();
+      if(d&&d.status==='lobby'&&d.players){
+        const plist=Object.values(d.players||{});
+        const maxP=d.maxPlayers||6;
+        if(plist.length<maxP)rooms.push({code:child.key,players:plist,maxP,pw:!!d.password,created:d.createdAt||0});
+      }
+    });
+    list.innerHTML='';
+    if(!rooms.length){list.innerHTML='<div style="text-align:center;color:rgba(245,240,232,.3);font-size:13px;padding:20px">Aucun salon ouvert</div>';return;}
+    rooms.sort((a,b)=>b.created-a.created);
+    rooms.forEach(r=>{
+      const host=r.players.find(p=>p.host)||r.players[0]||{};
+      const el=document.createElement('div');
+      el.style.cssText='background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s';
+      el.innerHTML='<div style="font-size:24px">'+(host.avatar||'😊')+'</div>'+
+        '<div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--cream)">'+(host.name||'?')+"'s room</div>"+
+        '<div style="font-size:11px;color:rgba(245,240,232,.4)">'+r.players.length+'/'+r.maxP+' joueurs'+(r.pw?' 🔒':'')+'</div></div>'+
+        '<div style="font-size:11px;font-weight:900;color:rgba(212,168,67,.6);letter-spacing:2px">'+r.code+'</div>';
+      el.onclick=()=>{
+        document.getElementById('public-modal').classList.remove('show');
+        document.getElementById('f-code').value=r.code;
+        document.getElementById('btn-join').click();
+      };
+      el.onmouseenter=()=>el.style.background='rgba(212,168,67,.08)';
+      el.onmouseleave=()=>el.style.background='rgba(255,255,255,.05)';
+      list.appendChild(el);
+    });
+  }catch(e){list.innerHTML='<div style="text-align:center;color:#ff8888;font-size:12px;padding:16px">Erreur: '+e.message+'</div>';}
+}
+document.getElementById('public-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
 function getAC(){if(!_ac){try{_ac=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}return _ac;}
 function playTone(freq,type,dur,vol,delay=0){
+  if(!_soundOn)return;
   const ac=getAC();if(!ac)return;
   try{
     const o=ac.createOscillator(),g=ac.createGain();
@@ -1101,8 +1516,14 @@ document.getElementById('btn-create').onclick=async function(){
   this.disabled=true;this.textContent='⏳...';
   try{
     roomId=genCode();isHost=true;
-    await db.ref('rooms/'+roomId+'/players/'+myUid).set({name:myName,uid:myUid,host:true});
+    const av=myAvatar||'😊'; const col=myColor||'#d4a843';
+    await db.ref('rooms/'+roomId+'/players/'+myUid).set({name:myName,uid:myUid,host:true,avatar:av,color:col});
     await db.ref('rooms/'+roomId+'/status').set('lobby');
+    await db.ref('rooms/'+roomId+'/createdAt').set(Date.now());
+    await db.ref('rooms/'+roomId+'/maxPlayers').set(myMaxPlayers||6);
+    const pw=(document.getElementById('lb-password')||{}).value||'';
+    if(pw)await db.ref('rooms/'+roomId+'/password').set(pw);
+    cleanOldRooms(); // Nettoyage TTL
     enterLobby();
   }catch(e){toast('❌ '+e.message,'d');}
   this.disabled=false;this.textContent='🎲 Créer une partie';
@@ -1126,10 +1547,28 @@ document.getElementById('btn-join').onclick=async function(){
         enterLobby(); // will redirect to game if status=playing
         this.disabled=false;this.textContent='→ Rejoindre';return;
       }
-      toast('❌ Partie déjà commencée','d');this.disabled=false;this.textContent='→ Rejoindre';return;
+      // Proposer mode spectateur
+      mySpectator=true;
+      toast('👁 Partie en cours — tu rejoins en spectateur','i');
+      enterLobby();
+      this.disabled=false;this.textContent='→ Rejoindre';return;
     }
     if(s.val()!=='lobby'&&s.val()!=='playing'){toast('❌ Partie introuvable','d');this.disabled=false;this.textContent='→ Rejoindre';return;}
-    await db.ref('rooms/'+roomId+'/players/'+myUid).set({name:myName,uid:myUid,host:false});
+    // Check password if any
+    const pwSnap=await db.ref('rooms/'+roomId+'/password').once('value');
+    const roomPw=pwSnap.val();
+    if(roomPw){
+      const entered=prompt('🔒 Cette salle est protégée. Mot de passe :');
+      if(!entered||entered.trim()!==roomPw){toast('❌ Mot de passe incorrect','d');this.disabled=false;this.textContent='→ Rejoindre';return;}
+    }
+    // Check max players
+    const mpSnap=await db.ref('rooms/'+roomId+'/maxPlayers').once('value');
+    const maxP=mpSnap.val()||6;
+    const plSnap=await db.ref('rooms/'+roomId+'/players').once('value');
+    const plCount=Object.keys(plSnap.val()||{}).length;
+    if(plCount>=maxP){toast('❌ Salle pleine ('+maxP+' joueurs max)','d');this.disabled=false;this.textContent='→ Rejoindre';return;}
+    const av=myAvatar||'😊'; const col=myColor||'#d4a843';
+    await db.ref('rooms/'+roomId+'/players/'+myUid).set({name:myName,uid:myUid,host:false,avatar:av,color:col});
     enterLobby();
   }catch(e){toast('❌ '+e.message,'d');}
   this.disabled=false;this.textContent='→ Rejoindre';
@@ -1164,7 +1603,9 @@ function enterLobby(){
     players.forEach(p=>{
       const d=document.createElement('div');d.className='lobby-player';
       const kickBtn=(!p.host&&iamHostNow)?'<button onclick="kickPlayer(\''+p.uid+'\')" style="margin-left:auto;background:rgba(255,60,60,.15);border:1px solid rgba(255,60,60,.3);color:#ff8888;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:Lato,sans-serif">✕ Retirer</button>':'';
-      d.innerHTML='<div class="lobby-av">'+p.name[0].toUpperCase()+'</div><div style="flex:1"><div class="lobby-nm">'+p.name+'</div><div class="lobby-role">'+(p.host?'👑 Hôte':'✓ Connecté')+'</div></div>'+kickBtn;
+      const av=p.avatar||p.name[0].toUpperCase();
+      const col=p.color||'';
+      d.innerHTML='<div class="lobby-av" style="'+(p.avatar?'font-size:22px':'')+(col?';color:'+col:'')+'">'+av+'</div><div style="flex:1"><div class="lobby-nm">'+p.name+'</div><div class="lobby-role">'+(p.host?'👑 Hôte':'✓ Connecté')+'</div></div>'+kickBtn;
       el.appendChild(d);
     });
     document.getElementById('lb-wait').innerHTML=players.length<2?'En attente d\'un autre joueur <span class="dots"></span>':players.length+' joueurs connectés !';
@@ -1179,6 +1620,8 @@ function enterLobby(){
     }
     const iamhost=players.find(p=>p.uid===myUid&&p.host);
     document.getElementById('btn-launch').disabled=!(iamhost&&players.length>=2);
+    const hopts=document.getElementById('lb-host-opts');
+    if(hopts)hopts.style.display=iamhost?'flex':'none';
     if(data.status==='playing'&&data.game){
       lobbyRef.off();lobbyRef=null;
       startGame(data.game);
@@ -1247,6 +1690,7 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
     currentPlayerIdx:0,commandedSuit:null,pendingDraws:0,finished:[],
     status:'playing',lastFX:null,turnStartTs:Date.now(),
     mode:{cards:gameMode.cards,decks:gameMode.decks,two:'place',timer:gameMode.timer,gametype:gameMode.gametype,combo:gameMode.combo||0},
+    players:Object.fromEntries(order.map(u=>{const p=playersSnap[u]||{};return [u,{avatar:p.avatar||'😊',color:p.color||'#d4a843',name:p.name||u}];})),
     eliminated:[],
     round:1
   };
@@ -1257,7 +1701,184 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
 // ══════════════════════════════════════════
 // GAME
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// CHECK MECHANIC
+// ══════════════════════════════════════════
+
+function updateCheckButton(gs){
+  const btn=document.getElementById('btn-check');
+  if(!btn||!gs)return;
+
+  const myHandSize=(gs.hands&&gs.hands[myUid])||localHand;
+  const myCount=Array.isArray(myHandSize)?myHandSize.length:localHand.length;
+  const checkSaidMap=gs.checkSaid||{};
+  const iSaid=checkSaidMap[myUid];
+
+  // Afficher CHECK si j'ai exactement 1 carte
+  if(myCount===1&&!mySpectator){
+    btn.style.display='block';
+    if(iSaid){
+      btn.classList.add('said');
+      btn.textContent='✅ CHECK dit';
+    } else {
+      btn.classList.remove('said');
+      btn.textContent='CHECK !';
+    }
+    _myCheckNeeded=!iSaid;
+  } else {
+    btn.style.display='none';
+    _myCheckNeeded=false;
+  }
+
+  // Ajouter bouton Dénoncer sur les chips adversaires qui ont 1 carte sans avoir dit CHECK
+  document.querySelectorAll('.opp-chip').forEach(chip=>{
+    const uid=chip.dataset.uid;
+    if(!uid||uid===myUid)return;
+    const oppHand=gs.hands&&gs.hands[uid]||[];
+    const oppCount=Array.isArray(oppHand)?oppHand.length:0;
+    const oppSaid=checkSaidMap[uid];
+    // Remove existing snitch btn
+    chip.querySelectorAll('.btn-snitch').forEach(b=>b.remove());
+    // Add snitch btn if opp has 1 card and hasn't said CHECK
+    if(oppCount===1&&!oppSaid&&!mySpectator){
+      const snitch=document.createElement('button');
+      snitch.className='btn-snitch';
+      snitch.textContent='😤 CHECK ?';
+      snitch.title="Dénoncer — il a 1 carte et n'a pas dit CHECK !";
+      snitch.onclick=(e)=>{e.stopPropagation();reportCheck(uid,gs.playerNames[uid]||'?');};
+      // Insert into the name/count div
+      const nameDiv=chip.querySelector('.opp-name');
+      if(nameDiv)nameDiv.appendChild(snitch);
+    }
+  });
+}
+
+async function sayCheck(){
+  if(!db||!roomId||!gameState)return;
+  const gs=gameState;
+  const myCount=localHand.length;
+  if(myCount!==1){toast('Tu dois avoir 1 carte pour dire CHECK !','d');return;}
+  const checkSaidMap=gs.checkSaid||{};
+  if(checkSaidMap[myUid]){return;} // déjà dit
+  // Sauvegarder dans Firebase
+  await db.ref('rooms/'+roomId+'/game/checkSaid/'+myUid).set(true);
+  // Notifier les autres
+  await db.ref('rooms/'+roomId+'/game/lastFX').set({r:'check',s:myName,color:null,by:myUid,ts:Date.now()});
+  sfxMyTurn(); // petit son de confirmation
+  vibrate([30,20,60]);
+  toast('✅ CHECK dit !','g');
+  addLog('✅ '+myName+' dit CHECK !','me');
+}
+
+async function reportCheck(targetUid, targetName){
+  if(!db||!roomId||!gameState)return;
+  const gs=gameState;
+  const targetHand=gs.hands&&gs.hands[targetUid]||[];
+  const targetCount=Array.isArray(targetHand)?targetHand.length:0;
+  const checkSaidMap=gs.checkSaid||{};
+  if(targetCount!==1){toast("Il n'a plus 1 carte — trop tard !","d");return;}
+  if(checkSaidMap[targetUid]){toast('Il a déjà dit CHECK !','d');return;}
+  // Pénalité : +2 cartes pour le coupable
+  let deck=gs.deck?[...gs.deck]:[];
+  if(deck.length<2){
+    // Recycler le pot si plus de cartes
+    const newDeck=[...gs.pot.slice(0,-1)];
+    shuffle(newDeck);
+    deck=[...newDeck,...deck];
+  }
+  const pen1=deck.pop()||{r:'2',s:'♠',id:'pen1'};
+  const pen2=deck.pop()||{r:'2',s:'♣',id:'pen2'};
+  const newHand=[...targetHand,pen1,pen2];
+  const upd={};
+  upd['hands/'+targetUid]=newHand;
+  upd['deck']=deck;
+  upd['checkSaid/'+targetUid]=null; // reset
+  upd['lastFX']={r:'checkFail',s:targetName,penBy:myName,color:null,by:targetUid,ts:Date.now()};
+  await db.ref('rooms/'+roomId+'/game').update(upd);
+  toast('😤 '+targetName+' prend +2 cartes !','g');
+  vibrate([100,50,200]);
+}
+
+// Reset checkSaid quand un joueur joue (il repasse à plus d'1 carte ou gagne)
+// Géré dans le lastFX handler
+
+let _chatRef=null, _chatOpen=false, _chatUnread=0;
+
+function initChat(){
+  const btn=document.getElementById('chat-btn');
+  const panel=document.getElementById('chat-panel');
+  const input=document.getElementById('chat-input');
+  const send=document.getElementById('chat-send');
+  const unread=document.getElementById('chat-unread');
+  if(!btn||!panel)return;
+  btn.style.display='flex';
+  btn.onclick=()=>{
+    _chatOpen=!_chatOpen;
+    panel.style.display=_chatOpen?'flex':'none';
+    if(_chatOpen){_chatUnread=0;if(unread)unread.style.display='none';if(input)input.focus();}
+  };
+  function sendMsg(){
+    if(!db||!roomId)return;
+    const txt=(input.value||'').trim();
+    if(!txt)return;
+    input.value='';
+    db.ref('rooms/'+roomId+'/chat').push({name:myName,avatar:myAvatar||'x',color:myColor||'#d4a843',txt,ts:Date.now(),uid:myUid});
+  }
+  if(send)send.onclick=sendMsg;
+  if(input)input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}});
+  if(_chatRef){_chatRef.off();}
+  _chatRef=db.ref('rooms/'+roomId+'/chat').limitToLast(50);
+  _chatRef.on('child_added',snap=>{
+    const m=snap.val();if(!m)return;
+    const msgs=document.getElementById('chat-msgs');if(!msgs)return;
+    const isMe=m.uid===myUid;
+    const el=document.createElement('div');
+    el.className='chat-msg'+(isMe?' me':'');
+    const who=(m.avatar||'')+(m.name||'?');
+    const col=isMe?'#80ee99':(m.color||'#d4a843');
+    el.innerHTML='<span class="chat-who" style="color:'+col+'">'+escHtml(who)+': </span>'+
+      '<span style="color:rgba(245,240,232,.8)">'+escHtml(m.txt)+'</span>';
+    msgs.appendChild(el);
+    while(msgs.children.length>30)msgs.removeChild(msgs.firstChild);
+    msgs.scrollTop=msgs.scrollHeight;
+    if(!_chatOpen&&!isMe){
+      _chatUnread++;
+      if(unread){unread.style.display='flex';unread.textContent=_chatUnread>9?'9+':_chatUnread;}
+      vibrate(30);
+    }
+  });
+}
+
+function escHtml(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ══ CARD PREVIEW ══
+let _previewCard=null;
+function showCardPreview(card,el){
+  const pv=document.getElementById('card-preview');
+  if(!pv)return;
+  pv.innerHTML='';
+  const clone=makeCard(card);
+  clone.classList.add('preview-card');
+  const rect=el.getBoundingClientRect();
+  const label=document.createElement('div');
+  label.className='preview-label';
+  const descs={'A':'Bloque le suivant','7':'+2 à la chaîne','J':'Commande une couleur','2':'Passe-partout','JOKER':'+4 cartes'};
+  label.textContent=descs[card.r]||card.r+' '+card.s;
+  pv.appendChild(clone);pv.appendChild(label);
+  const x=Math.min(rect.left+rect.width/2, window.innerWidth-80);
+  const y=Math.max(rect.top-100, 40);
+  pv.style.left=x+'px';pv.style.top=y+'px';pv.style.transform='translateX(-50%)';
+  pv.classList.add('show');
+  vibrate(15);
+}
+function hideCardPreview(){
+  const pv=document.getElementById('card-preview');
+  if(pv)pv.classList.remove('show');
+}
+
 function startGame(g){
+  // Init chat
+  initChat();
   // Listen for reactions
   if(db&&roomId){
     db.ref('rooms/'+roomId+'/reactions').limitToLast(1).on('child_added',snap=>{
@@ -1466,7 +2087,7 @@ function renderGame(){
   localHand = gs.hands[myUid] ? (Array.isArray(gs.hands[myUid]) ? gs.hands[myUid] : Object.values(gs.hands[myUid])) : [];
   const curUid=gs.playerOrder[gs.currentPlayerIdx]||gs.playerOrder[0];
   const curName=(gs.playerNames&&gs.playerNames[curUid])||'?';
-  const mine=curUid===myUid;
+  const mine=curUid===myUid&&!mySpectator;
   const top=gs.pot[gs.pot.length-1];
   if(!top) return;
 
@@ -1491,7 +2112,29 @@ function renderGame(){
     if(fxKey!==window._lastFXKey){
       window._lastFXKey=fxKey;
       const isMine=fx.by===myUid;
-      if(fx.r==='forfeit'){
+      if(fx.r==='check'){
+        // Quelqu'un dit CHECK
+        if(fx.by!==myUid){
+          const who=fx.s||gameState.playerNames[fx.by]||'?';
+          toast('✅ '+who+' dit CHECK !','i');
+          addLog('✅ '+who+' dit CHECK !','special');
+          vibrate(20);
+        }
+      } else if(fx.r==='checkFail'){
+        // Quelqu'un s'est fait dénoncer
+        const victim=fx.s||'?';
+        const snitch=fx.penBy||'?';
+        if(fx.by===myUid){
+          // Je suis la victime
+          fxCurseMyHand();
+          vibrate([200,80,200,80,300]);
+          toast('😱 '+snitch+" t'a dénoncé ! +2 cartes",'d');
+          addLog('😱 '+myName+' dénoncé par '+snitch+' — +2 cartes','special');
+        } else {
+          toast('😤 '+snitch+' dénonce '+victim+' — +2 cartes !','i');
+          addLog('😤 '+victim+' dénoncé — +2 cartes','special');
+        }
+      } else if(fx.r==='forfeit'){
         const who=fx.s||'?';
         toast('🏳 '+who+' a déclaré forfait','d');
         addLog('🏳 '+who+' forfait','special');
@@ -1534,6 +2177,16 @@ function renderGame(){
         }
       } else {
         triggerFX({r:fx.r,s:fx.s,color:fx.color||null});
+        // Vibration adversaire sur cartes spéciales dangereuses pour moi
+        if(fx.by!==myUid){
+          const nextPIdx=gameState?advIdx(gameState.playerOrder,gameState.playerOrder.indexOf(fx.by),gameState.finished||[]):-1;
+          const isVictimMe=nextPIdx>=0&&gameState&&gameState.playerOrder[nextPIdx]===myUid;
+          if(isVictimMe){
+            if(fx.r==='JOKER')vibrate([80,40,80,40,200]);
+            else if(fx.r==='7')vibrate([60,30,120]);
+            else if(fx.r==='A')vibrate([100,50,100]);
+          }
+        }
         // ── Log de l'action ──
         (()=>{
           const who=fx.by===myUid?'Toi':(gameState&&gameState.playerNames[fx.by])||'?';
@@ -1616,8 +2269,12 @@ function renderGame(){
     const afkBadge=afkCount>0?'<span style="font-size:9px;background:rgba(255,100,0,.2);border:1px solid rgba(255,100,0,.4);color:#ff8844;border-radius:6px;padding:1px 5px;margin-left:4px" title="Tours passés automatiquement">💤'+afkCount+'</span>':'';
     const canKick=isHost&&!done;
     const kickHtml=canKick?'<button onclick="kickAfk(&quot;'+uid+'&quot;)" style="font-size:10px;padding:3px 7px;background:rgba(255,50,50,.15);border:1px solid rgba(255,50,50,.35);color:#ff7777;border-radius:7px;cursor:pointer;font-family:Lato,sans-serif;white-space:nowrap">✕ Retirer</button>':'';
+    const oppPlayer=gs.players&&gs.players[uid]||{};
+    const oppAv=oppPlayer.avatar||(gs.playerNames[uid]||'?')[0];
+    const oppCol=oppPlayer.color||'';
+    const oppAvHtml='<span style="'+(oppPlayer.avatar?'font-size:14px;':'')+(oppCol?'color:'+oppCol+';':'')+' margin-right:4px">'+oppAv+'</span>';
     d.innerHTML='<div style="display:flex;align-items:center;gap:5px;width:100%">'+
-      '<div style="flex:1;min-width:0"><div class="opp-name">'+gs.playerNames[uid]+afkBadge+(gs.hostUid===uid?'<span class="host-badge">👑</span>':'')+'</div>'+
+      '<div style="flex:1;min-width:0"><div class="opp-name">'+oppAvHtml+gs.playerNames[uid]+afkBadge+(gs.hostUid===uid?'<span class="host-badge">👑</span>':'')+'</div>'+
       '<div class="opp-count">'+(done?'🏆':hand.length)+'</div></div>'+
       (kickHtml||timerHtml)+'</div>'+
       '<div class="opp-minis">'+minis+'</div>';
@@ -1676,6 +2333,9 @@ function renderGame(){
   document.getElementById('h-name').textContent=myName;
   document.getElementById('h-pending').textContent=gs.pendingDraws>0&&mine?'⚡ Prends +'+gs.pendingDraws+' ou renvoie':'';
   renderHand(top,gs.commandedSuit,gs.pendingDraws,mine,gs);
+
+  // ── CHECK button logic ──
+  updateCheckButton(gs);
 
   // Buttons
   const jfcBtn=(mine&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
@@ -1948,6 +2608,7 @@ async function doPlayCombo(cardIds, jfcCheck){
   upd['currentPlayerIdx']=nextIdx;upd['finished']=finished;
   upd['jokerPendingColor']=jokerColor||null;upd['jokerFreeColor']=null;
   upd['turnStartTs']=Date.now();
+  upd['checkSaid/'+myUid]=null;
   upd['lastFX']={r:first.r,s:first.s+(cards.length>1?' x'+cards.length:''),color:first.color||null,by:myUid,ts:Date.now()};
   if(over)upd['status']='finished';
   if(roundOver&&isElim){
@@ -1966,6 +2627,7 @@ async function doPlay(card,suit,twoPlace){
   else sfxCard();
   const gs=gameState;
   const newHand=localHand.filter(c=>c.id!==card.id);
+  recordCards(1);
   // 2 placement: 'bottom' = insert under top card, 'top' = normal push
   let newPot;
   if(card.r==='2'&&twoPlace==='bottom'&&gs.pot.length>0){
@@ -2045,6 +2707,8 @@ async function doPlay(card,suit,twoPlace){
   upd['jokerPendingColor']=jokerColor||null;
   upd['jokerFreeColor']=null;
   upd['turnStartTs']=Date.now();
+  // Reset my checkSaid when I play (hand size changes)
+  upd['checkSaid/'+myUid]=null;
   upd['lastFX']={r:card.r,s:card.s,color:card.color||null,by:myUid,ts:Date.now()};
   if(over) upd['status']='finished';
   if(roundOver&&isElim){
@@ -2315,7 +2979,8 @@ function renderWinner(){
   sessionGames++;
   const gs=gameState;
   const winnerUid=(gs.finished&&gs.finished[0])||gs.playerOrder[0];
-  if(winnerUid===myUid) sessionWins++;
+  if(winnerUid===myUid){sessionWins++;if(!mySpectator)recordWin();}
+  else if(!mySpectator)recordLoss();
   // Update session score display
   const ss=document.getElementById('session-score');
   if(ss&&sessionGames>0) ss.textContent='🏆 '+sessionWins+'/'+sessionGames+' parties';
@@ -2967,6 +3632,96 @@ function fxPenalty(n,isMine){
 }
 
 function fxWin(){pick(FX.WIN)();}
+
+// ══ Service Worker (offline cache) ══
+if('serviceWorker' in navigator){
+  const swCode=`
+self.addEventListener('install',e=>{
+  e.waitUntil(caches.open('check-v1').then(c=>c.addAll(['.'])));
+  self.skipWaiting();
+});
+self.addEventListener('activate',e=>{
+  e.waitUntil(clients.claim());
+});
+self.addEventListener('fetch',e=>{
+  // Network first, fallback to cache
+  e.respondWith(
+    fetch(e.request).catch(()=>caches.match(e.request))
+  );
+});`;
+  const blob=new Blob([swCode],{type:'application/javascript'});
+  const swUrl=URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(()=>{});
+}
+
+// ══ Install Banners (iOS + Android) ══
+(function(){
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isAndroid=/android/i.test(navigator.userAgent);
+  const isStandalone=('standalone' in navigator&&navigator.standalone)||
+    window.matchMedia('(display-mode: standalone)').matches;
+
+  // iOS Safari — manual instructions
+  if(isIOS&&!isStandalone){
+    try{
+      if(!localStorage.getItem('ios_banner_dismissed')){
+        setTimeout(()=>{const b=document.getElementById('ios-install-banner');if(b)b.style.display='block';},4000);
+        const closeBtn=document.querySelector('#ios-install-banner button');
+        if(closeBtn)closeBtn.addEventListener('click',()=>{
+          try{localStorage.setItem('ios_banner_dismissed','1');}catch(e){}
+        });
+      }
+    }catch(e){}
+  }
+
+  // Android Chrome — beforeinstallprompt
+  let deferredPrompt=null;
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();
+    deferredPrompt=e;
+    if(isAndroid&&!isStandalone){
+      try{
+        if(!localStorage.getItem('android_banner_dismissed')){
+          setTimeout(()=>{const b=document.getElementById('android-install-banner');if(b)b.style.display='block';},3000);
+        }
+      }catch(e2){}
+    }
+  });
+
+  const installBtn=document.getElementById('android-install-btn');
+  if(installBtn){
+    installBtn.addEventListener('click',async()=>{
+      if(!deferredPrompt)return;
+      deferredPrompt.prompt();
+      const{outcome}=await deferredPrompt.userChoice;
+      if(outcome==='accepted'){
+        document.getElementById('android-install-banner').style.display='none';
+        try{localStorage.setItem('android_banner_dismissed','1');}catch(e){}
+      }
+      deferredPrompt=null;
+    });
+  }
+  const dismissBtn=document.getElementById('android-dismiss-btn');
+  if(dismissBtn){
+    dismissBtn.addEventListener('click',()=>{
+      document.getElementById('android-install-banner').style.display='none';
+      try{localStorage.setItem('android_banner_dismissed','1');}catch(e){}
+    });
+  }
+
+  // App installed event
+  window.addEventListener('appinstalled',()=>{
+    ['ios-install-banner','android-install-banner'].forEach(id=>{
+      const b=document.getElementById(id);if(b)b.style.display='none';
+    });
+  });
+
+  // Fix iOS/Android 100vh bug
+  function setVH(){document.documentElement.style.setProperty('--vh',window.innerHeight*0.01+'px');}
+  setVH();
+  window.addEventListener('resize',setVH);
+  window.addEventListener('orientationchange',()=>setTimeout(setVH,300));
+})();
 </script>
 </body>
 </html>
