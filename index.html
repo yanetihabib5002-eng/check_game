@@ -577,13 +577,7 @@ body::before{
   <div class="win-name" id="w-name">—</div>
   <div class="win-sub">a remporté la partie !</div>
   <div class="scores" id="w-scores"></div>
-  <div style="display:flex;gap:10px;width:100%;max-width:340px;margin-top:8px">
-    <button class="btn btn-gold" id="btn-replay" style="flex:2">🎲 Rejouer</button>
-    <button class="btn btn-outline" id="btn-quit-game" style="flex:1">🚪 Quitter</button>
-  </div>
-  <div id="winner-waiting" style="display:none;font-size:12px;color:rgba(245,240,232,.35);margin-top:10px;text-align:center">
-    En attente des autres joueurs… <span class="dots"></span>
-  </div>
+  <button class="btn btn-gold" id="btn-replay" style="max-width:340px;margin-top:8px">🎲 Rejouer</button>
 </div>
 
 <!-- ══ SUIT MODAL ══ -->
@@ -1736,11 +1730,7 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
     round:1
   };
   game.status = 'playing';
-  await db.ref('rooms/'+roomId+'/game').set(game);
-  await db.ref('rooms/'+roomId+'/status').set('playing');
-  // Host démarre directement — pas besoin d'attendre le listener
-  if(lobbyRef){lobbyRef.off();lobbyRef=null;}
-  startGame(game);
+  await db.ref('rooms/'+roomId).update({game: game, status: 'playing'});
 };
 
 // ══════════════════════════════════════════
@@ -1761,16 +1751,8 @@ function startGame(g){
     });
   }
   gameState=g;
-  // Normalize hands robustly
-  if(g.hands){
-    Object.keys(g.hands).forEach(uid=>{
-      if(g.hands[uid]&&!Array.isArray(g.hands[uid]))
-        g.hands[uid]=Object.values(g.hands[uid]);
-    });
-  }
-  localHand=(g.hands&&g.hands[myUid])&&Array.isArray(g.hands[myUid])
-    ? g.hands[myUid]
-    : (g.hands&&g.hands[myUid] ? Object.values(g.hands[myUid]) : []);
+  localHand=(g.hands&&g.hands[myUid])||[];
+  if(!Array.isArray(localHand)) localHand=Object.values(localHand);
   selCard=null; lastMyTurn=false; lastTurnUid='';
   show('s-game');
   startGlobalRingTick();
@@ -1960,16 +1942,10 @@ function renderGame(){
   const turnChanged=curUid!==lastTurnUid;
   lastTurnUid=curUid;
 
-  if(mine){
-    if(turnChanged){
-      // Nouveau tour : écrire turnStartTs UNE SEULE FOIS
-      db.ref('rooms/'+roomId+'/game/turnStartTs').set(Date.now());
-      if(TIMER_SEC>0) startMyTimer(); else stopMyTimer();
-    } else if(!lastMyTurn){
-      // Tour en cours (re-render sans changement de joueur)
-      if(TIMER_SEC>0 && !timerInterval) startMyTimer();
-    }
-  } else {
+  if(mine&&(!lastMyTurn||turnChanged)){
+    if(TIMER_SEC>0) startMyTimer(); else stopMyTimer();
+    if(turnChanged) db.ref('rooms/'+roomId+'/game/turnStartTs').set(Date.now());
+  } else if(!mine){
     stopMyTimer();
   }
 
@@ -1989,9 +1965,8 @@ function renderGame(){
     }
   }
 
-  // Turn FX (lastMyTurn mis à jour dans checkTurnFX)
+  // Turn FX
   checkTurnFX(mine);
-  lastMyTurn=mine;
 
   // Topbar
   const myTimerSec=mine?getTimerLeft(gs):null;
@@ -2512,46 +2487,10 @@ function renderWinner(){
   }
   show('s-winner');
 }
-document.getElementById('btn-replay').onclick=async function(){
+document.getElementById('btn-replay').onclick=function(){
   if(gameRef){gameRef.off();gameRef=null;}
-  // Host: reset room to lobby + clear game state
-  if(isHost){
-    document.getElementById('winner-waiting').style.display='';
-    document.getElementById('btn-replay').disabled=true;
-    try{
-      await db.ref('rooms/'+roomId+'/game').remove();
-      await db.ref('rooms/'+roomId+'/status').set('lobby');
-    }catch(e){ toast('Erreur: '+e.message,'d'); }
-    document.getElementById('btn-replay').disabled=false;
-    document.getElementById('winner-waiting').style.display='none';
-    enterLobby();
-  } else {
-    // Non-host: just wait — listenLobbyFromWinner() will catch status change
-    document.getElementById('winner-waiting').style.display='';
-    document.getElementById('btn-replay').disabled=true;
-    listenLobbyFromWinner();
-  }
-};
-
-document.getElementById('btn-quit-game').onclick=function(){
-  if(gameRef){gameRef.off();gameRef=null;}
-  if(db && roomId) db.ref('rooms/'+roomId+'/players/'+myUid).remove();
-  roomId=null; isHost=false;
   show('s-setup');
 };
-
-function listenLobbyFromWinner(){
-  if(!db||!roomId)return;
-  const ref=db.ref('rooms/'+roomId+'/status');
-  ref.on('value',function(snap){
-    if(snap.val()==='lobby'){
-      ref.off();
-      document.getElementById('winner-waiting').style.display='none';
-      document.getElementById('btn-replay').disabled=false;
-      enterLobby();
-    }
-  });
-}
 
 // ══════════════════════════════════════════
 // EFFECTS ENGINE
@@ -2598,10 +2537,11 @@ function checkTurnFX(mine){
     const hs=document.querySelector('.hand-section');
     if(hs){hs.classList.remove('my-turn-fx');void hs.offsetWidth;hs.classList.add('my-turn-fx');}
     spawn(window.innerWidth/2,window.innerHeight-80,16,['#f0c040','#d4a843','#fff8dc'],60,0.2);
+    // Re-trigger banner animation
     const banner=document.getElementById('your-turn-banner');
     if(banner){banner.style.animation='none';void banner.offsetWidth;banner.style.animation='';}
   }
-  // NB: lastMyTurn est mis à jour par renderGame() APRES cet appel
+  lastMyTurn=mine;
 }
 
 function getPotXY(){
