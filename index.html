@@ -1679,7 +1679,19 @@ function renderGame(){
 
   // Buttons
   const jfcBtn=(mine&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
-  const canPl=selCards.length>0&&mine&&selCards.every(id=>localHand.some(c=>c.id===id&&canPlay(c,top,gs.commandedSuit,gs.pendingDraws,jfcBtn)));
+  const canPl=(()=>{
+    if(!selCards.length||!mine)return false;
+    const comboOn=gs.mode&&gs.mode.combo;
+    const firstCard=localHand.find(c=>c.id===selCards[0]);
+    if(!firstCard)return false;
+    return selCards.every((id,i)=>{
+      const c=localHand.find(x=>x.id===id);
+      if(!c)return false;
+      if(i===0)return canPlay(c,top,gs.commandedSuit,gs.pendingDraws,jfcBtn);
+      // Carte suivante du combo: même rang suffit (validé contre la 1ère)
+      return comboOn&&c.r===firstCard.r&&(c.r==='JOKER'?c.color===firstCard.color:true);
+    });
+  })();
   document.getElementById('btn-play').disabled=!canPl;
   if(!canPl){document.getElementById('btn-play').textContent='▶ Jouer';}
   const bd=document.getElementById('btn-draw');
@@ -1691,8 +1703,17 @@ function renderHand(top,cmdSuit,pending,mine,gs){
   if(!gs)return;
   const hc=document.getElementById('h-cards');if(!hc)return;hc.innerHTML='';
   const jfc=(mine&&gs.jokerFreeColor&&gs.playerOrder[gs.currentPlayerIdx]===myUid)?gs.jokerFreeColor:null;
+  const comboEnabled=gs.mode&&gs.mode.combo;
+  // Si combo actif et une carte déjà sélectionnée, la "top" pour les suivantes = 1ère sélectionnée
+  const comboFirst=comboEnabled&&selCards.length>0?localHand.find(c=>c.id===selCards[0]):null;
   localHand.forEach(card=>{
-    const pl=mine&&canPlay(card,top,cmdSuit,pending,jfc);
+    // Jouable normalement contre le pot
+    const plNormal=mine&&canPlay(card,top,cmdSuit,pending,jfc);
+    // Jouable en combo: même rang que la 1ère carte sélectionnée (Joker: même couleur)
+    const alreadySel=selCards.includes(card.id);
+    const plCombo=comboEnabled&&comboFirst&&!alreadySel&&
+      card.r===comboFirst.r&&(card.r==='JOKER'?card.color===comboFirst.color:true);
+    const pl=plNormal||plCombo;
     const el=makeCard(card);
     el.dataset.r=card.r;el.dataset.id=card.id;
     if(pl)el.classList.add('playable');
