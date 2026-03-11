@@ -45,7 +45,7 @@ body::before{
 }
 
 /* ── SCREENS ── */
-.screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;transition:opacity .35s cubic-bezier(.4,0,.2,1),transform .35s cubic-bezier(.4,0,.2,1);overflow-y:auto;will-change:opacity,transform;}
+.screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;transition:opacity .35s cubic-bezier(.4,0,.2,1),transform .35s cubic-bezier(.4,0,.2,1);overflow-y:auto;}
 .screen.off{opacity:0;pointer-events:none;transform:translateX(32px) scale(.97);}
 .screen.off-left{opacity:0;pointer-events:none;transform:translateX(-32px) scale(.97);}
 
@@ -1894,9 +1894,12 @@ async function loadPublicRooms(){
     snap.forEach(child=>{
       const d=child.val();
       if(d&&d.status==='lobby'&&d.players){
-        const plist=Object.values(d.players||{});
+        const plist=Object.values(d.players||{}).filter(p=>p&&p.name);
         const maxP=d.maxPlayers||6;
-        if(plist.length<maxP)rooms.push({code:child.key,players:plist,maxP,pw:!!d.password,created:d.createdAt||0});
+        // Ignorer les rooms sans joueur réel ou trop vieilles (>1h)
+        const age=Date.now()-(d.createdAt||0);
+        if(plist.length>0&&plist.length<maxP&&age<3600000)
+          rooms.push({code:child.key,players:plist,maxP,pw:!!d.password,created:d.createdAt||0});
       }
     });
     list.innerHTML='';
@@ -1910,10 +1913,22 @@ async function loadPublicRooms(){
         '<div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--cream)">'+(host.name||'?')+"'s room</div>"+
         '<div style="font-size:11px;color:rgba(245,240,232,.4)">'+r.players.length+'/'+r.maxP+' joueurs'+(r.pw?' 🔒':'')+'</div></div>'+
         '<div style="font-size:11px;font-weight:900;color:rgba(212,168,67,.6);letter-spacing:2px">'+r.code+'</div>';
-      el.onclick=()=>{
+      el.onclick=async()=>{
         document.getElementById('public-modal').classList.remove('show');
-        document.getElementById('f-code').value=r.code;
-        document.getElementById('btn-join').click();
+        if(r.pw){
+          const pw=prompt('🔒 Mot de passe de la salle :');
+          if(pw===null)return;
+          // Vérifier le mot de passe avant de rejoindre
+          const snap2=await db.ref('rooms/'+r.code+'/password').once('value');
+          if(snap2.val()&&snap2.val()!==pw){toast('❌ Mauvais mot de passe','d');return;}
+        }
+        // Rejoindre directement
+        const name=(document.getElementById('f-name').value||'').trim();
+        if(!name){toast("Entre ton prénom d'abord",'d');return;}
+        myName=name;
+        roomId=r.code;
+        isHost=false;
+        joinRoomDirect(r.code);
       };
       el.onmouseenter=()=>el.style.background='rgba(212,168,67,.08)';
       el.onmouseleave=()=>el.style.background='rgba(255,255,255,.05)';
@@ -2322,6 +2337,33 @@ async function kickPlayer(uid){
   // Notify via a kicked field so the kicked player knows
   await db.ref('rooms/'+roomId+'/kicked/'+uid).set(true);
   toast('Joueur retiré','i');
+}
+
+// Rejoindre une room directement (depuis salon public)
+async function joinRoomDirect(code){
+  if(!db){toast('❌ Firebase non connecté','d');return;}
+  roomId=code.toUpperCase().trim();
+  try{
+    const s=await db.ref('rooms/'+roomId+'/status').once('value');
+    if(!s.val()){toast('❌ Salon introuvable','d');return;}
+    if(s.val()==='playing'){
+      // Partie déjà lancée — spectateur
+      mySpectator=true;
+      toast('👁 Partie en cours — tu rejoins en spectateur','i');
+      enterLobby();return;
+    }
+    if(s.val()!=='lobby'){toast('❌ Salon non disponible','d');return;}
+    // Vérif max joueurs
+    const mpSnap=await db.ref('rooms/'+roomId+'/maxPlayers').once('value');
+    const maxP=mpSnap.val()||6;
+    const plSnap=await db.ref('rooms/'+roomId+'/players').once('value');
+    const plCount=Object.keys(plSnap.val()||{}).length;
+    if(plCount>=maxP){toast('❌ Salon plein ('+maxP+' max)','d');return;}
+    const av=myAvatar||'😊';const col=myColor||'#d4a843';
+    await db.ref('rooms/'+roomId+'/players/'+myUid).set({name:myName,uid:myUid,host:false,avatar:av,color:col});
+    isHost=false;
+    enterLobby();
+  }catch(e){toast('❌ '+e.message,'d');}
 }
 
 function enterLobby(){
@@ -3212,26 +3254,18 @@ function renderHand(top,cmdSuit,pending,mine,gs){
     if(localHand.length===1)el.classList.add('lastcard');
     if(mine){
       el.addEventListener('click',function(){
-        if(!pl&&selCards.indexOf(card.id)<0){vibrate(10);shakeEl('#h-cards');return;}
+        if(!pl&&selCards.indexOf(card.id)<0){vibrate(10);return;}
         const idx=selCards.indexOf(card.id);
         if(idx>=0){
           // Déselectionner
           selCards.splice(idx,1);
           selCard=selCards.length?selCards[0]:null;
-          // Petit effet de désel
-          const er=el.getBoundingClientRect();
-          spawn(er.left+er.width/2,er.top+er.height/2,6,['rgba(212,168,67,.5)'],20,0.3,{shapes:['c'],dec:0.06});
         } else {
           // Vérifier si compatible avec sélection existante
           if(selCards.length===0){
-            // Premier choix — effet de sélection
+            // Premier choix
             selCards=[card.id];
             selCard=card.id;
-            const er=el.getBoundingClientRect();
-            const cx=er.left+er.width/2,cy=er.top+er.height/2;
-            // Ring doré autour de la carte
-            ring(cx,cy,8,er.width/2+4,['#d4a843','#f0cc6a','#fff'],{sp:2.5,grav:0.25,sz:4,dec:0.04,upBias:2});
-            vibrate(15);
           } else {
             // Même rang suffit (Joker : même couleur obligatoire). Combo doit être activé.
             const first=localHand.find(c=>c.id===selCards[0]);
@@ -4047,9 +4081,7 @@ function shockwave(x,y,color,scale=3){
 }
 
 function loop(){
-  // Traîne légère au lieu d'un clear total — effet de trainée
-  ctx.fillStyle='rgba(0,0,0,0.18)';
-  ctx.fillRect(0,0,cvs.width,cvs.height);
+  ctx.clearRect(0,0,cvs.width,cvs.height);
   pts=pts.filter(p=>p.life>0);
   pts.forEach(p=>{
     if(p.wobble){p.wobbleT+=0.1;p.vx+=Math.sin(p.wobbleT)*p.wobble;}
@@ -4149,10 +4181,10 @@ function checkTurnFX(mine){
 
 const FX={
   JOKER_RED:[
-    ()=>{const{x,y}=getPotXY();vibrate([80,40,120,40,220]);flash('rgba(255,30,30,.45)',400,'top');
-      laserBurst(x,y,'#ff3300',14,100);shockwave(x,y,'#ff4400',5);
-      spawn(x,y,60,['#ff2200','#ff6600','#ffcc00','#fff','#ff8800'],140,0.22,{shapes:['r','c','t','star'],spin:true,upBias:6});
-      combo('💥 JOKER +4 !','#ff5533');floatE('🔥',x-20,y-30,{big:true});floatE('💥',x+25,y-10,{size:28,delay:100});shakeEl('.table-center');},
+    ()=>{const{x,y}=getPotXY();vibrate([80,40,120,40,220]);flash('rgba(255,30,30,.35)',400);
+      laserBurst(x,y,'#ff3300',12,90);shockwave(x,y,'#ff4400',4);
+      spawn(x,y,55,['#ff2200','#ff6600','#ffcc00','#fff','#ff8800'],130,0.22,{shapes:['r','c','t'],spin:true,upBias:5});
+      combo('💥 JOKER +4!','#ff5533');floatE('🔥',x-20,y-30);floatE('💥',x+25,y-10,{delay:100});shakeEl('.table-center');},
     ()=>{const{x,y}=getPotXY();vibrate([120,60,200]);flash('rgba(255,60,0,.3)',350);
       for(let i=0;i<3;i++)setTimeout(()=>shockwave(x,y,'#ff4400',2+i),i*80);
       spawn(x,y,70,['#ff1100','#ff5500','#ff9900','#ffee00','#fff'],140,0.2,{shapes:['star','d','t'],spin:true,upBias:6,minSz:3,maxSz:10});
@@ -4167,10 +4199,10 @@ const FX={
       combo('🌋 ERUPTION!','#ff3300');floatE('🌋',x,y-50,{big:true});floatE('💥',x+40,y-20,{delay:200});},
   ],
   JOKER_BLACK:[
-    ()=>{const{x,y}=getPotXY();vibrate([80,40,120,40,200]);flash('rgba(80,80,255,.4)',400,'top');
-      laserBurst(x,y,'#8888ff',14,100);shockwave(x,y,'#6644ff',5);
-      spawn(x,y,60,['#4444ff','#8866ff','#aaaaff','#ffffff','#cc88ff'],135,0.22,{shapes:['d','s','c','star'],spin:true,upBias:6});
-      combo('⚡ JOKER NOIR !','#8888ff');floatE('⚡',x-20,y-30,{big:true});floatE('🌑',x+25,y-10,{size:28,delay:100});shakeEl('.table-center');},
+    ()=>{const{x,y}=getPotXY();vibrate([80,40,120,40,200]);flash('rgba(80,80,255,.25)',400);
+      laserBurst(x,y,'#8888ff',12,90);shockwave(x,y,'#6644ff',4);
+      spawn(x,y,55,['#4444ff','#8866ff','#aaaaff','#ffffff','#cc88ff'],130,0.22,{shapes:['d','s','c'],spin:true,upBias:5});
+      combo('⚡ JOKER NOIR!','#8888ff');floatE('⚡',x-20,y-30);floatE('🌑',x+25,y-10);shakeEl('.table-center');},
     ()=>{const{x,y}=getPotXY();vibrate([100,50,180]);flash('rgba(50,50,200,.3)',350);
       for(let i=0;i<3;i++)setTimeout(()=>shockwave(x,y,'#6644ff',2+i),i*90);
       spawn(x,y,65,['#2200ff','#6600cc','#9900ff','#ccaaff','#fff'],135,0.2,{shapes:['star','d','s'],spin:true,upBias:6});
@@ -4255,53 +4287,23 @@ const FX={
       combo('🍀 JOKER2!','#33ff88');floatE('🍀',x,y-15);},
   ],
   NORMAL_RED:[
-    ()=>{const{x,y}=getPotXY();vibrate(14);sfxCard();
-      spawn(x,y,18,['#ff6666','#ff3333','#ffaaaa','#fff'],55,0.22,{shapes:['c','r'],dec:0.022});
-      floatE('♥',x+10,y-12,{size:18,dur:900});},
-    ()=>{const{x,y}=getPotXY();vibrate(12);sfxCard();
-      ring(x,y,8,14,['#ff5555','#ffaaaa','#fff'],{sp:2.5,sz:5,grav:0.2,dec:0.025});
-      spawn(x,y,6,['#ff4444','#ffcccc'],35,0.2,{shapes:['d'],spin:true});
-      floatE('♦',x-8,y-16,{size:18,dur:900});},
-    ()=>{const{x,y}=getPotXY();vibrate(16);sfxCard();
-      spawn(x,y,22,['#ff2222','#ff7777','#ffbbbb','#fff'],60,0.24,{shapes:['r','c','t'],upBias:3});
-      floatE('♥',x,y-10,{size:20,dur:1000});},
-    ()=>{const{x,y}=getPotXY();vibrate(12);sfxCard();
-      laserBurst(x,y,'#ff5555',4,30);
-      spawn(x,y,14,['#ff5555','#ff9999','#fff'],48,0.21,{shapes:['c'],dec:0.024});
-      floatE('♦',x+12,y-8,{size:16,dur:850});},
-    ()=>{const{x,y}=getPotXY();vibrate(14);sfxCard();
-      shockwave(x,y,'#ff4444',1.5);
-      spawn(x,y,16,['#ff4444','#ff8888','#ffdddd'],52,0.2,{shapes:['d','c'],spin:true,dec:0.022});
-      floatE('♥',x-10,y-14,{size:18,dur:900});},
-    ()=>{const{x,y}=getPotXY();vibrate(13);sfxCard();
-      spawn(x,y,20,['#cc2222','#ff6666','#ffaaaa','#fff'],58,0.23,{shapes:['r','c'],upBias:2});
-      floatE('♦',x+8,y-12,{size:18,dur:900});},
+    ()=>{const{x,y}=getPotXY();vibrate(12);spawn(x,y,10,['#ff8888','#ff5555','#ffcccc'],40,0.2,{shapes:['c'],dec:0.025});},
+    ()=>{const{x,y}=getPotXY();vibrate(10);spawn(x,y,8,['#ff6666','#ff9999','#fff'],35,0.18);},
+    ()=>{const{x,y}=getPotXY();vibrate(14);spawn(x,y,12,['#ff4444','#ffaaaa','#ff8888'],42,0.22,{shapes:['r','c']});},
+    ()=>{const{x,y}=getPotXY();vibrate(10);ring(x,y,6,10,['#ff7777','#ffaaaa'],{sp:2,sz:4,grav:0.18,dec:0.03});},
+    ()=>{const{x,y}=getPotXY();vibrate(12);spawn(x,y,7,['#ff5555','#ff9999','#ffdddd'],38,0.2,{shapes:['d'],spin:true,dec:0.028});},
+    ()=>{const{x,y}=getPotXY();vibrate(11);spawn(x,y,9,['#ff4444','#ff8888','#ffbbbb','#fff'],36,0.19,{shapes:['r','t']});},
   ],
   NORMAL_BLK:[
-    ()=>{const{x,y}=getPotXY();vibrate(14);sfxCard();
-      spawn(x,y,18,['#888','#aaa','#ccc','#fff'],55,0.22,{shapes:['c','r'],dec:0.022});
-      floatE('♠',x+10,y-12,{size:18,dur:900});},
-    ()=>{const{x,y}=getPotXY();vibrate(12);sfxCard();
-      ring(x,y,8,14,['#777','#aaa','#ddd'],{sp:2.5,sz:5,grav:0.2,dec:0.025});
-      spawn(x,y,6,['#555','#bbb'],35,0.2,{shapes:['d'],spin:true});
-      floatE('♣',x-8,y-16,{size:18,dur:900});},
-    ()=>{const{x,y}=getPotXY();vibrate(16);sfxCard();
-      spawn(x,y,22,['#444','#777','#bbb','#fff'],60,0.24,{shapes:['r','c','s'],upBias:3});
-      floatE('♠',x,y-10,{size:20,dur:1000});},
-    ()=>{const{x,y}=getPotXY();vibrate(12);sfxCard();
-      laserBurst(x,y,'#888888',4,28);
-      spawn(x,y,14,['#666','#999','#ddd'],48,0.21,{shapes:['c'],dec:0.024});
-      floatE('♣',x+12,y-8,{size:16,dur:850});},
-    ()=>{const{x,y}=getPotXY();vibrate(14);sfxCard();
-      shockwave(x,y,'#666',1.5);
-      spawn(x,y,16,['#555','#888','#ccc','#fff'],52,0.2,{shapes:['s','d'],spin:true,dec:0.022});
-      floatE('♠',x-10,y-14,{size:18,dur:900});},
-    ()=>{const{x,y}=getPotXY();vibrate(13);sfxCard();
-      spawn(x,y,20,['#333','#666','#aaa','#fff'],58,0.23,{shapes:['r','c'],upBias:2});
-      floatE('♣',x+8,y-12,{size:18,dur:900});},
+    ()=>{const{x,y}=getPotXY();vibrate(12);spawn(x,y,10,['#aaaaaa','#cccccc','#888888'],40,0.2,{shapes:['c'],dec:0.025});},
+    ()=>{const{x,y}=getPotXY();vibrate(10);spawn(x,y,8,['#999','#bbb','#ddd','#fff'],35,0.18);},
+    ()=>{const{x,y}=getPotXY();vibrate(14);spawn(x,y,12,['#777','#aaa','#ccc'],42,0.22,{shapes:['r','c']});},
+    ()=>{const{x,y}=getPotXY();vibrate(10);ring(x,y,6,10,['#999','#ccc'],{sp:2,sz:4,grav:0.18,dec:0.03});},
+    ()=>{const{x,y}=getPotXY();vibrate(12);spawn(x,y,7,['#888','#bbb','#eee'],38,0.2,{shapes:['s'],spin:true,dec:0.028});},
+    ()=>{const{x,y}=getPotXY();vibrate(11);spawn(x,y,9,['#666','#999','#ccc','#fff'],36,0.19,{shapes:['r','d']});},
   ],
   PENALTY_MINE:[
-    ()=>{vibrate([120,50,120,50,200]);flash('rgba(220,20,20,.55)',450,'bottom');shakeEl('.hand-section');
+    ()=>{vibrate([120,50,120,50,200]);flash('rgba(220,20,20,.45)',450);shakeEl('.hand-section');
       const hc=document.getElementById('h-cards');
       if(hc){const r=hc.getBoundingClientRect();const px=r.left+r.width/2,py=r.top+r.height/2;
         shockwave(px,py,'#ff2200',3);spawn(px,py,40,['#ff1111','#ff5500','#ff8800','#ffcc00','#fff'],120,0.3,{shapes:['c','r','s'],spin:true,upBias:6});}
