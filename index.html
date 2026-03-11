@@ -242,96 +242,102 @@ body::before{
   .act-btn{padding:10px 6px;min-height:44px;font-size:12px;}
 }
 
-/* ── CARD OVERLAY EFFECTS ── */
-.card-fx-wrap{position:relative;display:inline-block;}
+/* ══ PERSISTENT CARD EFFECTS ══ */
 
-/* Glace (As) */
-@keyframes iceFreeze{0%{transform:scaleY(0);opacity:0;}60%{transform:scaleY(1.05);opacity:.92;}100%{transform:scaleY(1);opacity:.85;}}
-@keyframes iceMelt{0%{opacity:.85;}100%{opacity:0;transform:scale(1.05);}}
-.fx-ice{position:absolute;inset:0;border-radius:9px;pointer-events:none;z-index:10;
-  background:linear-gradient(170deg,rgba(120,230,255,.55) 0%,rgba(40,160,220,.45) 40%,rgba(180,240,255,.7) 70%,rgba(200,248,255,.5) 100%);
-  border:1.5px solid rgba(160,230,255,.8);
-  box-shadow:inset 0 0 12px rgba(100,200,255,.6),0 0 18px rgba(80,180,255,.4);
-  animation:iceFreeze .4s cubic-bezier(.34,1.4,.64,1) forwards;}
-.fx-ice::before{content:'❄';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:18px;opacity:.7;}
-.fx-ice::after{content:'';position:absolute;inset:0;border-radius:9px;
-  background:repeating-linear-gradient(120deg,transparent,transparent 4px,rgba(200,240,255,.15) 4px,rgba(200,240,255,.15) 5px);
-  pointer-events:none;}
-.fx-ice.melting{animation:iceMelt .5s ease-in forwards;}
+/* ── Glace (As) — reste jusqu'au tour du joueur ── */
+@keyframes iceCrystalIn{0%{opacity:0;transform:scaleY(0) scaleX(.8);}50%{opacity:1;transform:scaleY(1.04);}100%{opacity:1;transform:scale(1);}}
+@keyframes iceShimmer{0%,100%{box-shadow:inset 0 0 14px rgba(120,210,255,.6),0 0 20px rgba(80,180,255,.5);}50%{box-shadow:inset 0 0 24px rgba(180,240,255,.9),0 0 35px rgba(100,200,255,.8);}}
+@keyframes iceMelt{0%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1.08) translateY(-8px);}}
+@keyframes crystalFloat{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-3px) rotate(5deg);}}
+.card-fx-ice{
+  position:absolute;inset:-2px;border-radius:11px;pointer-events:none;z-index:15;overflow:hidden;
+  background:linear-gradient(160deg,rgba(140,230,255,.62) 0%,rgba(60,170,230,.55) 35%,rgba(190,245,255,.75) 65%,rgba(210,250,255,.58) 100%);
+  border:2px solid rgba(170,235,255,.95);
+  box-shadow:inset 0 0 14px rgba(120,210,255,.7),0 0 22px rgba(80,180,255,.6);
+  animation:iceCrystalIn .5s cubic-bezier(.34,1.4,.64,1) forwards,iceShimmer 2s ease-in-out infinite;
+  backdrop-filter:blur(1px);}
+.card-fx-ice::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(125deg,transparent,transparent 5px,rgba(200,245,255,.18) 5px,rgba(200,245,255,.18) 6px),
+             repeating-linear-gradient(35deg,transparent,transparent 8px,rgba(160,230,255,.12) 8px,rgba(160,230,255,.12) 9px);
+  border-radius:9px;}
+.card-fx-ice::after{
+  content:'❄';position:absolute;bottom:3px;right:4px;font-size:13px;opacity:.85;
+  animation:crystalFloat 1.8s ease-in-out infinite;}
+.card-fx-ice .ice-crystal{position:absolute;color:rgba(180,240,255,.9);font-size:10px;animation:crystalFloat 2s ease-in-out infinite;}
+.card-fx-ice.fx-out{animation:iceMelt .45s ease-in forwards!important;}
 
-/* Feu (Joker rouge) */
-@keyframes fireBurst{0%{opacity:0;transform:scaleX(.6) scaleY(.4);}50%{opacity:1;transform:scaleX(1.04);}100%{opacity:0;transform:scaleY(1.1);}}
-.fx-fire{position:absolute;inset:-4px;border-radius:11px;pointer-events:none;z-index:10;
-  background:linear-gradient(0deg,rgba(255,60,0,.0) 0%,rgba(255,80,0,.6) 30%,rgba(255,180,0,.5) 65%,rgba(255,240,100,.3) 100%);
-  box-shadow:0 0 20px rgba(255,80,0,.7),0 0 40px rgba(255,120,0,.4),inset 0 -4px 12px rgba(255,50,0,.5);
-  border:1.5px solid rgba(255,120,0,.6);
-  animation:fireBurst .5s ease-out forwards;}
-.fx-fire::before{content:'🔥';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:14px;}
+/* ── Feu (Joker rouge) — brûle jusqu'au tour ── */
+@keyframes fireFlicker{0%,100%{box-shadow:0 0 18px rgba(255,80,0,.8),0 -8px 20px rgba(255,160,0,.5),inset 0 -6px 14px rgba(255,50,0,.6);}33%{box-shadow:0 0 28px rgba(255,60,0,.9),0 -12px 28px rgba(255,180,0,.6),inset 0 -8px 18px rgba(255,80,0,.7);}66%{box-shadow:0 0 20px rgba(255,100,0,.75),0 -6px 16px rgba(255,140,0,.45);}}
+@keyframes fireIn{0%{opacity:0;transform:scaleY(.3) scaleX(.7);}60%{opacity:1;transform:scaleY(1.05);}100%{opacity:1;transform:scale(1);}}
+@keyframes fireOut{0%{opacity:1;}100%{opacity:0;transform:translateY(-15px);}}
+@keyframes flameDance{0%,100%{transform:scaleX(1) scaleY(1) translateY(0);}25%{transform:scaleX(.92) scaleY(1.07) translateY(-2px);}75%{transform:scaleX(1.05) scaleY(.95) translateY(1px);}}
+.card-fx-fire{
+  position:absolute;inset:-3px;border-radius:11px;pointer-events:none;z-index:15;overflow:hidden;
+  background:linear-gradient(0deg,rgba(255,40,0,.65) 0%,rgba(255,100,0,.55) 30%,rgba(255,180,0,.4) 60%,rgba(255,230,80,.2) 100%);
+  border:2px solid rgba(255,110,0,.8);
+  animation:fireIn .4s ease-out forwards,fireFlicker 1.2s ease-in-out infinite;}
+.card-fx-fire::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 90%,rgba(255,60,0,.5) 0%,transparent 65%);
+  animation:flameDance 0.8s ease-in-out infinite;}
+.card-fx-fire::after{content:'🔥';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);font-size:14px;}
+.card-fx-fire.fx-out{animation:fireOut .4s ease-in forwards!important;}
 
-/* Électricité (7 / chaîne) */
-@keyframes zapIn{0%{opacity:0;transform:scale(.8);}30%{opacity:1;transform:scale(1.06);}60%{opacity:.8;}80%{opacity:1;}100%{opacity:0;}}
-.fx-zap{position:absolute;inset:-2px;border-radius:11px;pointer-events:none;z-index:10;
-  border:2px solid #ffcc00;
-  box-shadow:0 0 14px rgba(255,200,0,.9),0 0 30px rgba(255,150,0,.5),inset 0 0 10px rgba(255,200,0,.3);
-  animation:zapIn .6s ease-out forwards;}
-.fx-zap::before{content:'⚡';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;opacity:.9;}
+/* ── Électricité (7 / chaîne) — court jusqu'au tour ── */
+@keyframes zapPersist{0%,100%{box-shadow:0 0 14px rgba(255,220,0,.8),0 0 28px rgba(255,170,0,.4),inset 0 0 10px rgba(255,220,0,.4);}50%{box-shadow:0 0 22px rgba(255,240,50,1),0 0 42px rgba(255,200,0,.6),inset 0 0 16px rgba(255,240,0,.6);}}
+@keyframes zapIn{0%{opacity:0;transform:scale(.75);}50%{opacity:1;transform:scale(1.06);}100%{opacity:1;transform:scale(1);}}
+@keyframes zapBolt{0%,100%{opacity:.7;}50%{opacity:1;transform:scaleX(1.05);}}
+@keyframes zapOut{0%{opacity:1;}100%{opacity:0;transform:scale(.8);}}
+.card-fx-zap{
+  position:absolute;inset:-2px;border-radius:11px;pointer-events:none;z-index:15;overflow:hidden;
+  border:2px solid rgba(255,230,0,.95);
+  box-shadow:0 0 16px rgba(255,220,0,.9),0 0 30px rgba(255,170,0,.5),inset 0 0 12px rgba(255,220,0,.5);
+  animation:zapIn .3s ease-out forwards,zapPersist 1s ease-in-out infinite;
+  background:linear-gradient(135deg,rgba(255,220,0,.12),rgba(255,180,0,.08));}
+.card-fx-zap::before{content:'⚡';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;animation:zapBolt .5s ease-in-out infinite;}
+.card-fx-zap.fx-out{animation:zapOut .3s ease-in forwards!important;}
 
-/* Void/Magie (Joker noir) */
-@keyframes voidPulse{0%{opacity:0;transform:scale(.7);}40%{opacity:1;transform:scale(1.05);}100%{opacity:0;transform:scale(1.1);}}
-.fx-void{position:absolute;inset:-3px;border-radius:11px;pointer-events:none;z-index:10;
-  background:radial-gradient(ellipse at center,rgba(100,0,180,.5) 0%,rgba(40,0,120,.4) 50%,transparent 80%);
-  border:2px solid rgba(150,80,255,.8);
-  box-shadow:0 0 20px rgba(120,0,255,.8),inset 0 0 15px rgba(80,0,200,.5);
-  animation:voidPulse .5s ease-out forwards;}
-.fx-void::before{content:'🌀';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:18px;}
+/* ── Void (Joker noir) — jusqu'au tour ── */
+@keyframes voidBreath{0%,100%{box-shadow:0 0 18px rgba(120,0,255,.8),inset 0 0 14px rgba(80,0,200,.6);}50%{box-shadow:0 0 32px rgba(160,40,255,1),0 0 50px rgba(80,0,180,.5),inset 0 0 22px rgba(120,0,255,.8);}}
+@keyframes voidIn{0%{opacity:0;transform:scale(.6);}60%{opacity:1;transform:scale(1.06);}100%{opacity:1;transform:scale(1);}}
+@keyframes voidSwirl{0%{transform:translate(-50%,-50%) rotate(0deg);}100%{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes voidOut{0%{opacity:1;}100%{opacity:0;transform:scale(1.2);}}
+@keyframes cardVoidSpin{0%{transform:rotateY(0deg);}50%{transform:rotateY(180deg);}100%{transform:rotateY(360deg);}}
+.card-void-spinning{animation:cardVoidSpin 7s linear forwards;transform-style:preserve-3d;perspective:600px;}
+.card-fx-void{
+  position:absolute;inset:-3px;border-radius:11px;pointer-events:none;z-index:15;overflow:hidden;
+  background:radial-gradient(ellipse at center,rgba(80,0,180,.55) 0%,rgba(40,0,120,.5) 45%,rgba(60,0,150,.3) 75%,transparent 100%);
+  border:2px solid rgba(150,60,255,.9);
+  animation:voidIn .4s ease-out forwards,voidBreath 1.5s ease-in-out infinite;}
+.card-fx-void::before{content:'🌀';position:absolute;top:50%;left:50%;font-size:20px;transform:translate(-50%,-50%);animation:voidSwirl 7s linear infinite;}
+.card-fx-void.fx-out{animation:voidOut .4s ease-out forwards!important;}
 
-/* Couronne/Or (Valet) */
-@keyframes crownShine{0%{opacity:0;transform:rotate(-8deg) scale(.8);}50%{opacity:1;transform:rotate(3deg) scale(1.08);}100%{opacity:0;transform:rotate(0) scale(1);}}
-.fx-crown{position:absolute;inset:0;border-radius:9px;pointer-events:none;z-index:10;
-  background:linear-gradient(135deg,rgba(240,200,50,.0) 0%,rgba(240,200,50,.35) 40%,rgba(255,240,120,.5) 70%,rgba(240,200,50,.0) 100%);
-  border:1.5px solid rgba(240,200,50,.7);
-  box-shadow:0 0 18px rgba(240,190,40,.7),inset 0 0 10px rgba(255,230,80,.3);
-  animation:crownShine .55s ease-out forwards;}
-.fx-crown::before{content:'👑';position:absolute;top:2px;left:50%;transform:translateX(-50%);font-size:14px;}
+/* ── Malédiction pénalité ── */
+@keyframes curseFlash{0%,100%{box-shadow:0 0 16px rgba(220,0,0,.8),inset 0 0 12px rgba(200,0,0,.5);}50%{box-shadow:0 0 28px rgba(255,30,0,1),0 0 44px rgba(220,0,0,.6),inset 0 0 20px rgba(255,20,0,.7);}}
+@keyframes curseIn{0%{opacity:0;transform:scale(.8) rotate(-4deg);}60%{opacity:1;transform:scale(1.04) rotate(1deg);}100%{opacity:1;transform:scale(1) rotate(0);}}
+.card-fx-curse{
+  position:absolute;inset:-2px;border-radius:11px;pointer-events:none;z-index:15;
+  background:linear-gradient(135deg,rgba(200,0,0,.4),rgba(255,60,0,.3));
+  border:2px solid rgba(255,40,0,.9);
+  animation:curseIn .4s ease-out forwards,curseFlash 0.8s ease-in-out infinite;}
+.card-fx-curse::before{content:'💀';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:18px;}
 
-/* Vert passe (2) */
-@keyframes passGreen{0%{opacity:0;transform:scale(.9);}40%{opacity:1;}100%{opacity:0;transform:scale(1.05);}}
-.fx-pass{position:absolute;inset:0;border-radius:9px;pointer-events:none;z-index:10;
-  background:radial-gradient(ellipse at center,rgba(50,220,100,.4),transparent 75%);
-  border:1.5px solid rgba(50,220,100,.6);
-  box-shadow:0 0 14px rgba(50,200,80,.6);
-  animation:passGreen .5s ease-out forwards;}
-.fx-pass::before{content:'✨';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:18px;}
+/* ── Banière "GELÉ" sous la main ── */
+.hand-status-banner{
+  text-align:center;padding:4px 0 2px;font-size:11px;font-weight:900;letter-spacing:2px;
+  text-transform:uppercase;}
+.hand-status-banner.frozen{color:#88eeff;text-shadow:0 0 8px rgba(100,210,255,.8);animation:iceShimmer 1.5s ease-in-out infinite;}
+.hand-status-banner.burning{color:#ff8844;text-shadow:0 0 8px rgba(255,100,0,.8);animation:fireFlicker 1s ease-in-out infinite;}
+.hand-status-banner.zapped{color:#ffee44;text-shadow:0 0 8px rgba(255,220,0,.8);animation:zapPersist .8s ease-in-out infinite;}
+.hand-status-banner.voided{color:#bb88ff;text-shadow:0 0 8px rgba(140,60,255,.8);animation:voidBreath 1.2s ease-in-out infinite;}
 
-/* Pénalité / malédiction */
-@keyframes curseShake{0%,100%{transform:translateX(0) rotate(0);}20%{transform:translateX(-5px) rotate(-3deg);}40%{transform:translateX(5px) rotate(3deg);}60%{transform:translateX(-3px);}80%{transform:translateX(3px);}}
-.fx-curse{position:absolute;inset:-1px;border-radius:10px;pointer-events:none;z-index:10;
-  background:linear-gradient(135deg,rgba(220,20,20,.3),rgba(255,80,0,.2));
-  border:2px solid rgba(255,40,40,.8);
-  box-shadow:0 0 20px rgba(220,20,20,.8),inset 0 0 12px rgba(255,0,0,.4);
-  animation:curseShake .5s ease-in-out;}
-.fx-curse::before{content:'💀';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:18px;}
-
-/* Chip adversaire gelé */
-@keyframes chipFreeze{0%{box-shadow:none;}50%{box-shadow:0 0 0 3px rgba(120,220,255,.9),0 0 20px rgba(80,180,255,.7);}100%{box-shadow:0 0 0 2px rgba(120,220,255,.5),0 0 10px rgba(80,180,255,.3);}}
-.opp-chip.frozen{animation:chipFreeze .6s ease-out forwards;border-color:rgba(120,220,255,.7)!important;background:rgba(40,120,180,.2)!important;}
-.opp-chip.frozen .mini-card{background:linear-gradient(135deg,rgba(160,220,255,.6),rgba(80,180,220,.5))!important;border-color:rgba(160,230,255,.7)!important;}
-
-/* Chip brûlé */
-@keyframes chipBurn{0%{box-shadow:none;}50%{box-shadow:0 0 0 3px rgba(255,120,0,.9),0 0 20px rgba(255,60,0,.7);}100%{box-shadow:0 0 0 2px rgba(255,100,0,.4),0 0 10px rgba(255,80,0,.2);}}
-.opp-chip.burning{animation:chipBurn .5s ease-out forwards;border-color:rgba(255,120,0,.7)!important;}
-
-/* Chip électrifié */
-@keyframes chipZap{0%,100%{box-shadow:none;}25%{box-shadow:0 0 0 3px rgba(255,220,0,.9),0 0 15px rgba(255,180,0,.7);}75%{box-shadow:0 0 0 2px rgba(255,200,0,.6);}}
-.opp-chip.zapped{animation:chipZap .5s ease-out;border-color:rgba(255,200,0,.8)!important;}
-
-/* Ma main gelée */
-@keyframes handIce{0%{background:rgba(0,0,0,.5);}50%{background:rgba(30,90,140,.4);}100%{background:rgba(0,0,0,.5);}}
-.hand-section.hand-frozen{animation:handIce .8s ease-out;}
-
-/* Ma main en feu */
-@keyframes handFire{0%{background:rgba(0,0,0,.5);}40%{background:rgba(80,20,0,.5);}100%{background:rgba(0,0,0,.5);}}
-.hand-section.hand-burn{animation:handFire .7s ease-out;}
+/* ── Chip adversaire avec effet persistant ── */
+.opp-chip.chip-frozen{border-color:rgba(120,220,255,.8)!important;background:rgba(30,90,160,.25)!important;box-shadow:0 0 12px rgba(80,180,255,.5)!important;}
+.opp-chip.chip-frozen .mini-card{background:linear-gradient(135deg,rgba(140,210,255,.7),rgba(80,170,220,.6))!important;border-color:rgba(160,230,255,.8)!important;}
+.opp-chip.chip-fire{border-color:rgba(255,110,0,.8)!important;background:rgba(100,30,0,.2)!important;box-shadow:0 0 14px rgba(255,80,0,.5)!important;}
+.opp-chip.chip-zap{border-color:rgba(255,220,0,.8)!important;background:rgba(80,60,0,.15)!important;box-shadow:0 0 12px rgba(255,200,0,.5)!important;}
+.opp-chip.chip-void{border-color:rgba(150,60,255,.8)!important;background:rgba(40,0,100,.2)!important;box-shadow:0 0 14px rgba(120,0,255,.5)!important;}
 
 /* ══ SETUP REDESIGN ══ */
 #s-setup{justify-content:flex-start;overflow-y:auto;}
@@ -1261,56 +1267,65 @@ function renderGame(){
       const isMine=fx.by===myUid;
       if(fx.r==='penalty'){
         fxPenalty(parseInt(fx.s)||2, isMine);
-        // Effet cartes pénalité
-        if(isMine){fxCurseMyHand();}
-        else{
-          // Chercher le uid de celui qui prend (fx.target si disponible)
-          const penUid=fx.target||null;
-          if(penUid&&penUid!==myUid){setTimeout(()=>{fxZapCardsOfPlayer(penUid);},150);}
+        const penN=parseInt(fx.s)||2;
+        if(isMine){
+          fxCurseMyHand();
+          // Pénalité joker (color = red ou black) → effet complet sur MA main
+          if(fx.color==='red'){
+            // Joker rouge → feu sur mes cartes
+            activeHandEffect={fxClass:'fire',chipClass:'chip-fire',label:'🔥  BRÛLÉ — attend ton tour',labelClass:'burning'};
+            setTimeout(()=>{
+              document.querySelectorAll('#h-cards .card').forEach((c,i)=>{
+                setTimeout(()=>{c.style.transition='transform .3s';c.style.transform='scale(1.06)';setTimeout(()=>c.style.transform='',300);},i*80);
+              });
+            },300);
+          } else if(fx.color==='black'){
+            // Joker noir → void + spin sur mes cartes
+            activeHandEffect={fxClass:'void',chipClass:'chip-void',label:'🌀  VOID — attend ton tour',labelClass:'voided'};
+            setTimeout(()=>{
+              document.querySelectorAll('#h-cards .card').forEach((c,i)=>{
+                setTimeout(()=>{
+                  c.classList.add('card-void-spinning');
+                  setTimeout(()=>c.classList.remove('card-void-spinning'),7000);
+                },i*100);
+              });
+            },400);
+          } else if(penN>=2){
+            // Pénalité 7 → zap sur mes cartes
+            activeHandEffect={fxClass:'zap',chipClass:'chip-zap',label:'⚡  +'+penN+' piochés — ton tour !',labelClass:'zapped'};
+          }
+        } else {
+          // Adversaire qui prend : effacer son chip d'avertissement (il a pris, fini)
+          clearChipEffect(fx.by);
         }
       } else {
         triggerFX({r:fx.r,s:fx.s,color:fx.color||null});
-        // ── Effets visuels sur les cartes ──
+        // ── Effets sur les cartes selon la logique ──
         const byUid=fx.by;
-        const isMyCard=byUid===myUid;
-        // Cibler le joueur suivant (celui qui subit)
-        const victims=gameState?gameState.playerOrder.filter(u=>{
-          const nextIdx2=advIdx(gameState.playerOrder,gameState.playerOrder.indexOf(byUid),gameState.finished||[]);
-          return gameState.playerOrder[nextIdx2]===u&&u!==byUid;
-        }):[];
-        const victimUid=victims.length?victims[0]:null;
+        const byIdx=gameState?gameState.playerOrder.indexOf(byUid):-1;
+        const nextIdx3=byIdx>=0?advIdx(gameState.playerOrder,byIdx,gameState.finished||[]):-1;
+        const victimUid=nextIdx3>=0?gameState.playerOrder[nextIdx3]:null;
+        const victimIsMe=victimUid===myUid;
         setTimeout(()=>{
           if(fx.r==='A'){
-            // As : glace sur les cartes du joueur suivant
-            if(victimUid&&victimUid!==myUid) fxIceCardsOfPlayer(victimUid);
-            else if(victimUid===myUid){
-              const hand=document.querySelector('.hand-section');
-              if(hand){hand.classList.add('hand-frozen');setTimeout(()=>hand.classList.remove('hand-frozen'),900);}
-              fxOverlayHand('fx-ice',1100);
+            // ✅ As : bloque IMMÉDIATEMENT — effet au moment de la pose
+            if(victimIsMe){
+              activeHandEffect={fxClass:'ice',chipClass:'chip-frozen',label:'❄️  GELÉ — attend ton tour',labelClass:'frozen'};
+              fxIceTakeover();
+            } else if(victimUid){
+              setChipEffect(victimUid,'chip-frozen');
             }
-          } else if(fx.r==='JOKER'&&fx.color==='red'){
-            // Joker rouge : feu sur les cartes du suivant
-            if(victimUid&&victimUid!==myUid) fxFireCardsOfPlayer(victimUid);
-            else if(victimUid===myUid) fxOverlayHand('fx-fire',700);
-          } else if(fx.r==='JOKER'&&fx.color==='black'){
-            // Joker noir : void sur les cartes du suivant
-            if(victimUid&&victimUid!==myUid) fxVoidCardsOfPlayer(victimUid);
-            else if(victimUid===myUid) fxOverlayHand('fx-void',700);
-          } else if(fx.r==='7'){
-            // 7 : zap sur les cartes du suivant
-            if(victimUid&&victimUid!==myUid) fxZapCardsOfPlayer(victimUid);
-            else if(victimUid===myUid) fxOverlayHand('fx-zap',700);
-          } else if(fx.r==='J'){
-            // Valet : couronne dorée sur les cartes du joueur qui l'a joué
-            if(!isMyCard){
-              const playerChip=document.querySelector('.opp-chip[data-uid="'+byUid+'"]');
-              if(playerChip){playerChip.classList.add('zapped');setTimeout(()=>playerChip.classList.remove('zapped'),600);}
-            }
-          } else if(fx.r==='2'){
-            // 2 : vert sur les propres cartes si c'est moi
-            if(isMyCard) fxOverlayHand('fx-pass',600);
           }
-        },120);
+          // Joker rouge/noir et 7 : on affiche juste un avertissement sur le chip
+          // L'effet complet (feu, void, zap) arrive dans le handler penalty quand les cartes sont vraiment prises
+          else if(fx.r==='JOKER'&&fx.color==='red'){
+            if(!victimIsMe&&victimUid) setChipEffect(victimUid,'chip-fire');
+          } else if(fx.r==='JOKER'&&fx.color==='black'){
+            if(!victimIsMe&&victimUid) setChipEffect(victimUid,'chip-void');
+          } else if(fx.r==='7'){
+            if(!victimIsMe&&victimUid) setChipEffect(victimUid,'chip-zap');
+          }
+        },200);
       }
     }
   }
@@ -1449,6 +1464,8 @@ function renderHand(top,cmdSuit,pending,mine,gs){
     }
     hc.appendChild(el);
   });
+  // Apply persistent hand effect if any
+  applyHandEffect();
 }
 
 function makeCard(card){
@@ -1634,7 +1651,7 @@ async function takePenalty(){
   pu['jokerPendingColor']=null;
   pu['jokerFreeColor']=wasJoker?gs.jokerPendingColor:null;
   pu['turnStartTs']=Date.now();
-  pu['lastFX']={r:'penalty',s:''+penN,color:null,by:myUid,ts:Date.now()};
+  pu['lastFX']={r:'penalty',s:''+penN,color:wasJoker?gs.jokerPendingColor:null,by:myUid,ts:Date.now()};
   await db.ref('rooms/'+roomId+'/game').update(pu);
 }
 
@@ -2021,6 +2038,8 @@ function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
 
 function checkTurnFX(mine){
   if(mine&&!lastMyTurn){
+    // Clear any persistent effect on my hand when my turn starts
+    clearHandEffect();
     const vx=Math.floor(Math.random()*4);
     const cx=window.innerWidth/2,cy=window.innerHeight-80;
     if(vx===0){vibrate([20,30,60,20,80]);flash('rgba(212,168,67,.18)',500);spawn(cx,cy,20,['#f0c040','#d4a843','#fff8dc','#fff'],65,0.18,{shapes:['c','s']});}
@@ -2217,131 +2236,196 @@ const FX={
   ]
 };
 
-// ── Applique un overlay sur les mini-cartes d'un chip adversaire ──
-function fxOverlayChip(uid, fxClass, dur=700){
-  const chips=document.querySelectorAll('.opp-chip');
-  chips.forEach(chip=>{
-    // trouver le chip du bon uid via le nom (on stocke uid dans dataset)
-    if(chip.dataset.uid!==uid)return;
-    chip.classList.add(fxClass);
-    setTimeout(()=>chip.classList.remove(fxClass),dur);
-    // overlay sur chaque mini-card
-    chip.querySelectorAll('.mini-card').forEach((mc,i)=>{
-      setTimeout(()=>{
-        const ov=document.createElement('div');
-        ov.className='fx-'+fxClass.replace(/[^a-z]/g,'');
-        // mini cards are small — scale down the overlay
-        ov.style.cssText='position:absolute;inset:0;border-radius:2px;pointer-events:none;z-index:10;';
-        mc.style.position='relative';mc.style.overflow='hidden';
-        mc.appendChild(ov);
-        setTimeout(()=>{ov.classList.add('melting');setTimeout(()=>ov.remove(),600);},dur-300);
-      },i*60);
-    });
-  });
-}
+// ══ PERSISTENT CARD EFFECTS ENGINE ══
+// activeHandEffect: {type, fxClass, chipClass, label, labelClass} — persists until MY turn
+let activeHandEffect = null;
 
-// ── Overlay sur les cartes de MA main ──
-function fxOverlayHand(fxClass, dur=900){
+// Apply persistent effect on MY hand cards (called in renderHand)
+function applyHandEffect(){
+  if(!activeHandEffect)return;
   const cards=document.querySelectorAll('#h-cards .card');
   cards.forEach((card,i)=>{
-    setTimeout(()=>{
-      const ov=document.createElement('div');
-      ov.className=fxClass;
-      ov.style.cssText='position:absolute;inset:0;border-radius:9px;pointer-events:none;z-index:10;';
-      card.style.position='relative';card.style.overflow='hidden';
-      card.appendChild(ov);
-      setTimeout(()=>{ov.classList.add('melting');setTimeout(()=>ov.remove(),500);},dur-300);
-    },i*45);
+    if(card.querySelector('.card-fx-persistent'))return; // already applied
+    const ov=document.createElement('div');
+    ov.className='card-fx-'+activeHandEffect.fxClass+' card-fx-persistent';
+    card.style.position='relative';card.style.overflow='visible';
+    card.appendChild(ov);
   });
+  // Banner under hand
+  let banner=document.getElementById('hand-status-banner');
+  if(!banner){
+    banner=document.createElement('div');
+    banner.id='hand-status-banner';
+    banner.className='hand-status-banner';
+    const hh=document.querySelector('.hand-header');
+    if(hh)hh.parentNode.insertBefore(banner,hh);
+  }
+  banner.className='hand-status-banner '+activeHandEffect.labelClass;
+  banner.textContent=activeHandEffect.label;
 }
 
-// ── Overlay plein écran sur le chip d'un uid (version grande) ──
-function fxChipBigEffect(uid, fxClass){
-  document.querySelectorAll('.opp-chip').forEach(chip=>{
-    if(chip.dataset.uid!==uid)return;
-    chip.classList.add(fxClass);
-    setTimeout(()=>chip.classList.remove(fxClass),900);
+// Clear MY hand effect (called when my turn starts)
+function clearHandEffect(){
+  if(!activeHandEffect)return;
+  // Melt/dissolve all overlays
+  document.querySelectorAll('.card-fx-persistent').forEach(el=>{
+    el.classList.add('fx-out');
+    setTimeout(()=>el.remove(),500);
   });
+  const banner=document.getElementById('hand-status-banner');
+  if(banner)banner.remove();
+  activeHandEffect=null;
 }
 
-// ── Full ice takeover : couvre les cartes adversaire progressivement ──
-function fxIceCardsOfPlayer(uid){
+// Set persistent effect on an OPP chip
+function setChipEffect(uid, chipClass){
+  // Remove all effects from this chip first
   const chip=document.querySelector('.opp-chip[data-uid="'+uid+'"]');
   if(!chip)return;
-  chip.classList.add('frozen');
-  // Gros overlay ❄ sur le chip entier
+  ['chip-frozen','chip-fire','chip-zap','chip-void'].forEach(c=>chip.classList.remove(c));
+  chip.classList.add(chipClass);
+  // Add icon badge on chip
+  let badge=chip.querySelector('.chip-fx-badge');
+  if(badge)badge.remove();
+  badge=document.createElement('div');
+  badge.className='chip-fx-badge';
+  const icons={frozen:'❄️',fire:'🔥',zap:'⚡',void:'🌀'};
+  const key=chipClass.replace('chip-','');
+  badge.style.cssText='position:absolute;top:-8px;right:-6px;font-size:14px;z-index:20;filter:drop-shadow(0 0 4px rgba(255,255,255,.6));animation:crystalFloat 1.5s ease-in-out infinite;';
+  badge.textContent=icons[key]||'✨';
+  chip.style.position='relative';
+  chip.appendChild(badge);
+}
+
+function clearChipEffect(uid){
+  const chip=document.querySelector('.opp-chip[data-uid="'+uid+'"]');
+  if(!chip)return;
+  ['chip-frozen','chip-fire','chip-zap','chip-void'].forEach(c=>chip.classList.remove(c));
+  const badge=chip.querySelector('.chip-fx-badge');
+  if(badge)badge.remove();
+}
+
+// Giant full-hand ice takeover animation (shown once when A is played)
+function fxIceTakeover(){
+  const hc=document.getElementById('h-cards');
+  if(!hc)return;
+  // Flash the hand section blue
+  const hs=document.querySelector('.hand-section');
+  if(hs){
+    hs.style.transition='background .3s';
+    hs.style.background='rgba(30,90,160,.45)';
+    setTimeout(()=>{hs.style.background='';hs.style.transition='';},600);
+  }
+  // Spawn a big ice crack overlay across the whole hand area
+  const rect=hc.getBoundingClientRect();
   const bigIce=document.createElement('div');
-  bigIce.style.cssText='position:absolute;inset:-4px;border-radius:14px;pointer-events:none;z-index:20;'+
-    'background:linear-gradient(160deg,rgba(120,220,255,.45),rgba(40,140,200,.55));'+
-    'border:2px solid rgba(160,230,255,.9);display:flex;align-items:center;justify-content:center;'+
-    'font-size:22px;animation:iceFreeze .5s cubic-bezier(.34,1.4,.64,1) forwards;backdrop-filter:blur(1px);';
-  bigIce.textContent='❄️';
-  chip.style.position='relative';chip.style.overflow='visible';
-  chip.appendChild(bigIce);
-  setTimeout(()=>{bigIce.classList.add('melting');setTimeout(()=>{bigIce.remove();chip.classList.remove('frozen');},600);},1600);
+  bigIce.style.cssText='position:fixed;pointer-events:none;z-index:300;border-radius:14px;'+
+    'left:'+(rect.left-8)+'px;top:'+(rect.top-8)+'px;'+
+    'width:'+(rect.width+16)+'px;height:'+(rect.height+16)+'px;'+
+    'background:linear-gradient(160deg,rgba(120,220,255,.7),rgba(60,160,230,.65),rgba(180,245,255,.8));'+
+    'border:3px solid rgba(160,235,255,.95);'+
+    'box-shadow:0 0 40px rgba(80,180,255,.8),inset 0 0 30px rgba(140,220,255,.6);'+
+    'display:flex;align-items:center;justify-content:center;font-size:48px;'+
+    'animation:iceCrystalIn .5s cubic-bezier(.34,1.4,.64,1) forwards;';
+  bigIce.innerHTML='<span style="filter:drop-shadow(0 0 12px rgba(100,200,255,1));animation:crystalFloat 1s ease-in-out infinite">❄️</span>';
+  // Add ice crack lines
+  for(let i=0;i<6;i++){
+    const crack=document.createElement('div');
+    crack.style.cssText='position:absolute;height:2px;background:rgba(200,245,255,.6);border-radius:2px;'+
+      'width:'+(20+Math.random()*40)+'%;'+
+      'left:'+(Math.random()*60)+'%;top:'+(10+Math.random()*80)+'%;'+
+      'transform:rotate('+(Math.random()*40-20)+'deg);'+
+      'box-shadow:0 0 4px rgba(160,230,255,.8);';
+    bigIce.appendChild(crack);
+  }
+  document.body.appendChild(bigIce);
+  setTimeout(()=>{
+    bigIce.style.transition='opacity .4s,transform .4s';
+    bigIce.style.opacity='0';bigIce.style.transform='scale(1.05)';
+    setTimeout(()=>bigIce.remove(),400);
+  },700);
 }
 
-// ── Feu sur les cartes d'un joueur ──
-function fxFireCardsOfPlayer(uid){
+// Giant fire burst across opp chip
+function fxFireBurstOpp(uid){
   const chip=document.querySelector('.opp-chip[data-uid="'+uid+'"]');
   if(!chip)return;
-  chip.classList.add('burning');
+  const rect=chip.getBoundingClientRect();
   const bigFire=document.createElement('div');
-  bigFire.style.cssText='position:absolute;inset:-4px;border-radius:14px;pointer-events:none;z-index:20;'+
-    'background:linear-gradient(0deg,rgba(255,60,0,.5),rgba(255,140,0,.35),rgba(255,220,50,.2));'+
-    'border:2px solid rgba(255,100,0,.8);display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;'+
-    'font-size:20px;animation:fireBurst .5s ease-out forwards;';
+  bigFire.style.cssText='position:fixed;pointer-events:none;z-index:300;border-radius:16px;'+
+    'left:'+(rect.left-10)+'px;top:'+(rect.top-14)+'px;'+
+    'width:'+(rect.width+20)+'px;height:'+(rect.height+24)+'px;'+
+    'background:linear-gradient(0deg,rgba(255,40,0,.75) 0%,rgba(255,120,0,.6) 40%,rgba(255,200,50,.3) 80%,transparent 100%);'+
+    'border:2px solid rgba(255,100,0,.9);'+
+    'box-shadow:0 0 30px rgba(255,80,0,.8),inset 0 -8px 20px rgba(255,50,0,.6);'+
+    'display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:24px;'+
+    'animation:fireIn .35s ease-out forwards;';
   bigFire.textContent='🔥';
-  chip.style.position='relative';chip.style.overflow='visible';
-  chip.appendChild(bigFire);
-  setTimeout(()=>{bigFire.remove();chip.classList.remove('burning');},700);
+  document.body.appendChild(bigFire);
+  setTimeout(()=>{
+    bigFire.style.transition='opacity .35s,transform .35s';
+    bigFire.style.opacity='0';bigFire.style.transform='translateY(-10px)';
+    setTimeout(()=>bigFire.remove(),350);
+  },600);
 }
 
-// ── Zap électrique sur les cartes d'un joueur ──
-function fxZapCardsOfPlayer(uid){
+// Giant zap burst across opp chip
+function fxZapBurstOpp(uid){
   const chip=document.querySelector('.opp-chip[data-uid="'+uid+'"]');
   if(!chip)return;
-  chip.classList.add('zapped');
+  const rect=chip.getBoundingClientRect();
   const bigZap=document.createElement('div');
-  bigZap.style.cssText='position:absolute;inset:-4px;border-radius:14px;pointer-events:none;z-index:20;'+
-    'border:2px solid rgba(255,220,0,.9);display:flex;align-items:center;justify-content:center;'+
-    'font-size:22px;box-shadow:0 0 18px rgba(255,200,0,.8);animation:zapIn .5s ease-out forwards;';
+  bigZap.style.cssText='position:fixed;pointer-events:none;z-index:300;border-radius:16px;'+
+    'left:'+(rect.left-10)+'px;top:'+(rect.top-10)+'px;'+
+    'width:'+(rect.width+20)+'px;height:'+(rect.height+20)+'px;'+
+    'border:3px solid rgba(255,230,0,.95);'+
+    'box-shadow:0 0 30px rgba(255,220,0,.9),0 0 60px rgba(255,170,0,.5),inset 0 0 18px rgba(255,220,0,.5);'+
+    'display:flex;align-items:center;justify-content:center;font-size:28px;'+
+    'animation:zapIn .3s ease-out forwards;';
   bigZap.textContent='⚡';
-  chip.style.position='relative';chip.style.overflow='visible';
-  chip.appendChild(bigZap);
-  setTimeout(()=>{bigZap.remove();chip.classList.remove('zapped');},600);
+  document.body.appendChild(bigZap);
+  setTimeout(()=>{
+    bigZap.style.transition='opacity .3s';bigZap.style.opacity='0';
+    setTimeout(()=>bigZap.remove(),300);
+  },500);
 }
 
-// ── Void sur les cartes d'un joueur (joker noir) ──
-function fxVoidCardsOfPlayer(uid){
+// Giant void on opp chip
+function fxVoidBurstOpp(uid){
   const chip=document.querySelector('.opp-chip[data-uid="'+uid+'"]');
   if(!chip)return;
+  const rect=chip.getBoundingClientRect();
   const bigVoid=document.createElement('div');
-  bigVoid.style.cssText='position:absolute;inset:-4px;border-radius:14px;pointer-events:none;z-index:20;'+
-    'background:radial-gradient(ellipse at center,rgba(100,0,180,.6),rgba(20,0,80,.5) 60%,transparent 80%);'+
-    'border:2px solid rgba(150,80,255,.8);display:flex;align-items:center;justify-content:center;'+
-    'font-size:22px;animation:voidPulse .5s ease-out forwards;';
+  bigVoid.style.cssText='position:fixed;pointer-events:none;z-index:300;border-radius:16px;'+
+    'left:'+(rect.left-10)+'px;top:'+(rect.top-10)+'px;'+
+    'width:'+(rect.width+20)+'px;height:'+(rect.height+20)+'px;'+
+    'background:radial-gradient(ellipse at center,rgba(100,0,200,.65),rgba(40,0,120,.55) 55%,transparent 80%);'+
+    'border:2px solid rgba(160,70,255,.9);'+
+    'box-shadow:0 0 30px rgba(130,0,255,.8),inset 0 0 20px rgba(90,0,200,.6);'+
+    'display:flex;align-items:center;justify-content:center;font-size:28px;'+
+    'animation:voidIn .4s ease-out forwards;';
   bigVoid.textContent='🌀';
-  chip.style.position='relative';chip.style.overflow='visible';
-  chip.appendChild(bigVoid);
-  setTimeout(()=>bigVoid.remove(),700);
+  document.body.appendChild(bigVoid);
+  setTimeout(()=>{
+    bigVoid.style.transition='opacity .35s';bigVoid.style.opacity='0';
+    setTimeout(()=>bigVoid.remove(),350);
+  },650);
 }
 
-// ── Malédiction pénalité sur ma main ──
 function fxCurseMyHand(){
   const hand=document.querySelector('.hand-section');
-  if(hand){hand.classList.add('hand-burn');setTimeout(()=>hand.classList.remove('hand-burn'),800);}
-  fxOverlayHand('fx-curse', 1000);
+  if(hand){
+    hand.style.transition='background .2s';
+    hand.style.background='rgba(120,0,0,.5)';
+    setTimeout(()=>{hand.style.background='';hand.style.transition='';},600);
+  }
 }
 
-// ── Obtenir le uid du joueur dont c'est le tour ──
 function getCurrentOppUid(){
   if(!gameState)return null;
   const uid=gameState.playerOrder[gameState.currentPlayerIdx];
   return uid===myUid?null:uid;
 }
-
-// ── Obtenir le uid du joueur suivant (celui qui va subir) ──
 function getNextOppUid(){
   if(!gameState)return null;
   const nextIdx=advIdx(gameState.playerOrder,gameState.currentPlayerIdx,gameState.finished||[]);
