@@ -845,6 +845,31 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
   animation:playCard .35s cubic-bezier(.2,.8,.2,1);
 }
 
+
+/* ==== EXTRA FIXES: remove banner + reduce mobile flicker ==== */
+#tb-turn{display:none!important;} /* hide banner like 'COMPRIS !' */
+
+.card{
+  transform: translate3d(0,0,0);
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  will-change:transform;
+}
+
+/* reduce heavy 3D transforms on mobile */
+#pot-zone .card{
+  transform: scale(1.02) !important;
+}
+
+/* disable extreme glow animations on mobile that cause flashing */
+.card.playable[data-r="7"],
+.card.playable[data-r="A"],
+.card.playable[data-r="J"],
+.card.jr.playable,
+.card.jb.playable{
+  animation:none !important;
+}
+
 </style>
 </head>
 <body>
@@ -5344,6 +5369,25 @@ self.addEventListener('fetch',e=>{
   window.addEventListener('resize',setVH);
   window.addEventListener('orientationchange',()=>setTimeout(setVH,300));
 })();
+</script>
+<script>
+/* ==== EXTRA FIXES JS ==== */
+/* disable banner/toast messages completely */
+function toast(){ return; }
+
+/* prevent pot card from re-rendering unnecessarily */
+const _origMakeCard = typeof makeCard !== 'undefined' ? makeCard : null;
+function safeUpdatePot(pz, top){
+  if(!pz || !top) return;
+  const newPotId = top.r + top.s + (top.color||'');
+  if(pz.dataset.lid === newPotId) return;
+  pz.dataset.lid = newPotId;
+  pz.innerHTML = '';
+  if(_origMakeCard){
+    const potEl = _origMakeCard(top);
+    pz.appendChild(potEl);
+  }
+}
 </script>
 </body>
 </html>
