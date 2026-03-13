@@ -1590,17 +1590,31 @@ async function connectLan(serverUrl) {
     ws.onmessage = (evt) => {
       let msg;
       try { msg = JSON.parse(evt.data); } catch { return; }
-      // Réponse à une requête
+
+      if (msg.type === 'value' && msg.path !== undefined) {
+        if (msg.push) {
+          // Notification push pure → dispatcher aux callbacks
+          const cbs = _wsListeners[msg.path] || [];
+          cbs.forEach(cb => cb({ val: () => msg.data }));
+        } else {
+          // Réponse initiale au .on() → résoudre la promesse ET appeler cb
+          if (msg.id && _wsPending[msg.id]) {
+            const { resolve } = _wsPending[msg.id];
+            delete _wsPending[msg.id];
+            resolve(msg);
+          }
+          // Aussi dispatcher (valeur initiale)
+          const cbs = _wsListeners[msg.path] || [];
+          cbs.forEach(cb => cb({ val: () => msg.data }));
+        }
+        return;
+      }
+
+      // Réponse simple (ok, err, push key...)
       if (msg.id && _wsPending[msg.id]) {
         const { resolve } = _wsPending[msg.id];
         delete _wsPending[msg.id];
         resolve(msg);
-        return;
-      }
-      // Notification listener (push depuis serveur)
-      if (msg.type === 'value' && msg.path !== undefined) {
-        const cbs = _wsListeners[msg.path] || [];
-        cbs.forEach(cb => cb({ val: () => msg.data }));
       }
     };
   });
@@ -2007,22 +2021,33 @@ let _inviteListener=null;
 function registerPresence(){
   if(!db||!myUid||!myName)return;
   const presRef=db.ref('presence/'+myUid);
-  const connRef=db.ref('.info/connected');
-  connRef.on('value',snap=>{
-    if(!snap.val())return;
-    // S'enregistrer comme en ligne
+  if(_lanMode){
+    // En LAN : s'enregistrer directement
     presRef.set({
       name:myName,
       avatar:myAvatar||'😊',
       color:myColor||'#d4a843',
-      status:'idle', // idle | lobby | playing
+      status:'idle',
       room:null,
       ts:Date.now()
     });
-    // Supprimer automatiquement à la déconnexion
+    _presenceRef=presRef;
+  } else {
+  const connRef=db.ref('.info/connected');
+  connRef.on('value',snap=>{
+    if(!snap.val())return;
+    presRef.set({
+      name:myName,
+      avatar:myAvatar||'😊',
+      color:myColor||'#d4a843',
+      status:'idle',
+      room:null,
+      ts:Date.now()
+    });
     presRef.onDisconnect().remove();
     _presenceRef=presRef;
   });
+  }
   // Mettre à jour le compteur en ligne dans le bouton
   _onlineRef=db.ref('presence');
   if(_onlineListener){_onlineRef.off('value',_onlineListener);}
