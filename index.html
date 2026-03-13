@@ -1592,20 +1592,23 @@ async function connectLan(serverUrl) {
       try { msg = JSON.parse(evt.data); } catch { return; }
 
       if (msg.type === 'value' && msg.path !== undefined) {
+        const snap = { val: () => msg.data, exists: () => msg.data !== null,
+          forEach: (fn) => { if(msg.data&&typeof msg.data==='object') Object.entries(msg.data).forEach(([k,v])=>fn({key:k,val:()=>v})); },
+          key: msg.path.split('/').pop() };
         if (msg.push) {
-          // Notification push pure → dispatcher aux callbacks
+          // Push du serveur → dispatcher aux callbacks
           const cbs = _wsListeners[msg.path] || [];
-          cbs.forEach(cb => cb({ val: () => msg.data }));
+          cbs.forEach(cb => cb(snap));
         } else {
-          // Réponse initiale au .on() → résoudre la promesse ET appeler cb
+          // Réponse initiale → résoudre promesse
           if (msg.id && _wsPending[msg.id]) {
             const { resolve } = _wsPending[msg.id];
             delete _wsPending[msg.id];
             resolve(msg);
           }
-          // Aussi dispatcher (valeur initiale)
+          // Aussi dispatcher valeur initiale
           const cbs = _wsListeners[msg.path] || [];
-          cbs.forEach(cb => cb({ val: () => msg.data }));
+          cbs.forEach(cb => cb(snap));
         }
         return;
       }
@@ -1624,24 +1627,60 @@ async function connectLan(serverUrl) {
 function makeLanDb() {
   function ref(path) {
     path = path.replace(/^\//, '');
-    return {
+
+    // Snap helper : convertit une valeur brute en objet snap Firebase-like
+    function makeSnap(data) {
+      return {
+        val: () => data,
+        exists: () => data !== null && data !== undefined,
+        forEach: (fn) => {
+          if (data && typeof data === 'object') {
+            Object.entries(data).forEach(([k, v]) => fn({ key: k, val: () => v }));
+          }
+        },
+        key: path.split('/').pop()
+      };
+    }
+
+    const r = {
       path,
       set(val)    { return _lanSend({ op:'set',    path, data: val }).then(()=>{}); },
       remove()    { return _lanSend({ op:'remove',  path }).then(()=>{}); },
       update(upd) { return _lanSend({ op:'update',  path, data: upd }).then(()=>{}); },
-      push(val)   { return _lanSend({ op:'push',    path, data: val }).then(r => ({ key: r.key })); },
-      once(evt)   {
-        return _lanSend({ op:'get', path }).then(r => ({
-          val: () => r.data,
-          exists: () => r.data !== null
-        }));
+      push(val)   { return _lanSend({ op:'push',    path, data: val }).then(res => ({ key: res.key })); },
+      onDisconnect() { return { remove: ()=>{}, set: ()=>{} }; }, // no-op en LAN
+
+      once(evt) {
+        return _lanSend({ op:'get', path }).then(res => makeSnap(res.data));
       },
+
       on(evt, cb) {
+        // child_added : simulé en écoutant le chemin parent et notifiant les nouveaux enfants
+        if (evt === 'child_added') {
+          let knownKeys = new Set();
+          const wrapCb = (snap) => {
+            const data = snap.val();
+            if (!data || typeof data !== 'object') return;
+            Object.entries(data).forEach(([k, v]) => {
+              if (!knownKeys.has(k)) {
+                knownKeys.add(k);
+                cb({ val: () => v, key: k });
+              }
+            });
+          };
+          if (!_wsListeners[path]) _wsListeners[path] = [];
+          _wsListeners[path].push(wrapCb);
+          _lanSend({ op:'on', path }).then(res => wrapCb(makeSnap(res.data)));
+          return wrapCb;
+        }
+        // value listener normal
+        const wrapCb = (snap) => cb(snap);
         if (!_wsListeners[path]) _wsListeners[path] = [];
-        _wsListeners[path].push(cb);
-        _lanSend({ op:'on', path }).then(r => cb({ val: () => r.data }));
-        return cb;
+        _wsListeners[path].push(wrapCb);
+        _lanSend({ op:'on', path }).then(res => wrapCb(makeSnap(res.data)));
+        return wrapCb;
       },
+
       off(evt, cb) {
         if (cb && _wsListeners[path]) {
           _wsListeners[path] = _wsListeners[path].filter(f => f !== cb);
@@ -1650,10 +1689,27 @@ function makeLanDb() {
         }
         _lanSend({ op:'off', path });
       },
-      child(sub)  { return makeLanDb().ref(path + '/' + sub); }
+
+      // Chainable : limitToLast, limitToFirst, orderByChild, equalTo → retournent le même ref
+      // (le filtrage n'est pas critique en LAN avec peu de joueurs)
+      limitToLast(_n) { return this; },
+      limitToFirst(_n) { return this; },
+      orderByChild(_k) { return this; },
+      orderByKey()    { return this; },
+      equalTo(_v)     { return this; },
+      endAt(_v)       { return this; },
+      startAt(_v)     { return this; },
+
+      child(sub) { return makeLanDb().ref(path + '/' + sub); }
     };
+    return r;
   }
-  return { ref, apps: [] };
+
+  return {
+    ref,
+    apps: [],
+    database() { return { ref }; }
+  };
 }
 
 function _activateLan(url) {
