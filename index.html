@@ -3034,7 +3034,9 @@ document.getElementById('btn-confirm-mode').onclick=async function(){
     round:1,
     checkSaid:{}
   };
-  await db.ref('rooms/'+roomId).update({game:game,status:'playing'});
+  // Écrire game d'abord, puis status — garantit que le listener reçoit game+status ensemble
+  await db.ref('rooms/'+roomId+'/game').set(game);
+  await db.ref('rooms/'+roomId+'/status').set('playing');
 };
 
 // ══════════════════════════════════════════
@@ -5774,35 +5776,3 @@ function safeUpdatePot(pz, top){
 </script>
 </body>
 </html>
-
-<script>
-
-// ===== LAN GAME AUTO START FIX =====
-(function(){
-  function waitGameStart(){
-    if(!window.db || !window.roomId) return;
-    try{
-      db.ref('rooms/'+roomId+'/status').on('value', snap=>{
-        const s = snap.val();
-        if(s==='playing'){
-          if(typeof startGame==='function'){
-            startGame();
-          }else if(typeof enterGame==='function'){
-            enterGame();
-          }else{
-            const gameScreen=document.getElementById('s-game');
-            const lobby=document.getElementById('s-lobby');
-            if(gameScreen && lobby){
-              lobby.classList.add('off');
-              gameScreen.classList.remove('off');
-            }
-          }
-        }
-      });
-    }catch(e){console.log("LAN start fix error",e);}
-  }
-  setInterval(waitGameStart,1500);
-})();
-// ===== END FIX =====
-
-</script>
