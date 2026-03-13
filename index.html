@@ -931,7 +931,7 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
       <div style="display:flex;gap:10px;align-items:center;margin-bottom:4px">
         <button id="my-avatar-btn" onclick="document.getElementById('avatar-modal').classList.add('show')" style="width:48px;height:48px;background:rgba(212,168,67,.1);border:2px solid rgba(212,168,67,.3);border-radius:14px;font-size:24px;cursor:pointer;-webkit-appearance:none;flex-shrink:0;transition:all .2s" title="Changer avatar">😊</button>
         <div style="flex:1;position:relative;">
-          <input class="setup-input" id="f-name" placeholder="Ton prénom ou pseudo" maxlength="14" autocomplete="given-name" autocorrect="off" spellcheck="false" style="margin:0;width:100%;padding-right:36px">
+          <input class="setup-input" id="f-name" placeholder="Ton prénom ou pseudo" maxlength="14" autocomplete="given-name" autocorrect="off" spellcheck="false" style="margin:0;width:100%;padding-right:36px" onkeydown="if(event.key==='Enter')this.blur()" onblur="if(!this.readOnly&&this.value.trim().length>=2)setTimeout(()=>lockName(this),200)">
           <button id="btn-edit-name" onclick="editName()" title="Changer de nom" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:0;display:none">✏️</button>
         </div>
       </div>
@@ -1642,37 +1642,64 @@ function makeLanDb() {
   return { ref, apps: [] };
 }
 
+function _activateLan(url) {
+  _lanMode = true;
+  db = makeLanDb();
+  document.getElementById('panel-firebase').style.display = 'none';
+  document.getElementById('panel-join').style.display = '';
+  const ds = document.getElementById('conn-dot-setup');
+  if (ds) ds.classList.add('show');
+  const cd = document.getElementById('conn-dot');
+  if (cd) cd.classList.add('show');
+  if (typeof firebase !== 'undefined') firebase._lanMode = true;
+  checkReady();
+  // Mettre à jour le bouton LAN
+  const btn = document.getElementById('btn-lan-mode');
+  if (btn) {
+    btn.innerHTML = '<span class="btn-icon">✅</span> LAN connecté — ' + url.replace('http://','');
+    btn.style.borderColor = 'rgba(80,200,80,.5)';
+    btn.style.color = '#80ee99';
+    btn.onclick = null; // plus de prompt
+  }
+  try { sessionStorage.setItem('check_lan_url', url); } catch(e) {}
+}
+
 function promptLanMode() {
-  // Deviner l'URL du serveur (même hôte, port 3000)
+  // Déjà connecté en LAN → rien à faire
+  if (_lanMode && _wsConn && _wsConn.readyState === 1) {
+    toast('🏠 Déjà connecté en LAN !', 'i');
+    return;
+  }
+  // Deviner l'URL (même hôte si servi par server.js)
   const guessUrl = window.location.hostname === 'localhost' || window.location.hostname.match(/^192[.]168[.]/)
     ? 'http://' + window.location.hostname + ':3000'
     : '';
 
+  // Si on est déjà servi depuis server.js, essayer de se connecter directement
+  if (guessUrl) {
+    connectLan(guessUrl).then(() => {
+      _activateLan(guessUrl);
+      toast('🏠 Mode LAN activé automatiquement !', 'g');
+    }).catch(() => {
+      // Pas possible auto → demander l'adresse
+      _askLanUrl();
+    });
+  } else {
+    _askLanUrl();
+  }
+}
+
+function _askLanUrl() {
   const url = prompt(
-    "🏠 Mode LAN\n\nEntre l'adresse du serveur CHECK\nEx: http://192.168.1.42:3000\n\nLance d'abord server.js sur le PC hôte.",
-    guessUrl || 'http://192.168.1.X:3000'
+    "🏠 Mode LAN\n\nEntre l'adresse du PC hôte\nEx: http://192.168.1.42:3000",
+    'http://192.168.1.X:3000'
   );
   if (!url) return;
-
-  const statusEl = document.getElementById('fb-status') || {};
   connectLan(url).then(() => {
-    _lanMode = true;
-    db = makeLanDb();
-    // Simuler la connexion réussie
-    document.getElementById('panel-firebase').style.display = 'none';
-    document.getElementById('panel-join').style.display = '';
-    const ds = document.getElementById('conn-dot-setup');
-    if (ds) ds.classList.add('show');
-    const cd = document.getElementById('conn-dot');
-    if (cd) cd.classList.add('show');
-    // Patch firebase.apps pour éviter les erreurs
-    if (typeof firebase !== 'undefined') firebase._lanMode = true;
-    checkReady();
+    _activateLan(url);
     toast('🏠 Mode LAN activé — ' + url, 'g');
-    // Sauvegarder l'URL LAN
-    try { sessionStorage.setItem('check_lan_url', url); } catch(e) {}
-  }).catch(err => {
-    alert('❌ Impossible de se connecter à ' + url + '\n\nVérifie que server.js tourne sur le PC hôte.');
+  }).catch(() => {
+    alert('❌ Impossible de joindre ' + url + '\n\nVérifie que server.js tourne sur le PC hôte et que vous êtes sur le même WiFi.');
   });
 }
 
@@ -1681,13 +1708,8 @@ function promptLanMode() {
   try {
     const url = sessionStorage.getItem('check_lan_url');
     if (!url) return;
-    // On est peut-être sur une page servie par server.js lui-même
     connectLan(url).then(() => {
-      _lanMode = true;
-      db = makeLanDb();
-      document.getElementById('panel-firebase').style.display = 'none';
-      const ds = document.getElementById('conn-dot-setup');
-      if (ds) ds.classList.add('show');
+      _activateLan(url);
     }).catch(() => {
       sessionStorage.removeItem('check_lan_url');
     });
@@ -2572,16 +2594,7 @@ function checkReady(){
     const cfg=loadCfg();
     if(cfg){cfg.name=n;saveCfg(cfg);}
     myName=n;
-    // Verrouiller le champ après saisie
-    const nf=document.getElementById('f-name');
-    if(nf&&!nf.readOnly&&n.length>=2){
-      nf.readOnly=true;
-      nf.style.opacity='0.8';
-      nf.style.cursor='default';
-      const eb=document.getElementById('btn-edit-name');
-      if(eb) eb.style.display='block';
-      localStorage.setItem('check_player_name', n);
-    }
+    localStorage.setItem('check_player_name', n);
     if(db&&!_presenceRef)registerPresence();
   }
 }
@@ -2838,30 +2851,41 @@ async function joinRoomDirect(code){
   }catch(e){toast('❌ '+e.message,'d');}
 }
 
+function lockName(nf){
+  const n=nf.value.trim();
+  if(n.length<2)return;
+  nf.readOnly=true;
+  nf.style.opacity='0.8';
+  nf.style.cursor='default';
+  const eb=document.getElementById('btn-edit-name');
+  if(eb) eb.style.display='block';
+  myName=n;
+  localStorage.setItem('check_player_name',n);
+  const cfg=loadCfg();
+  if(cfg){cfg.name=n;saveCfg(cfg);}
+  checkReady();
+}
+
 function editName(){
   const nf=document.getElementById('f-name');
   if(!nf)return;
   nf.readOnly=false;
   nf.style.opacity='1';
   nf.style.cursor='text';
-  nf.focus();
-  nf.select();
+  // Supprimer anciens listeners
+  nf.onblur=null; nf.onkeydown=null;
   const eb=document.getElementById('btn-edit-name');
   if(eb) eb.style.display='none';
-  // Re-verrouille quand on quitte le champ
+  nf.focus();
+  nf.select();
+  // Valider avec Entrée
+  nf.onkeydown=function(e){
+    if(e.key==='Enter'){ nf.blur(); }
+  };
+  // Verrouiller quand on quitte le champ (délai pour mobile)
   nf.onblur=function(){
-    const n=nf.value.trim();
-    if(n.length>=2){
-      nf.readOnly=true;
-      nf.style.opacity='0.8';
-      nf.style.cursor='default';
-      if(eb) eb.style.display='block';
-      myName=n;
-      localStorage.setItem('check_player_name', n);
-      const cfg=loadCfg();
-      if(cfg){cfg.name=n;saveCfg(cfg);}
-    }
-    nf.onblur=null;
+    setTimeout(()=>lockName(nf), 200);
+    nf.onblur=null; nf.onkeydown=null;
   };
 }
 
