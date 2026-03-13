@@ -605,7 +605,7 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
 .logo-sub{font-size:10px;color:rgba(245,240,232,.25);letter-spacing:3px;text-transform:uppercase;}
 .setup-card{width:100%;background:rgba(8,18,10,.85);border:1px solid rgba(212,168,67,.2);border-radius:20px;padding:24px;backdrop-filter:blur(16px);box-shadow:0 20px 60px rgba(0,0,0,.6),inset 0 1px 0 rgba(212,168,67,.08);animation:slideUp .5s cubic-bezier(.34,1.56,.64,1);}
 @keyframes slideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
-.setup-input{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(212,168,67,.18);border-radius:12px;padding:14px 16px;color:var(--cream);font-family:'Lato',sans-serif;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s;box-sizing:border-box;margin-bottom:14px;-webkit-appearance:none;font-size:max(16px,14px);-webkit-appearance:none;}
+.setup-input{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(212,168,67,.18);border-radius:12px;padding:14px 16px;color:var(--cream);font-family:'Lato',sans-serif;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s;box-sizing:border-box;margin-bottom:14px;-webkit-appearance:none;}
 .setup-input:focus{border-color:rgba(212,168,67,.6);box-shadow:0 0 0 3px rgba(212,168,67,.08);}
 .setup-input::placeholder{color:rgba(245,240,232,.25);}
 .setup-code{letter-spacing:8px;font-size:22px;font-weight:900;text-align:center;text-transform:uppercase;margin-bottom:0;flex:1;}
@@ -935,7 +935,7 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
       <div style="display:flex;gap:10px;align-items:center;margin-bottom:4px">
         <button id="my-avatar-btn" onclick="document.getElementById('avatar-modal').classList.add('show')" style="width:48px;height:48px;background:rgba(212,168,67,.1);border:2px solid rgba(212,168,67,.3);border-radius:14px;font-size:24px;cursor:pointer;-webkit-appearance:none;flex-shrink:0;transition:all .2s" title="Changer avatar">😊</button>
         <div style="flex:1;position:relative;">
-          <input class="setup-input" id="f-name" placeholder="Ton prénom ou pseudo" maxlength="14" autocomplete="given-name" autocorrect="off" spellcheck="false" style="margin:0;width:100%;padding-right:36px" onkeydown="if(event.key==='Enter')this.blur()" onblur="if(!this.readOnly&&this.value.trim().length>=2)setTimeout(()=>lockName(this),200)">
+          <input class="setup-input" id="f-name" placeholder="Ton prénom ou pseudo" maxlength="14" autocomplete="given-name" autocorrect="off" spellcheck="false" style="margin:0;width:100%;padding-right:36px" onkeydown="if(event.key==='Enter')this.blur()" onblur="if(!this.readOnly&&this.value.trim().length>=2)setTimeout(()=>lockName(this),300)">
           <button id="btn-edit-name" onclick="editName()" title="Changer de nom" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:0;display:none">✏️</button>
         </div>
       </div>
@@ -2666,21 +2666,33 @@ function toggleFirebasePanel(){
 }
 document.getElementById('btn-connect').onclick=connectFirebase;
 document.getElementById('f-name').oninput=checkReady;
-document.getElementById('f-code').oninput=function(){this.value=this.value.toUpperCase();checkReady();};
+document.getElementById('f-code').oninput=function(){
+  this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  checkReady();
+};
+document.getElementById('f-code').onkeydown=function(e){
+  if(e.key==='Enter'&&!document.getElementById('btn-join').disabled){
+    document.getElementById('btn-join').click();
+  }
+};
+document.getElementById('f-code').onfocus=function(){checkReady();};
 function checkReady(){
-  const n=(document.getElementById('f-name').value||'').trim();
+  const nf=document.getElementById('f-name');
+  // Restaurer le nom depuis myName si le champ est vide (ex: readOnly non rempli)
+  if(nf&&!nf.value&&myName){ nf.value=myName; }
+  const n=(nf?nf.value||'':'').trim()||myName||localStorage.getItem('check_player_name')||'';
   const ready=!!(n&&db);
   document.getElementById('btn-create').disabled=!ready;
   const pb=document.getElementById('btn-public-rooms');
   if(pb)pb.disabled=!ready;
   const rc=document.getElementById('f-code');
-  document.getElementById('btn-join').disabled=!ready||!(rc&&rc.value.trim().length===4);
-  // Sauvegarder le nom automatiquement
+  const codeOk=rc&&rc.value.trim().length===4;
+  document.getElementById('btn-join').disabled=!ready||!codeOk;
   if(n.length>=2){
     const cfg=loadCfg();
     if(cfg){cfg.name=n;saveCfg(cfg);}
     myName=n;
-    localStorage.setItem('check_player_name', n);
+    localStorage.setItem('check_player_name',n);
     if(db&&!_presenceRef)registerPresence();
   }
 }
@@ -2799,6 +2811,8 @@ const DEFAULT_FB_CFG = {
     myName=savedName;
     cfg.name=savedName;
     saveCfg(cfg);
+    // Re-vérifier l'état des boutons après restauration du nom
+    setTimeout(checkReady, 100);
   }
   // Connexion silencieuse automatique
   const connecting=document.getElementById('setup-connecting');
@@ -2853,13 +2867,16 @@ document.getElementById('btn-create').onclick=async function(){
 
 document.getElementById('btn-join').onclick=async function(){
   if(!db){toast('❌ Firebase non connecté','d');return;}
-  myName=(document.getElementById('f-name').value||'').trim();
+  myName=(document.getElementById('f-name').value||'').trim()||myName||localStorage.getItem('check_player_name')||'';
   roomId=document.getElementById('f-code').value.toUpperCase().trim();
-  if(!myName||!roomId)return;
+  if(!myName){toast('❌ Entre ton prénom d\'abord','d');return;}
+  if(!roomId||roomId.length!==4){toast('❌ Code de salon invalide','d');return;}
   this.disabled=true;this.textContent='⏳...';
   try{
-    const s=await db.ref('rooms/'+roomId+'/status').once('value');
-    if(!s.val()){toast('❌ Code invalide','d');this.disabled=false;this.textContent='→ Rejoindre';return;}
+    let s;
+    try{ s=await db.ref('rooms/'+roomId+'/status').once('value'); }
+    catch(e){ toast('❌ Erreur réseau: '+e.message,'d');this.disabled=false;this.textContent='→ Rejoindre';return; }
+    if(!s||!s.val()){toast('❌ Code invalide — salon introuvable','d');this.disabled=false;this.textContent='→ Rejoindre';return;}
     if(s.val()==='playing'){
       // Check if player was already in this game (reconnect)
       const psnap=await db.ref('rooms/'+roomId+'/players/'+myUid).once('value');
@@ -2892,7 +2909,10 @@ document.getElementById('btn-join').onclick=async function(){
     const av=myAvatar||'😊'; const col=myColor||'#d4a843';
     await db.ref('rooms/'+roomId+'/players/'+myUid).set({name:myName,uid:myUid,host:false,avatar:av,color:col});
     enterLobby();
-  }catch(e){toast('❌ '+e.message,'d');}
+  }catch(e){
+    console.error('[join]',e);
+    toast('❌ '+(e.message||'Erreur inconnue'),'d');
+  }
   this.disabled=false;this.textContent='→ Rejoindre';
 };
 
@@ -2954,7 +2974,8 @@ function lockName(nf){
   localStorage.setItem('check_player_name',n);
   const cfg=loadCfg();
   if(cfg){cfg.name=n;saveCfg(cfg);}
-  checkReady();
+  // Délai court pour laisser passer un éventuel click sur btn-create/btn-join
+  setTimeout(()=>checkReady(), 50);
 }
 
 function editName(){
@@ -2975,7 +2996,7 @@ function editName(){
   };
   // Verrouiller quand on quitte le champ (délai pour mobile)
   nf.onblur=function(){
-    setTimeout(()=>lockName(nf), 200);
+    lockName(nf);
     nf.onblur=null; nf.onkeydown=null;
   };
 }
