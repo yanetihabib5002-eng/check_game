@@ -606,6 +606,8 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
 .setup-input::placeholder{color:rgba(245,240,232,.25);}
 .setup-code{letter-spacing:8px;font-size:22px;font-weight:900;text-align:center;text-transform:uppercase;margin-bottom:0;flex:1;}
 .setup-btn-main{width:100%;background:linear-gradient(160deg,#e8b84b 0%,#c9922a 100%);border:none;border-radius:14px;padding:17px;color:#1a0f00;font-family:'Lato',sans-serif;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:.5px;transition:all .2s cubic-bezier(.34,1.4,.64,1);box-shadow:0 4px 24px rgba(212,168,67,.25),inset 0 1px 0 rgba(255,255,255,.3);margin-bottom:10px;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;gap:10px;}
+.setup-btn-lan{width:100%;padding:12px;border-radius:14px;border:1.5px dashed rgba(212,168,67,.3);background:rgba(212,168,67,.04);color:rgba(212,168,67,.6);font-family:'Lato',sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;transition:all .2s;-webkit-appearance:none;}
+.setup-btn-lan:hover{background:rgba(212,168,67,.1);border-color:rgba(212,168,67,.5);color:var(--gold);}
 .setup-btn-main:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 36px rgba(212,168,67,.5),inset 0 1px 0 rgba(255,255,255,.3);}
 .setup-btn-main:active:not(:disabled){transform:scale(.96);}
 .setup-btn-main:disabled{opacity:.3;cursor:not-allowed;}
@@ -932,6 +934,9 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
       </div>
       <button class="setup-btn-main" id="btn-create" disabled>
         <span class="btn-icon">🎲</span> Créer une partie
+      </button>
+      <button class="setup-btn-lan" id="btn-lan-mode" onclick="promptLanMode()" title="Jouer sur le même WiFi sans internet">
+        <span class="btn-icon">🏠</span> Jouer en LAN (WiFi local)
       </button>
       <div class="setup-btn-grid">
         <button class="setup-btn-secondary" id="btn-public-rooms" disabled>
@@ -1539,7 +1544,161 @@ function clearCfg(){
 // STATE
 // ══════════════════════════════════════════
 let db=null;
-let myUid='u_'+Math.random().toString(36).slice(2,10);
+
+// ════════════════════════════════════════════════════════
+// COUCHE LAN — remplace Firebase par WebSocket local
+// ════════════════════════════════════════════════════════
+let _wsConn = null;       // WebSocket vers server.js
+let _wsPending = {};      // id → {resolve, reject}
+let _wsListeners = {};    // path → [callback]
+let _wsId = 0;
+let _lanMode = false;
+
+function _lanSend(msg) {
+  return new Promise((resolve, reject) => {
+    if (!_wsConn || _wsConn.readyState !== 1) {
+      reject(new Error('WS non connecté'));
+      return;
+    }
+    const id = ++_wsId;
+    _wsPending[id] = { resolve, reject };
+    _wsConn.send(JSON.stringify({ ...msg, id }));
+    setTimeout(() => {
+      if (_wsPending[id]) {
+        delete _wsPending[id];
+        reject(new Error('timeout'));
+      }
+    }, 8000);
+  });
+}
+
+async function connectLan(serverUrl) {
+  return new Promise((resolve, reject) => {
+    const wsUrl = serverUrl.replace(/^http/, 'ws');
+    const ws = new WebSocket(wsUrl);
+    ws.onopen = () => { _wsConn = ws; resolve(true); };
+    ws.onerror = () => reject(new Error('Connexion LAN impossible'));
+    ws.onclose = () => {
+      if (_lanMode) {
+        const ov = document.getElementById('offline-overlay');
+        if (ov) ov.style.display = 'flex';
+      }
+    };
+    ws.onmessage = (evt) => {
+      let msg;
+      try { msg = JSON.parse(evt.data); } catch { return; }
+      // Réponse à une requête
+      if (msg.id && _wsPending[msg.id]) {
+        const { resolve } = _wsPending[msg.id];
+        delete _wsPending[msg.id];
+        resolve(msg);
+        return;
+      }
+      // Notification listener (push depuis serveur)
+      if (msg.type === 'value' && msg.path !== undefined) {
+        const cbs = _wsListeners[msg.path] || [];
+        cbs.forEach(cb => cb({ val: () => msg.data }));
+      }
+    };
+  });
+}
+
+// ── Proxy db qui fonctionne en LAN ──
+function makeLanDb() {
+  function ref(path) {
+    path = path.replace(/^\//, '');
+    return {
+      path,
+      set(val)    { return _lanSend({ op:'set',    path, data: val }).then(()=>{}); },
+      remove()    { return _lanSend({ op:'remove',  path }).then(()=>{}); },
+      update(upd) { return _lanSend({ op:'update',  path, data: upd }).then(()=>{}); },
+      push(val)   { return _lanSend({ op:'push',    path, data: val }).then(r => ({ key: r.key })); },
+      once(evt)   {
+        return _lanSend({ op:'get', path }).then(r => ({
+          val: () => r.data,
+          exists: () => r.data !== null
+        }));
+      },
+      on(evt, cb) {
+        if (!_wsListeners[path]) _wsListeners[path] = [];
+        _wsListeners[path].push(cb);
+        _lanSend({ op:'on', path }).then(r => cb({ val: () => r.data }));
+        return cb;
+      },
+      off(evt, cb) {
+        if (cb && _wsListeners[path]) {
+          _wsListeners[path] = _wsListeners[path].filter(f => f !== cb);
+        } else {
+          delete _wsListeners[path];
+        }
+        _lanSend({ op:'off', path });
+      },
+      child(sub)  { return makeLanDb().ref(path + '/' + sub); }
+    };
+  }
+  return { ref, apps: [] };
+}
+
+function promptLanMode() {
+  // Deviner l'URL du serveur (même hôte, port 3000)
+  const guessUrl = window.location.hostname === 'localhost' || window.location.hostname.match(/^192[.]168[.]/)
+    ? 'http://' + window.location.hostname + ':3000'
+    : '';
+
+  const url = prompt(
+    "🏠 Mode LAN\n\nEntre l'adresse du serveur CHECK\nEx: http://192.168.1.42:3000\n\nLance d'abord server.js sur le PC hôte.",
+    guessUrl || 'http://192.168.1.X:3000'
+  );
+  if (!url) return;
+
+  const statusEl = document.getElementById('fb-status') || {};
+  connectLan(url).then(() => {
+    _lanMode = true;
+    db = makeLanDb();
+    // Simuler la connexion réussie
+    document.getElementById('panel-firebase').style.display = 'none';
+    document.getElementById('panel-join').style.display = '';
+    const ds = document.getElementById('conn-dot-setup');
+    if (ds) ds.classList.add('show');
+    const cd = document.getElementById('conn-dot');
+    if (cd) cd.classList.add('show');
+    // Patch firebase.apps pour éviter les erreurs
+    if (typeof firebase !== 'undefined') firebase._lanMode = true;
+    checkReady();
+    toast('🏠 Mode LAN activé — ' + url, 'g');
+    // Sauvegarder l'URL LAN
+    try { sessionStorage.setItem('check_lan_url', url); } catch(e) {}
+  }).catch(err => {
+    alert('❌ Impossible de se connecter à ' + url + '\n\nVérifie que server.js tourne sur le PC hôte.');
+  });
+}
+
+// ── Auto-reconnexion LAN au refresh ──
+(function checkLanRestore() {
+  try {
+    const url = sessionStorage.getItem('check_lan_url');
+    if (!url) return;
+    // On est peut-être sur une page servie par server.js lui-même
+    connectLan(url).then(() => {
+      _lanMode = true;
+      db = makeLanDb();
+      document.getElementById('panel-firebase').style.display = 'none';
+      const ds = document.getElementById('conn-dot-setup');
+      if (ds) ds.classList.add('show');
+    }).catch(() => {
+      sessionStorage.removeItem('check_lan_url');
+    });
+  } catch(e) {}
+})();
+
+// UID persistant — survit aux refreshs
+let myUid=(()=>{
+  try{
+    let uid=localStorage.getItem('check_uid_v1');
+    if(!uid){uid='u_'+Math.random().toString(36).slice(2,10);localStorage.setItem('check_uid_v1',uid);}
+    return uid;
+  }catch(e){return 'u_'+Math.random().toString(36).slice(2,10);}
+})();
 let myName='', roomId='', isHost=false;
 let localHand=[], gameState=null;
 let selCard=null, selCards=[], suitResolve=null, toastTmr=null;
@@ -2416,7 +2575,44 @@ function checkReady(){
 
 // Auto-load
 // ══ AUTO-CONNECT ══
+// ── Reconnexion automatique si l'uid est dans une partie ──
+async function tryRejoin(){
+  try{
+    const saved=sessionStorage.getItem('check_session');
+    if(!saved)return;
+    const sess=JSON.parse(saved);
+    if(!sess||!sess.roomId||!sess.myUid||sess.myUid!==myUid)return;
+    // Vérifier que la room existe encore et que l'uid y est
+    const snap=await db.ref('rooms/'+sess.roomId).once('value');
+    const data=snap.val();
+    if(!data)return;
+    // L'uid est-il dans les joueurs ?
+    const players=data.players||{};
+    if(!players[myUid])return;
+    // Restaurer le contexte
+    roomId=sess.roomId;
+    isHost=!!(players[myUid]&&players[myUid].host);
+    myName=players[myUid].name||myName;
+    // Où on en est ?
+    if(data.status==='playing'&&data.game){
+      toast('🔄 Reconnexion à la partie…','i');
+      if(lobbyRef){lobbyRef.off();lobbyRef=null;}
+      startGame(data.game);
+    } else if(data.status==='lobby'){
+      toast('🔄 Reconnexion au salon…','i');
+      enterLobby();
+    } else if(data.status==='finished'){
+      // Partie finie — aller à l'écran winner
+      startGame(data.game);
+    }
+  }catch(e){
+    // Echec silencieux — pas de reconnexion
+    sessionStorage.removeItem('check_session');
+  }
+}
+
 async function doConnect(apiKey,dbURL,pid){
+  if(_lanMode) return true; // déjà connecté en LAN
   const connecting=document.getElementById('setup-connecting');
   const msgEl=document.getElementById('conn-msg');
   if(connecting)connecting.style.display='flex';
@@ -2481,8 +2677,9 @@ const DEFAULT_FB_CFG = {
     if(ok){
       checkReady();
       setTimeout(()=>{if(myName)registerPresence();},500);
-      // Lancer le GC périodique
       startGC();
+      // Tentative de reconnexion automatique à une partie en cours
+      tryRejoin();
     } else {
       setTimeout(()=>{
         doConnect(cfg.apiKey,cfg.databaseURL,cfg.projectId).then(ok2=>{
@@ -2574,6 +2771,8 @@ document.getElementById('btn-leave').onclick=function(){
   if(_lobbyOnlineRef){_lobbyOnlineRef.off();_lobbyOnlineRef=null;}
   if(db)db.ref('rooms/'+roomId+'/players/'+myUid).remove();
   updatePresenceStatus('idle',null);
+  clearSession();
+  roomId='';
   show('s-setup');
 };
 
@@ -2613,8 +2812,18 @@ async function joinRoomDirect(code){
   }catch(e){toast('❌ '+e.message,'d');}
 }
 
+function saveSession(){
+  try{
+    sessionStorage.setItem('check_session',JSON.stringify({roomId,myUid,ts:Date.now()}));
+  }catch(e){}
+}
+function clearSession(){
+  try{sessionStorage.removeItem('check_session');}catch(e){}
+}
+
 function enterLobby(){
   show('s-lobby');
+  saveSession();
   document.getElementById('lb-code').textContent=roomId;
   updatePresenceStatus('lobby',roomId);
   if(isHost)updateLobbyOnlinePlayers();
@@ -3121,6 +3330,7 @@ function startGame(g){
   localHand=(g.hands&&g.hands[myUid])||[];
   if(!Array.isArray(localHand)) localHand=Object.values(localHand);
   selCard=null; lastMyTurn=false; lastTurnUid='';
+  saveSession();
   show('s-game');
   document.getElementById('react-btn').style.display='flex';
   const ss=document.getElementById('session-score');
@@ -3189,6 +3399,69 @@ function startGlobalRingTick(){
   if(_globalRingInterval)return; // already running
   _globalRingInterval=setInterval(tickAllRings,1000);
 }
+let _passingTurn=false; // verrou anti-doublon
+async function passDisconnectedTurn(){
+  if(_passingTurn)return; // déjà en cours
+  if(!gameState||!roomId||!db)return;
+  const gs=gameState;
+  const curUid=gs.playerOrder[gs.currentPlayerIdx];
+  if(curUid===myUid)return; // mon tour → autoPass s'en charge
+  // Timer vraiment expiré ?
+  const elapsed=Math.floor((Date.now()-(gs.turnStartTs||0))/1000);
+  if(elapsed<TIMER_SEC+2)return;
+  // Je suis l'arbitre désigné (uid le plus petit parmi les joueurs actifs)
+  const active=gs.playerOrder.filter(u=>!(gs.finished||[]).includes(u));
+  if([...active].sort()[0]!==myUid)return;
+  _passingTurn=true;
+  try{
+    // Relit Firebase pour éviter les conflits
+    const snap=await db.ref('rooms/'+roomId+'/game').once('value');
+    const fresh=snap.val();
+    if(!fresh)return;
+    // Vérifier que c'est encore le même joueur
+    if(fresh.playerOrder){
+      if(!Array.isArray(fresh.playerOrder)) fresh.playerOrder=Object.values(fresh.playerOrder);
+    }
+    const stillCur=fresh.playerOrder&&fresh.playerOrder[fresh.currentPlayerIdx];
+    if(stillCur!==curUid)return; // quelqu'un d'autre a déjà avancé
+    // Vérifier que le timer est encore expiré (pas de mise à jour entre temps)
+    const freshElapsed=Math.floor((Date.now()-(fresh.turnStartTs||0))/1000);
+    if(freshElapsed<TIMER_SEC+1)return;
+    // Piocher une carte pour le joueur absent
+    let deck=[...(fresh.deck||[])];
+    if(!Array.isArray(deck)) deck=Object.values(deck);
+    if(!deck.length){
+      const pot=Array.isArray(fresh.pot)?fresh.pot:Object.values(fresh.pot||[]);
+      if(pot.length>1){
+        const shuffled=pot.slice(0,-1);
+        for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
+        deck=shuffled;
+      }
+      if(!deck.length)return;
+    }
+    let absentHand=fresh.hands&&fresh.hands[curUid]?fresh.hands[curUid]:[];
+    if(!Array.isArray(absentHand)) absentHand=Object.values(absentHand);
+    absentHand=[...absentHand, deck.pop()];
+    const finished=Array.isArray(fresh.finished)?fresh.finished:Object.values(fresh.finished||[]);
+    const nextIdx=advIdx(fresh.playerOrder,fresh.currentPlayerIdx,finished);
+    const upd={};
+    upd['deck']=deck;
+    upd['hands/'+curUid]=absentHand;
+    upd['currentPlayerIdx']=nextIdx;
+    upd['pendingDraws']=0;
+    upd['commandedSuit']=null;
+    upd['jokerFreeColor']=null;
+    upd['jokerPendingColor']=null;
+    upd['turnStartTs']=Date.now();
+    upd['lastFX']={r:'timeout',s:'',color:null,by:curUid,ts:Date.now()};
+    await db.ref('rooms/'+roomId+'/game').update(upd);
+  }catch(e){
+    console.warn('[passDisconnectedTurn]',e);
+  }finally{
+    _passingTurn=false;
+  }
+}
+
 function tickAllRings(){
   if(!gameState||!gameState.turnStartTs||!TIMER_SEC||TIMER_SEC>900)return;
   const gs=gameState;
@@ -3215,6 +3488,11 @@ function tickAllRings(){
   if(num){
     num.textContent=sec;
     if(sec<=5){num.classList.add('urgent');}else{num.classList.remove('urgent');}
+  }
+  // Timer expiré pour un joueur absent → passer son tour (une seule tentative par tour)
+  if(sec===0&&gameState&&!_passingTurn){
+    const curUid2=gameState.playerOrder[gameState.currentPlayerIdx];
+    if(curUid2!==myUid) passDisconnectedTurn();
   }
 }
 
