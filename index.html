@@ -5774,3 +5774,35 @@ function safeUpdatePot(pz, top){
 </script>
 </body>
 </html>
+
+<script>
+
+// ===== LAN GAME AUTO START FIX =====
+(function(){
+  function waitGameStart(){
+    if(!window.db || !window.roomId) return;
+    try{
+      db.ref('rooms/'+roomId+'/status').on('value', snap=>{
+        const s = snap.val();
+        if(s==='playing'){
+          if(typeof startGame==='function'){
+            startGame();
+          }else if(typeof enterGame==='function'){
+            enterGame();
+          }else{
+            const gameScreen=document.getElementById('s-game');
+            const lobby=document.getElementById('s-lobby');
+            if(gameScreen && lobby){
+              lobby.classList.add('off');
+              gameScreen.classList.remove('off');
+            }
+          }
+        }
+      });
+    }catch(e){console.log("LAN start fix error",e);}
+  }
+  setInterval(waitGameStart,1500);
+})();
+// ===== END FIX =====
+
+</script>
