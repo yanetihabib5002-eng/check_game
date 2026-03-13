@@ -930,7 +930,10 @@ body.theme-purple .card.back{background:repeating-linear-gradient(45deg,#2a1a4a 
     <div class="setup-card" id="panel-join" style="display:none">
       <div style="display:flex;gap:10px;align-items:center;margin-bottom:4px">
         <button id="my-avatar-btn" onclick="document.getElementById('avatar-modal').classList.add('show')" style="width:48px;height:48px;background:rgba(212,168,67,.1);border:2px solid rgba(212,168,67,.3);border-radius:14px;font-size:24px;cursor:pointer;-webkit-appearance:none;flex-shrink:0;transition:all .2s" title="Changer avatar">😊</button>
-        <input class="setup-input" id="f-name" placeholder="Ton prénom ou pseudo" maxlength="14" autocomplete="given-name" autocorrect="off" spellcheck="false" style="margin:0;flex:1">
+        <div style="flex:1;position:relative;">
+          <input class="setup-input" id="f-name" placeholder="Ton prénom ou pseudo" maxlength="14" autocomplete="given-name" autocorrect="off" spellcheck="false" style="margin:0;width:100%;padding-right:36px">
+          <button id="btn-edit-name" onclick="editName()" title="Changer de nom" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:0;display:none">✏️</button>
+        </div>
       </div>
       <button class="setup-btn-main" id="btn-create" disabled>
         <span class="btn-icon">🎲</span> Créer une partie
@@ -2569,6 +2572,16 @@ function checkReady(){
     const cfg=loadCfg();
     if(cfg){cfg.name=n;saveCfg(cfg);}
     myName=n;
+    // Verrouiller le champ après saisie
+    const nf=document.getElementById('f-name');
+    if(nf&&!nf.readOnly&&n.length>=2){
+      nf.readOnly=true;
+      nf.style.opacity='0.8';
+      nf.style.cursor='default';
+      const eb=document.getElementById('btn-edit-name');
+      if(eb) eb.style.display='block';
+      localStorage.setItem('check_player_name', n);
+    }
     if(db&&!_presenceRef)registerPresence();
   }
 }
@@ -2592,7 +2605,10 @@ async function tryRejoin(){
     // Restaurer le contexte
     roomId=sess.roomId;
     isHost=!!(players[myUid]&&players[myUid].host);
-    myName=players[myUid].name||myName;
+    myName=players[myUid].name||localStorage.getItem('check_player_name')||myName;
+    // Mettre à jour le champ nom
+    const nf2=document.getElementById('f-name');
+    if(nf2&&myName){nf2.value=myName;nf2.readOnly=true;nf2.style.opacity='0.8';}
     // Où on en est ?
     if(data.status==='playing'&&data.game){
       toast('🔄 Reconnexion à la partie…','i');
@@ -2664,11 +2680,21 @@ const DEFAULT_FB_CFG = {
   cfg.projectId   = DEFAULT_FB_CFG.projectId;
   saveCfg(cfg);
 
-  // Restaurer le nom sauvegardé
-  if(cfg.name){
+  // Restaurer le nom sauvegardé — permanent et verrouillé
+  const savedName = localStorage.getItem('check_player_name') || cfg.name || '';
+  if(savedName){
     const nf=document.getElementById('f-name');
-    if(nf){nf.value=cfg.name;}
-    myName=cfg.name;
+    if(nf){
+      nf.value=savedName;
+      nf.readOnly=true;
+      nf.style.opacity='0.8';
+      nf.style.cursor='default';
+      const eb=document.getElementById('btn-edit-name');
+      if(eb) eb.style.display='block';
+    }
+    myName=savedName;
+    cfg.name=savedName;
+    saveCfg(cfg);
   }
   // Connexion silencieuse automatique
   const connecting=document.getElementById('setup-connecting');
@@ -2812,6 +2838,33 @@ async function joinRoomDirect(code){
   }catch(e){toast('❌ '+e.message,'d');}
 }
 
+function editName(){
+  const nf=document.getElementById('f-name');
+  if(!nf)return;
+  nf.readOnly=false;
+  nf.style.opacity='1';
+  nf.style.cursor='text';
+  nf.focus();
+  nf.select();
+  const eb=document.getElementById('btn-edit-name');
+  if(eb) eb.style.display='none';
+  // Re-verrouille quand on quitte le champ
+  nf.onblur=function(){
+    const n=nf.value.trim();
+    if(n.length>=2){
+      nf.readOnly=true;
+      nf.style.opacity='0.8';
+      nf.style.cursor='default';
+      if(eb) eb.style.display='block';
+      myName=n;
+      localStorage.setItem('check_player_name', n);
+      const cfg=loadCfg();
+      if(cfg){cfg.name=n;saveCfg(cfg);}
+    }
+    nf.onblur=null;
+  };
+}
+
 function saveSession(){
   try{
     sessionStorage.setItem('check_session',JSON.stringify({roomId,myUid,ts:Date.now()}));
@@ -2846,7 +2899,7 @@ function enterLobby(){
     document.getElementById('lb-wait').innerHTML=players.length<2?'En attente d\'un autre joueur <span class="dots"></span>':players.length+' joueurs connectés !';
     // Check if I was kicked
     const stillHere=players.some(p=>p.uid===myUid);
-    if(!stillHere&&players.length>0){
+    if(!stillHere&&players.length>0&&!mySpectator){
       // I was kicked — go back to setup
       if(lobbyRef){lobbyRef.off();lobbyRef=null;}
       toast('Tu as été retiré de la partie par l\'hôte','d');
@@ -2859,6 +2912,7 @@ function enterLobby(){
     if(hopts)hopts.style.display=iamhost?'flex':'none';
     if(data.status==='playing'&&data.game){
       lobbyRef.off();lobbyRef=null;
+      if(mySpectator) toast('👁 Mode spectateur — tu regardes la partie','i');
       startGame(data.game);
     }
   });
@@ -3357,6 +3411,8 @@ function startGame(g){
     localHand=(data.hands&&data.hands[myUid]) ? (Array.isArray(data.hands[myUid]) ? data.hands[myUid] : Object.values(data.hands[myUid])) : [];
     // Force re-render: reset lastMyTurn if turn changed externally (timer, etc.)
     const newCurUid=data.playerOrder&&data.playerOrder[data.currentPlayerIdx];
+    // Reset verrou passDisconnectedTurn si le tour a changé
+    if(newCurUid!==lastTurnUid) _passingTurn=false;
     if(newCurUid!==myUid && lastMyTurn){
       lastMyTurn=false;
       stopMyTimer();
